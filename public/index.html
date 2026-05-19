@@ -978,7 +978,7 @@ function buildTeamCard(s,g,gi,eq,ei){
     lbl.appendChild(numEl);
     stkDiv.appendChild(lbl);
 
-    inp.addEventListener("click",(e)=>{
+    inp.addEventListener("click",async (e)=>{
       e.preventDefault();
       const next=await cycleEstado(g.letra,eq.nombre,tp.codigo);
       inp.dataset.estado=next;
