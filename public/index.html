@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Álbum Mundial 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --gold:#ffd700; --gold2:#ff8c00; --gold-dark:#b8860b; --gold-rich:#d4af37;
+  --bg:#0a1628; --bg2:#0f1e36; --bg3:#132038; --bg4:#1a2d4e;
+  --surface:#1e3055; --surface2:#243555;
+  --text:#e8eaf0; --text2:#aab8cc; --text3:#6b7e94;
+  --green:#00c853; --red:#ef5350; --yellow:#ffd700;
+  --border:#1e3055; --border2:#263a5a;
+}
+body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ── HEADER ── */
+.header {
+  background:linear-gradient(135deg,#090f1e 0%,#0e1b30 50%,#090f1e 100%);
+  border-bottom:1px solid var(--border2);
+  padding:0 20px; position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; gap:14px; height:56px;
+}
+.logo { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); letter-spacing:2px; white-space:nowrap; text-shadow:0 0 16px rgba(255,215,0,.3); }
+.logo em { color:var(--text3); font-style:normal; font-size:13px; letter-spacing:1px; margin-left:4px; }
+.nav { display:flex; gap:3px; flex:1; }
+.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:13px; font-weight:500; padding:5px 14px; border-radius:20px; cursor:pointer; transition:all .18s; }
+.nbtn:hover { background:var(--surface); color:var(--text); border-color:var(--border2); }
+.nbtn.active { background:var(--gold); color:var(--bg); font-weight:700; border-color:var(--gold); }
+.hstats { display:flex; gap:7px; }
+.chip { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid; }
+.chip.t { color:var(--green); border-color:rgba(0,200,83,.3); background:rgba(0,200,83,.07); }
+.chip.f { color:#ef5350; border-color:rgba(239,83,80,.3); background:rgba(239,83,80,.07); }
+.chip.r { color:var(--gold); border-color:rgba(255,215,0,.3); background:rgba(255,215,0,.07); }
+.hpbar { flex:1; max-width:160px; height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.hpfill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); transition:width .4s; }
+
+/* ── PAGES ── */
+.main { max-width:1400px; margin:0 auto; padding:18px 16px; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* ── FILTER BAR ── */
+.fbar { text-align:center; margin-bottom:18px; display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; }
+.fbtn { background:var(--bg3); color:var(--text2); border:1px solid var(--border); padding:5px 16px; border-radius:20px; cursor:pointer; font-size:12px; font-family:'Barlow',sans-serif; font-weight:500; transition:all .18s; }
+.fbtn:hover, .fbtn.active { background:var(--gold); color:var(--bg); border-color:var(--gold); font-weight:700; }
+.fbtn.danger { background:rgba(139,0,0,.25); color:#ff6b6b; border-color:rgba(139,0,0,.4); }
+.fbtn.danger:hover { background:#8b0000; color:#fff; border-color:#8b0000; }
+.fsearch { background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'Barlow',sans-serif; font-size:13px; padding:5px 13px; border-radius:20px; width:180px; outline:none; }
+.fsearch:focus { border-color:var(--gold); }
+.fsearch::placeholder { color:var(--text3); }
+
+/* ── SECTION TITLE ── */
+.stitle { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--gold); letter-spacing:2px; margin-bottom:16px; display:flex; align-items:center; gap:10px; text-shadow:0 0 12px rgba(255,215,0,.2); }
+.stitle::after { content:''; flex:1; height:1px; background:var(--border2); }
+
+/* ── GROUP BLOCK ── */
+.gblock { margin-bottom:20px; }
+.ghdr {
+  display:flex; align-items:center; gap:10px; padding:8px 14px;
+  background:var(--bg4); border:1px solid var(--border2); border-radius:8px 8px 0 0;
+  cursor:pointer; user-select:none; transition:background .15s;
+}
+.ghdr:hover { background:var(--surface); }
+.gletter { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); line-height:1; min-width:28px; }
+.gname { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--text2); letter-spacing:1px; text-transform:uppercase; flex:1; }
+.gpbar { width:100px; height:4px; background:var(--bg); border-radius:2px; overflow:hidden; }
+.gpfill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:2px; transition:width .3s; }
+.gptext { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; font-weight:600; min-width:55px; text-align:right; }
+.gtog { color:var(--text3); font-size:13px; transition:transform .2s; }
+.ghdr.collapsed .gtog { transform:rotate(-90deg); }
+.gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
+.gbody.hidden { display:none; }
+
+/* ── TEAM CARD ── */
+.tcard { background:var(--bg3); border:1px solid var(--border2); border-radius:8px; overflow:hidden; transition:box-shadow .2s; }
+.tcard:hover { box-shadow:0 3px 18px rgba(0,200,83,.25); }
+.tcard.complete { }
+.tcard.complete:hover { box-shadow:0 4px 20px rgba(212,175,55,.5); }
+
+/* Gold shimmer for complete teams */
+@keyframes gold-shimmer {
+  0%   { box-shadow:0 0 8px 2px rgba(212,175,55,.4); }
+  50%  { box-shadow:0 0 16px 5px rgba(212,175,55,.65); }
+  100% { box-shadow:0 0 8px 2px rgba(212,175,55,.4); }
+}
+.tcard.complete .tchdr { background:linear-gradient(135deg,#b8860b 0%,#d4af37 45%,#c8960c 100%); animation:gold-shimmer 4s ease-in-out infinite; border-bottom-color:var(--gold-rich); }
+.tcard.complete .tname { color:#0a1628; font-weight:800; }
+.tcard.complete .tcount { color:#0a1628; }
+
+.tchdr { display:flex; align-items:center; justify-content:space-between; padding:7px 11px; background:var(--bg4); border-bottom:1px solid var(--border2); }
+.tname-wrap { display:flex; align-items:center; gap:7px; }
+.tflag { font-size:18px; line-height:1; }
+.tname { font-weight:700; font-size:14px; color:var(--text); font-family:'Barlow',sans-serif; }
+.tright { display:flex; align-items:center; gap:8px; }
+.tcount { font-size:11px; color:var(--text2); white-space:nowrap; font-family:'Barlow Condensed',sans-serif; font-weight:600; }
+.tpbar { height:3px; background:var(--bg2); }
+.tpfill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); transition:width .3s; }
+
+/* ── STICKER GRID (Panini style) ── */
+.stickers { display:grid; grid-template-columns:repeat(10,1fr); gap:4px; padding:8px 10px 10px; }
+
+/* Player list toggle */
+.plist-toggle { display:block; width:calc(100% - 20px); margin:0 10px 8px; background:var(--bg2); border:1px solid var(--border); color:var(--text3); font-size:11px; font-family:'Barlow',sans-serif; padding:4px 10px; border-radius:5px; cursor:pointer; text-align:left; transition:all .18s; }
+.plist-toggle:hover { border-color:var(--gold); color:var(--gold); }
+.plist { margin:0 10px 10px; background:var(--bg2); border:1px solid var(--border); border-radius:6px; overflow:hidden; display:none; }
+.plist.open { display:block; }
+.plist-row { display:flex; align-items:center; gap:8px; padding:5px 10px; border-bottom:1px solid rgba(255,255,255,.04); font-size:12px; transition:background .12s; }
+.plist-row:last-child { border-bottom:none; }
+.plist-row:hover { background:rgba(255,255,255,.04); }
+.plist-num { font-family:'Bebas Neue',sans-serif; font-size:14px; color:var(--gold); min-width:22px; }
+.plist-pos { font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; min-width:28px; padding:1px 4px; border-radius:3px; text-align:center; }
+.pos-ESC  { background:rgba(255,215,0,.15); color:var(--gold); }
+.pos-GK   { background:rgba(255,165,0,.15); color:#ffa500; }
+.pos-DEF  { background:rgba(30,144,255,.15); color:#4dabf7; }
+.pos-MED  { background:rgba(0,200,83,.15); color:var(--green); }
+.pos-DEL  { background:rgba(239,83,80,.15); color:#ef5350; }
+.pos-SUP  { background:rgba(170,170,170,.12); color:var(--text3); }
+.pos-CAP  { background:rgba(255,215,0,.2); color:var(--gold); }
+.pos-DT   { background:rgba(160,100,220,.15); color:#c084fc; }
+.pos-ESP  { background:rgba(255,215,0,.1); color:var(--gold2); }
+.plist-name { flex:1; color:var(--text2); }
+.plist-st { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+.plist-st.tengo { background:var(--green); }
+.plist-st.repetida { background:var(--gold); }
+.plist-st.vacia { background:var(--bg4); border:1px solid var(--border); }
+
+/* ── STICKER LABEL ── */
+.slabel { display:flex; flex-direction:column; align-items:center; cursor:pointer; padding:3px 1px; border-radius:5px; transition:background .12s; user-select:none; }
+.slabel:hover { background:rgba(255,255,255,.07); }
+.slabel input[type="checkbox"] { display:none; }
+
+/* checkbox = sticker box */
+.sbox {
+  width:22px; height:22px; border-radius:4px; border:2px solid #2a3d55;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; background:var(--bg2);
+  transition:border-color .15s, box-shadow .15s, background .15s;
+}
+.snum { font-size:9px; color:var(--text3); margin-top:2px; font-family:'Barlow Condensed',sans-serif; font-weight:600; }
+
+/* ESTADO: tengo (green check) */
+input[data-estado="tengo"] + .sbox { background:var(--green); border-color:var(--green); box-shadow:0 0 7px rgba(0,200,83,.4); }
+input[data-estado="tengo"] + .sbox::after { content:'✓'; color:#fff; font-weight:bold; font-size:12px; }
+.slabel:has(input[data-estado="tengo"]) .snum { color:var(--green); font-weight:bold; }
+
+/* ESTADO: repetida (gold R) */
+input[data-estado="repetida"] + .sbox { background:rgba(255,215,0,.18); border-color:var(--gold); box-shadow:0 0 7px rgba(255,215,0,.35); }
+input[data-estado="repetida"] + .sbox::after { content:'↺'; color:var(--gold); font-weight:bold; font-size:11px; }
+.slabel:has(input[data-estado="repetida"]) .snum { color:var(--gold); font-weight:bold; }
+
+/* ESTADO: foil (badge sticker #1) — animated sweep */
+@keyframes foil-sweep {
+  0%   { background-position:220% center; }
+  100% { background-position:-220% center; }
+}
+.slabel.foil .sbox {
+  background:linear-gradient(110deg,#0d1e36 20%,#2a4460 38%,#6a90b0 50%,#2a4460 62%,#0d1e36 80%);
+  background-size:300% auto; border-color:#4a6a8a;
+  animation:foil-sweep 4s linear infinite;
+}
+input[data-estado="tengo"].foil-input + .sbox,
+.slabel.foil input[data-estado="tengo"] + .sbox {
+  background:linear-gradient(110deg,#5a6878 15%,#9ab4c8 38%,#dceaf6 50%,#9ab4c8 62%,#5a6878 85%);
+  background-size:300% auto; border-color:#88a8c4;
+  box-shadow:0 0 10px rgba(136,168,200,.55);
+  animation:foil-sweep 4s linear infinite;
+}
+.slabel.foil input[data-estado="tengo"] + .sbox::after { content:'✓'; color:#0a1628; font-weight:bold; font-size:12px; }
+.slabel.foil:has(input[data-estado="tengo"]) .snum { color:#88a8c4; font-weight:bold; }
+
+input[data-estado="repetida"].foil-input + .sbox,
+.slabel.foil input[data-estado="repetida"] + .sbox {
+  background:linear-gradient(110deg,#5a5020 15%,#c8a838 38%,#ffd700 50%,#c8a838 62%,#5a5020 85%);
+  background-size:300% auto; border-color:var(--gold);
+  box-shadow:0 0 10px rgba(255,215,0,.45);
+  animation:foil-sweep 4s linear infinite;
+}
+.slabel.foil input[data-estado="repetida"] + .sbox::after { content:'↺'; color:#0a1628; font-weight:bold; font-size:11px; }
+.slabel.foil:has(input[data-estado="repetida"]) .snum { color:var(--gold); font-weight:bold; }
+
+/* ── STATS PAGE ── */
+.bigstats { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:9px; margin-bottom:20px; }
+.bstat { background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:13px; text-align:center; }
+.bsv { font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:1; margin-bottom:2px; }
+.bsv.g { color:var(--green); } .bsv.r { color:#ef5350; } .bsv.y { color:var(--gold); } .bsv.o { color:var(--gold2); }
+.bsl { font-size:10px; color:var(--text3); font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.ssect { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; color:var(--text3); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border2); }
+.gtbl { width:100%; border-collapse:collapse; }
+.gtbl th { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:.7px; text-transform:uppercase; padding:6px 10px; text-align:left; border-bottom:1px solid var(--border2); }
+.gtbl td { padding:8px 10px; font-size:12px; color:var(--text2); border-bottom:1px solid var(--border2); vertical-align:middle; }
+.gtbl tr:last-child td { border-bottom:none; }
+.gtbl tr:hover td { background:var(--surface); }
+.pcell { display:flex; align-items:center; gap:6px; }
+.pmini { flex:1; height:4px; background:var(--bg); border-radius:2px; overflow:hidden; min-width:60px; }
+.pmini-f { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:2px; }
+.twrap { background:var(--bg2); border:1px solid var(--border2); border-radius:8px; overflow:hidden; }
+
+/* ── ESTADIOS ── */
+.ctabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.ctab { background:var(--bg3); border:1px solid var(--border2); color:var(--text2); font-family:'Barlow',sans-serif; font-size:12px; font-weight:500; padding:6px 14px; border-radius:20px; cursor:pointer; transition:all .18s; }
+.ctab:hover { border-color:var(--gold); color:var(--gold); }
+.ctab.active { background:var(--gold); color:var(--bg); border-color:var(--gold); font-weight:700; }
+.sgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+.scard { background:var(--bg3); border:1px solid var(--border2); border-radius:10px; overflow:hidden; transition:box-shadow .2s, transform .2s; }
+.scard:hover { box-shadow:0 4px 18px rgba(255,215,0,.2); transform:translateY(-2px); }
+.svis { height:72px; display:flex; align-items:center; justify-content:center; position:relative; }
+.svis::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom,transparent 30%,var(--bg3)); }
+.sbody { padding:11px 14px; }
+.sname { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:var(--text); margin-bottom:1px; }
+.scity { font-size:11px; color:var(--gold); font-weight:500; margin-bottom:7px; }
+.sstats { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:7px; }
+.sst { background:var(--bg2); border-radius:5px; padding:5px 8px; }
+.sstl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.4px; font-weight:700; }
+.sstv { font-size:13px; color:var(--text); font-weight:600; font-family:'Barlow Condensed',sans-serif; margin-top:1px; }
+.sdesc { font-size:11px; color:var(--text2); line-height:1.5; }
+
+/* ── INFO PAGE ── */
+.igrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:13px; margin-bottom:20px; }
+.icard { background:var(--bg3); border:1px solid var(--border2); border-radius:10px; padding:16px; }
+.iicon { font-size:24px; margin-bottom:7px; }
+.ititle { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+.ival { font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--gold); line-height:1; margin-bottom:3px; }
+.idesc { font-size:11px; color:var(--text2); line-height:1.5; }
+.timeline { position:relative; padding-left:24px; }
+.timeline::before { content:''; position:absolute; left:6px; top:6px; bottom:0; width:1px; background:var(--border2); }
+.tli { position:relative; margin-bottom:14px; }
+.tli::before { content:''; position:absolute; left:-21px; top:5px; width:7px; height:7px; border-radius:50%; background:var(--gold); border:2px solid var(--bg3); }
+.tli-d { font-size:10px; color:var(--gold); font-weight:700; font-family:'Barlow Condensed',sans-serif; letter-spacing:.5px; text-transform:uppercase; }
+.tli-e { font-size:13px; color:var(--text); margin-top:1px; }
+.tli-s { font-size:11px; color:var(--text2); margin-top:1px; }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:20px; right:20px; background:var(--bg4); border:1px solid var(--border2); border-radius:8px; padding:8px 16px; font-size:12px; color:var(--text); font-weight:500; z-index:999; opacity:0; transform:translateY(6px); transition:all .2s; pointer-events:none; }
+.toast.show { opacity:1; transform:translateY(0); }
+
+.nores { font-size:12px; color:var(--text3); padding:10px 12px; grid-column:1/-1; }
+
+.modal-btn.csv-miss { background:rgba(239,83,80,.1); color:#ef5350; border-color:rgba(239,83,80,.3); }
+.modal-btn.csv-miss:hover { background:rgba(239,83,80,.22); }
+.modal-btn.csv-rep  { background:rgba(255,215,0,.1); color:var(--gold); border-color:rgba(255,215,0,.3); }
+.modal-btn.csv-rep:hover  { background:rgba(255,215,0,.22); }
+
+/* ── HELP BUTTON ── */
+.help-btn {
+  width:28px; height:28px; border-radius:50%;
+  background:var(--bg3); border:1px solid var(--border2);
+  color:var(--text3); font-size:14px; font-weight:700;
+  cursor:pointer; transition:all .18s; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.help-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(255,215,0,.08); }
+
+/* ── HELP MODAL ── */
+.help-modal { width:480px; max-height:80vh; overflow-y:auto; }
+.help-section { margin-bottom:20px; }
+.help-section:last-child { margin-bottom:0; }
+.help-section-title {
+  font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+  color:var(--text3); letter-spacing:1.2px; text-transform:uppercase;
+  margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border2);
+}
+.help-item { display:flex; gap:12px; margin-bottom:12px; align-items:flex-start; }
+.help-item:last-child { margin-bottom:0; }
+.help-icon { font-size:20px; line-height:1; flex-shrink:0; margin-top:1px; }
+.help-item-body { flex:1; }
+.help-item-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.help-item-desc { font-size:12px; color:var(--text2); line-height:1.55; }
+.help-tag { display:inline-block; background:var(--bg2); border:1px solid var(--border2); border-radius:4px; padding:1px 7px; font-size:11px; color:var(--text); margin:2px 2px 0 0; white-space:nowrap; }
+.help-tag.green { border-color:rgba(0,200,83,.35); color:var(--green); background:rgba(0,200,83,.08); }
+.help-tag.gold  { border-color:rgba(255,215,0,.35); color:var(--gold); background:rgba(255,215,0,.08); }
+.help-tag.grey  { border-color:var(--border2); color:var(--text3); }
+.help-sticker-demo { display:flex; gap:6px; margin-top:6px; align-items:center; flex-wrap:wrap; }
+.hsd { width:22px; height:22px; border-radius:4px; border:2px solid; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; }
+.hsd.v { background:var(--bg2); border-color:#2a3d55; color:var(--text3); }
+.hsd.t { background:var(--green); border-color:var(--green); color:#fff; }
+.hsd.r { background:rgba(255,215,0,.18); border-color:var(--gold); color:var(--gold); }
+.hsd-label { font-size:11px; color:var(--text3); }
+
+/* ── PROFILE BADGE ── */
+.profile-badge {
+  display:flex; align-items:center; gap:7px;
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:20px; padding:3px 12px 3px 8px;
+  cursor:pointer; transition:all .18s; white-space:nowrap;
+}
+.profile-badge:hover { border-color:var(--gold); }
+.profile-avatar { width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,var(--gold-dark),var(--gold)); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--bg); flex-shrink:0; }
+.profile-name { font-size:12px; font-weight:600; color:var(--text2); max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+
+/* ── MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { background:var(--bg3); border:1px solid var(--border2); border-radius:14px; padding:24px; width:340px; max-width:90vw; box-shadow:0 20px 60px rgba(0,0,0,.5); transform:translateY(10px); transition:transform .2s; }
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-title { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--gold); letter-spacing:1.5px; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+.modal-label { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; margin-bottom:5px; }
+.modal-input { width:100%; background:var(--bg2); border:1px solid var(--border2); color:var(--text); font-family:'Barlow',sans-serif; font-size:14px; padding:8px 12px; border-radius:8px; outline:none; transition:border-color .18s; margin-bottom:16px; }
+.modal-input:focus { border-color:var(--gold); }
+.modal-actions { display:flex; flex-direction:column; gap:8px; }
+.modal-btn { width:100%; padding:9px; border-radius:8px; border:1px solid; cursor:pointer; font-family:'Barlow',sans-serif; font-size:13px; font-weight:600; transition:all .18s; display:flex; align-items:center; justify-content:center; gap:7px; }
+.modal-btn.primary { background:var(--gold); color:var(--bg); border-color:var(--gold); }
+.modal-btn.primary:hover { background:var(--gold2); border-color:var(--gold2); }
+.modal-btn.secondary { background:var(--bg2); color:var(--text2); border-color:var(--border2); }
+.modal-btn.secondary:hover { border-color:var(--gold); color:var(--gold); }
+.modal-btn.load { background:rgba(0,200,83,.1); color:var(--green); border-color:rgba(0,200,83,.3); }
+.modal-btn.load:hover { background:rgba(0,200,83,.2); }
+.modal-btn.danger { background:rgba(139,0,0,.2); color:#ff6b6b; border-color:rgba(139,0,0,.35); }
+.modal-btn.danger:hover { background:rgba(139,0,0,.35); }
+.modal-sep { height:1px; background:var(--border2); margin:6px 0; }
+.modal-close { position:absolute; top:12px; right:14px; background:none; border:none; color:var(--text3); font-size:18px; cursor:pointer; padding:4px; border-radius:4px; }
+.modal-close:hover { color:var(--text); }
+.modal-wrap { position:relative; }
+#file-import { display:none; }
+
+@media(max-width:640px){
+  .header { height:auto; flex-wrap:wrap; padding:8px 12px; gap:6px; }
+  .nav { gap:2px; }
+  .gbody { grid-template-columns:1fr; }
+  .sgrid { grid-template-columns:1fr; }
+  .stickers { grid-template-columns:repeat(7,1fr); }
+}
+
+/* ── AUTH MODAL ── */
+.auth-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:300; display:flex; align-items:center; justify-content:center; }
+.auth-overlay.hidden { display:none; }
+.auth-box { background:var(--bg3); border:1px solid var(--border2); border-radius:16px; padding:28px; width:360px; max-width:90vw; box-shadow:0 24px 64px rgba(0,0,0,.6); }
+.auth-logo { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--gold); letter-spacing:2px; text-align:center; margin-bottom:4px; }
+.auth-sub { font-size:12px; color:var(--text3); text-align:center; margin-bottom:22px; }
+.auth-tabs { display:flex; gap:0; margin-bottom:20px; border-radius:8px; overflow:hidden; border:1px solid var(--border2); }
+.auth-tab { flex:1; padding:8px; background:var(--bg2); color:var(--text3); border:none; font-family:'Barlow',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all .18s; }
+.auth-tab.active { background:var(--gold); color:var(--bg); }
+.auth-field { margin-bottom:12px; }
+.auth-field label { display:block; font-size:11px; font-weight:700; color:var(--text3); letter-spacing:.7px; text-transform:uppercase; margin-bottom:4px; }
+.auth-field input { width:100%; background:var(--bg2); border:1px solid var(--border2); color:var(--text); font-family:'Barlow',sans-serif; font-size:14px; padding:8px 12px; border-radius:8px; outline:none; transition:border-color .18s; }
+.auth-field input:focus { border-color:var(--gold); }
+.auth-submit { width:100%; padding:10px; border-radius:8px; border:none; background:var(--gold); color:var(--bg); font-family:'Barlow',sans-serif; font-size:14px; font-weight:700; cursor:pointer; margin-top:4px; transition:background .18s; }
+.auth-submit:hover { background:var(--gold2); }
+.auth-error { font-size:12px; color:#ef5350; margin-top:8px; text-align:center; min-height:18px; }
+
+/* ── LOADING OVERLAY ── */
+.loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:400; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
+.loading-overlay.hidden { display:none; }
+.loading-spinner { width:40px; height:40px; border:3px solid var(--border2); border-top-color:var(--gold); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-text { font-family:'Barlow Condensed',sans-serif; font-size:14px; color:var(--text3); letter-spacing:1px; }
+
+/* ── LOGOUT BTN ── */
+.logout-btn { background:none; border:1px solid var(--border2); color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; padding:3px 10px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
+.logout-btn:hover { border-color:#ef5350; color:#ef5350; }
+
+/* ── RANKING PAGE ── */
+.rank-table { width:100%; border-collapse:collapse; }
+.rank-table th { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; padding:7px 12px; text-align:left; border-bottom:1px solid var(--border2); }
+.rank-table td { padding:10px 12px; font-size:13px; border-bottom:1px solid var(--border2); vertical-align:middle; }
+.rank-table tr:last-child td { border-bottom:none; }
+.rank-table tr:hover td { background:var(--surface); }
+.rank-pos { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--text3); min-width:28px; }
+.rank-pos.gold { color:var(--gold); }
+.rank-pos.silver { color:#aaa; }
+.rank-pos.bronze { color:#cd7f32; }
+.rank-name { font-weight:700; color:var(--text); font-size:14px; }
+.rank-bar-wrap { min-width:100px; }
+.rank-bar { height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; margin-top:3px; }
+.rank-bar-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:3px; }
+.rank-me { background:rgba(255,215,0,.05) !important; }
+.rank-me td { border-color:rgba(255,215,0,.15) !important; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">FIFA WC <em>2026</em></div>
+  <nav class="nav">
+    <button class="nbtn active" data-page="album">📒 Álbum</button>
+    <button class="nbtn" data-page="estadios">🏟️ Estadios</button>
+    <button class="nbtn" data-page="estadisticas">📊 Progreso</button>
+    <button class="nbtn" data-page="info">ℹ️ Info</button>
+    <button class="nbtn" data-page="ranking">🏆 Ranking</button>
+  </nav>
+  <div class="hstats">
+    <div class="hpbar"><div class="hpfill" id="hpf" style="width:0%"></div></div>
+    <div class="chip t" id="ct">✓ 0</div>
+    <div class="chip f" id="cf">✗ 0</div>
+    <div class="chip r" id="cr">↺ 0</div>
+    <span id="auth-nombre-display" style="font-size:12px;color:var(--text3);"></span>
+    <button class="logout-btn" id="btn-logout">Salir</button>
+    <div class="profile-badge" id="profile-badge" title="Tu perfil">
+      <div class="profile-avatar" id="profile-avatar">?</div>
+      <span class="profile-name" id="profile-name">Mi álbum</span>
+    </div>
+    <button class="help-btn" id="btn-help" title="Ayuda">?</button>
+  </div>
+</header>
+
+<!-- MODAL PERFIL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal modal-wrap">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-title">👤 Tu Álbum</div>
+    <div class="modal-label">Nombre del coleccionista</div>
+    <input class="modal-input" type="text" id="modal-nombre" placeholder="Ej: Juan, Caro, El Nene..." maxlength="30">
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="btn-save-name">✓ Guardar nombre</button>
+      <div class="modal-sep"></div>
+      <button class="modal-btn secondary" id="btn-export">💾 Exportar progreso (.json)</button>
+      <button class="modal-btn load" id="btn-import-trigger">📂 Cargar progreso (.json)</button>
+      <input type="file" id="file-import" accept=".json">
+      <div class="modal-sep"></div>
+      <div class="modal-label">Exportar listas para intercambio</div>
+      <button class="modal-btn csv-miss" id="btn-csv-faltantes">📋 Exportar faltantes (.csv)</button>
+      <button class="modal-btn csv-rep" id="btn-csv-repetidas">🔄 Exportar repetidas (.csv)</button>
+      <div class="modal-sep"></div>
+      <button class="modal-btn danger" id="btn-reset-modal">↺ Reiniciar álbum</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AYUDA -->
+<div class="modal-overlay" id="help-overlay">
+  <div class="modal modal-wrap help-modal">
+    <button class="modal-close" id="help-close">✕</button>
+    <div class="modal-title">❓ Ayuda</div>
+
+    <div class="help-section">
+      <div class="help-section-title">¿Cómo usar el álbum?</div>
+      <div class="help-item">
+        <div class="help-icon">🖱️</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Marcar figuritas</div>
+          <div class="help-item-desc">Hacé click en cualquier casillero para cambiar su estado. Cada click cicla entre tres opciones:</div>
+          <div class="help-sticker-demo">
+            <div class="hsd v"> </div><span class="hsd-label">Vacía →</span>
+            <div class="hsd t">✓</div><span class="hsd-label">Tengo →</span>
+            <div class="hsd r">↺</div><span class="hsd-label">Repetida →</span>
+            <div class="hsd v"> </div><span class="hsd-label">Vacía</span>
+          </div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">✨</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Figurita foil (escudo)</div>
+          <div class="help-item-desc">La primera figurita de cada equipo es el escudo y tiene un efecto brillante animado. Al marcarla como tenida, el brillo cambia a plateado.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">🏆</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Equipo completo</div>
+          <div class="help-item-desc">Cuando tenés las 21 figuritas de un equipo, el encabezado se pone dorado con un brillo animado.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">👤</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Listado de jugadores</div>
+          <div class="help-item-desc">Dentro de cada equipo podés expandir el listado completo con el nombre del jugador, su posición y el estado de la figurita en tiempo real.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">Filtros y búsqueda</div>
+      <div class="help-item">
+        <div class="help-icon">🔍</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Buscar equipo</div>
+          <div class="help-item-desc">Escribí el nombre de un equipo en la caja de búsqueda para encontrarlo rápido entre los 48 del torneo.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">🎯</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Botones de filtro</div>
+          <div class="help-item-desc">
+            <span class="help-tag">Todos</span> muestra todos los equipos.<br>
+            <span class="help-tag">Incompletos</span> solo los que empezaste pero no completaste.<br>
+            <span class="help-tag">Completos</span> solo los que tenés al 100%.<br>
+            <span class="help-tag">Sin empezar</span> los que no tienen ninguna figurita marcada.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">Tu perfil — botón con tu nombre</div>
+      <div class="help-item">
+        <div class="help-icon">✏️</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Guardar nombre</div>
+          <div class="help-item-desc">Poné tu nombre o apodo. Se muestra en el header y queda guardado en el navegador. También se incluye en el archivo exportado.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">📋</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Exportar faltantes (.csv)</div>
+          <div class="help-item-desc">Descarga un <span class="help-tag">.csv</span> con todas las figuritas que todavía te faltan: número, grupo, equipo y nombre del jugador. Abrilo en Excel o Google Sheets para llevar la lista al kiosco o al canje.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">🔄</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Exportar repetidas (.csv)</div>
+          <div class="help-item-desc">Descarga un <span class="help-tag">.csv</span> con todas tus figuritas repetidas. Ideal para llevar al canje y saber exactamente qué ofrecés.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">💾</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Exportar progreso (.json)</div>
+          <div class="help-item-desc">Descarga un archivo <span class="help-tag">mundial2026_TuNombre.json</span> con todo tu progreso guardado. Usalo para hacer una copia de seguridad, pasarlo a otro dispositivo o compartirlo.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">📂</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Cargar progreso (.json)</div>
+          <div class="help-item-desc">Abrí un archivo <span class="help-tag">.json</span> exportado previamente para restaurar tu álbum. Útil si cambiás de dispositivo o querés retomar desde donde dejaste. <strong style="color:#ef5350;">Reemplaza el progreso actual.</strong></div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">↺</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Reiniciar álbum</div>
+          <div class="help-item-desc">Borra todo el progreso guardado y deja el álbum en cero. <strong style="color:#ef5350;">No se puede deshacer.</strong> Exportá antes si querés guardar una copia.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">Guardado automático</div>
+      <div class="help-item">
+        <div class="help-icon">💡</div>
+        <div class="help-item-body">
+          <div class="help-item-title">¿Dónde se guarda el progreso?</div>
+          <div class="help-item-desc">Cada cambio se guarda automáticamente en el navegador (<span class="help-tag">localStorage</span>). No necesitás hacer nada. El progreso se mantiene al cerrar y reabrir, mientras no borres los datos del navegador. Para mayor seguridad, exportá un <span class="help-tag">.json</span> cada tanto.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">🤝</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Compartir con un amigo</div>
+          <div class="help-item-desc">Pasale el archivo <span class="help-tag">album-mundial-2026.html</span>. Cada uno tiene su propio progreso independiente. Si quieren comparar, se pasan los <span class="help-tag">.json</span> y los cargan desde el botón de importar.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ── ALBUM ── -->
+<div class="page active" id="page-album">
+  <div class="fbar">
+    <button class="fbtn active" data-filter="todos">Todos</button>
+    <button class="fbtn" data-filter="incompleto">Incompletos</button>
+    <button class="fbtn" data-filter="completo">Completos</button>
+    <button class="fbtn" data-filter="nada">Sin empezar</button>
+    <input class="fsearch" type="text" id="fsearch" placeholder="🔍 Buscar equipo...">
+  </div>
+  <div id="album-container"></div>
+</div>
+
+<!-- ── ESTADIOS ── -->
+<div class="page" id="page-estadios">
+  <div class="stitle">Sedes del Mundial 2026</div>
+  <div class="ctabs" id="ctabs"></div>
+  <div class="sgrid" id="sgrid"></div>
+</div>
+
+<!-- ── ESTADISTICAS ── -->
+<div class="page" id="page-estadisticas">
+  <div class="stitle">Tu Progreso</div>
+  <div class="bigstats" id="bigstats"></div>
+  <div class="ssect">Detalle por Grupo</div>
+  <div class="twrap">
+    <table class="gtbl">
+      <thead><tr><th>Grupo</th><th>Equipos</th><th>Tengo</th><th>Faltan</th><th>Rep.</th><th>Avance</th></tr></thead>
+      <tbody id="gtbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── INFO ── -->
+<div class="page" id="page-info">
+  <div class="stitle">Mundial 2026</div>
+  <div class="igrid" id="igrid"></div>
+  <div class="stitle">Calendario</div>
+  <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px 18px;">
+    <div class="timeline" id="timeline"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATABASE
+// ═══════════════════════════════════════════════
+const DB_GRUPOS = [
+  { letra:"A", equipos:[
+    { nombre:"México",         bandera:"🇲🇽", jugadores:["Escudo del equipo","Raúl Rangel (POR)","César Montes (DEF)","Johan Vásquez (DEF)","Jesús Gallardo (DEF)","Jorge Sánchez (DEF)","Edson Álvarez (MED)","Luis Chávez (MED)","Orbelín Pineda (MED)","Roberto Alvarado (MED)","Hirving Lozano (DEL)","Henry Martín (DEL)","Santiago Giménez (DEL)","Raúl Jiménez (SUP)","Alexis Vega (SUP)","Kevin Álvarez (SUP)","Uriel Antuna (SUP)","Julián Araujo (SUP)","Edson Álvarez (CAP)","Javier Aguirre (DT)","Fig. Especial"] },
+    { nombre:"Sudáfrica",      bandera:"🇿🇦", jugadores:["Escudo del equipo","Ronwen Williams (POR)","Rushine De Reuck (DEF)","Thulani Hlatshwayo (DEF)","Reeve Frosler (DEF)","Sifiso Hlanti (DEF)","Bongani Zungu (MED)","Mothobi Mvala (MED)","Themba Zwane (MED)","Teboho Mokoena (MED)","Percy Tau (DEL)","Lyle Foster (DEL)","Evidence Makgopa (DEL)","Keagan Dolly (SUP)","Lebo Mothiba (SUP)","Thembinkosi Lorch (SUP)","Phakamani Mahlambi (SUP)","Bradley Cross (SUP)","Ronwen Williams (CAP)","Hugo Broos (DT)","Fig. Especial"] },
+    { nombre:"Corea del Sur",  bandera:"🇰🇷", jugadores:["Escudo del equipo","Kim Seung-gyu (POR)","Kim Min-jae (DEF)","Kim Young-gwon (DEF)","Kim Jin-su (DEF)","Kim Moon-hwan (DEF)","Jung Woo-young (MED)","Lee Jae-sung (MED)","Hwang In-beom (MED)","Lee Kang-in (MED)","Son Heung-min (DEL)","Hwang Hee-chan (DEL)","Cho Gue-sung (DEL)","Oh Hyeon-gyu (SUP)","Jeong Sang-bin (SUP)","Na Sang-ho (SUP)","Kwon Chang-hoon (SUP)","Seol Young-woo (SUP)","Son Heung-min (CAP)","Hong Myung-bo (DT)","Fig. Especial"] },
+    { nombre:"Rep. Checa",     bandera:"🇨🇿", jugadores:["Escudo del equipo","Jiří Staněk (POR)","Tomáš Kalas (DEF)","Ladislav Krejčí (DEF)","David Zima (DEF)","Pavel Kadeřábek (DEF)","Tomáš Souček (MED)","Lukáš Provod (MED)","Alex Král (MED)","Vladimír Coufal (MED)","Patrik Schick (DEL)","Adam Hložek (DEL)","Jan Kuchta (DEL)","Antonín Barák (SUP)","Ondřej Lingr (SUP)","Lukáš Masopust (SUP)","David Jurásek (SUP)","Matěj Jurásek (SUP)","Tomáš Souček (CAP)","Ivan Hašek (DT)","Fig. Especial"] }
+  ]},
+  { letra:"B", equipos:[
+    { nombre:"Canadá",         bandera:"🇨🇦", jugadores:["Escudo del equipo","Maxime Crépeau (POR)","Kamal Miller (DEF)","Alistair Johnston (DEF)","Sam Adekugbe (DEF)","Richie Laryea (DEF)","Stephen Eustáquio (MED)","Jonathan Osorio (MED)","Ismaël Koné (MED)","Mark-Anthony Kaye (MED)","Alphonso Davies (DEL)","Jonathan David (DEL)","Cyle Larin (DEL)","Tajon Buchanan (SUP)","Charles-Andreas Brym (SUP)","Liam Millar (SUP)","Derek Cornelius (SUP)","Jacob Shaffelburg (SUP)","Atiba Hutchinson (CAP)","Jesse Marsch (DT)","Fig. Especial"] },
+    { nombre:"Suiza",          bandera:"🇨🇭", jugadores:["Escudo del equipo","Yann Sommer (POR)","Manuel Akanji (DEF)","Nico Elvedi (DEF)","Ricardo Rodríguez (DEF)","Silvan Widmer (DEF)","Granit Xhaka (MED)","Remo Freuler (MED)","Denis Zakaria (MED)","Ruben Vargas (MED)","Breel Embolo (DEL)","Noah Okafor (DEL)","Zeki Amdouni (DEL)","Xherdan Shaqiri (SUP)","Dan Ndoye (SUP)","Michel Aebischer (SUP)","Fabian Frei (SUP)","Cedric Itten (SUP)","Granit Xhaka (CAP)","Murat Yakin (DT)","Fig. Especial"] },
+    { nombre:"Qatar",          bandera:"🇶🇦", jugadores:["Escudo del equipo","Meshaal Barsham (POR)","Pedro Miguel (DEF)","Bassam Al-Rawi (DEF)","Homam Al-Amin (DEF)","Salem Al-Hajri (DEF)","Karim Boudiaf (MED)","Abdel Aziz Hatem (MED)","Assim Madibo (MED)","Ismail Mohamad (MED)","Akram Afif (DEL)","Almoez Ali (DEL)","Mohammed Muntari (DEL)","Hassan Al-Haydos (SUP)","Yusuf Abdurisag (SUP)","Ahmed Alaaeldin (SUP)","Khalid Muneer (SUP)","Jassem Gaber (SUP)","Hassan Al-Haydos (CAP)","Carlos Queiroz (DT)","Fig. Especial"] },
+    { nombre:"Bosnia y Herz.", bandera:"🇧🇦", jugadores:["Escudo del equipo","Nikola Vasilj (POR)","Ermin Bičakčić (DEF)","Ognjen Kvrzić (DEF)","Sead Kolašinac (DEF)","Neven Đurasek (DEF)","Miralem Pjanić (MED)","Amer Gojak (MED)","Seko Fofana (MED)","Muhamed Bešić (MED)","Edin Džeko (DEL)","Ermedin Demirović (DEL)","Anel Ahmedhodžić (DEL)","Haris Duljevic (SUP)","Dario Špoljarić (SUP)","Nemanja Bilbija (SUP)","Ilija Nestorovski (SUP)","Denis Huseinbašić (SUP)","Edin Džeko (CAP)","Sergej Barbarez (DT)","Fig. Especial"] }
+  ]},
+  { letra:"C", equipos:[
+    { nombre:"Brasil",         bandera:"🇧🇷", jugadores:["Escudo del equipo","Alisson Becker (POR)","Marquinhos (DEF)","Éder Militão (DEF)","Alex Sandro (DEF)","Danilo (DEF)","Casemiro (MED)","Bruno Guimarães (MED)","Lucas Paquetá (MED)","Rodrygo (MED)","Vinícius Jr. (DEL)","Endrick (DEL)","Gabriel Martinelli (DEL)","Richarlison (SUP)","Gabriel Jesus (SUP)","Savinho (SUP)","Andreas Pereira (SUP)","Guilherme Arana (SUP)","Marquinhos (CAP)","Dorival Jr. (DT)","Fig. Especial"] },
+    { nombre:"Marruecos",      bandera:"🇲🇦", jugadores:["Escudo del equipo","Yassine Bounou (POR)","Romain Saiss (DEF)","Achraf Hakimi (DEF)","Noussair Mazraoui (DEF)","Jawad El Yamiq (DEF)","Sofyan Amrabat (MED)","Azzedine Ounahi (MED)","Bilal El Khannouss (MED)","Selim Amallah (MED)","Youssef En-Nesyri (DEL)","Hakim Ziyech (DEL)","Soufiane Rahimi (DEL)","Abdessamad Ezzalzouli (SUP)","Anass Zaroury (SUP)","Ilias Chair (SUP)","Zakaria Aboukhlal (SUP)","Louay Amghar (SUP)","Romain Saiss (CAP)","Walid Regragui (DT)","Fig. Especial"] },
+    { nombre:"Haití",          bandera:"🇭🇹", jugadores:["Escudo del equipo","Josué Duverger (POR)","Zachary Herivaux (DEF)","Neyder Lora (DEF)","Steeven Saba (DEF)","Derrick Etienne (DEF)","Frantzdy Pierrot (MED)","Duckens Nazon (MED)","Wilde-Donald Guerrier (MED)","Kevin Lafrance (MED)","Carnejy Antoine (DEL)","Ronaldo Damus (DEL)","Jeffrey Octave (DEL)","Mechack Jérôme (SUP)","Kervens Belfort (SUP)","Renold Désir (SUP)","Frederic Ederle (SUP)","Richardo Thomas (SUP)","Wilde-Donald Guerrier (CAP)","Marc Collat (DT)","Fig. Especial"] },
+    { nombre:"Escocia",        bandera:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", jugadores:["Escudo del equipo","Angus Gunn (POR)","Grant Hanley (DEF)","Scott McKenna (DEF)","Andy Robertson (DEF)","Aaron Hickey (DEF)","Callum McGregor (MED)","John McGinn (MED)","Scott McTominay (MED)","Billy Gilmour (MED)","Lyndon Dykes (DEL)","Lawrence Shankland (DEL)","Che Adams (DEL)","Ryan Christie (SUP)","Stuart Armstrong (SUP)","Ryan Fraser (SUP)","Ross Stewart (SUP)","Kenny McLean (SUP)","Andy Robertson (CAP)","Steve Clarke (DT)","Fig. Especial"] }
+  ]},
+  { letra:"D", equipos:[
+    { nombre:"Estados Unidos", bandera:"🇺🇸", jugadores:["Escudo del equipo","Matt Turner (POR)","Miles Robinson (DEF)","Tim Ream (DEF)","Antonee Robinson (DEF)","Sergiño Dest (DEF)","Tyler Adams (MED)","Weston McKennie (MED)","Yunus Musah (MED)","Gio Reyna (MED)","Christian Pulisic (DEL)","Folarin Balogun (DEL)","Ricardo Pepi (DEL)","Brenden Aaronson (SUP)","Josh Sargent (SUP)","Tim Weah (SUP)","Cameron Carter-Vickers (SUP)","Luca de la Torre (SUP)","Christian Pulisic (CAP)","Mauricio Pochettino (DT)","Fig. Especial"] },
+    { nombre:"Paraguay",       bandera:"🇵🇾", jugadores:["Escudo del equipo","Antony Silva (POR)","Gustavo Gómez (DEF)","Omar Alderete (DEF)","Fabián Balbuena (DEF)","Mathias Olivera (DEF)","Miguel Almirón (MED)","Mathías Villasanti (MED)","Andrés Cubas (MED)","Alan Benítez (MED)","Antonio Sanabria (DEL)","Ramón Sosa (DEL)","Julio Enciso (DEL)","Oscar Romero (SUP)","Alejandro Romero (SUP)","Gabriel Ávalos (SUP)","Robert Morales (SUP)","Jorge Morel (SUP)","Gustavo Gómez (CAP)","Gustavo Alfaro (DT)","Fig. Especial"] },
+    { nombre:"Australia",      bandera:"🇦🇺", jugadores:["Escudo del equipo","Mathew Ryan (POR)","Harry Souttar (DEF)","Miloš Degenek (DEF)","Aziz Behich (DEF)","Nathaniel Atkinson (DEF)","Jackson Irvine (MED)","Riley McGree (MED)","Aaron Mooy (MED)","Ajdin Hrustic (MED)","Mathew Leckie (DEL)","Mitchell Duke (DEL)","Jamie Maclaren (DEL)","Craig Goodwin (SUP)","Nestory Irankunda (SUP)","Marco Tilio (SUP)","Keanu Baccus (SUP)","Cameron Devlin (SUP)","Mathew Leckie (CAP)","Tony Popovic (DT)","Fig. Especial"] },
+    { nombre:"Turquía",        bandera:"🇹🇷", jugadores:["Escudo del equipo","Mert Günok (POR)","Merih Demiral (DEF)","Samet Akaydın (DEF)","Ferdi Kadıoğlu (DEF)","Zeki Çelik (DEF)","Hakan Çalhanoğlu (MED)","Okay Yokuslu (MED)","Salih Özcan (MED)","Kaan Ayhan (MED)","Kerem Aktürkoğlu (DEL)","Arda Güler (DEL)","Baris Alper Yilmaz (DEL)","Yusuf Yazıcı (SUP)","Cenk Tosun (SUP)","Orkun Kökçü (SUP)","Umut Nayir (SUP)","Çağlar Söyüncü (SUP)","Hakan Çalhanoğlu (CAP)","Vincenzo Montella (DT)","Fig. Especial"] }
+  ]},
+  { letra:"E", equipos:[
+    { nombre:"Alemania",       bandera:"🇩🇪", jugadores:["Escudo del equipo","Manuel Neuer (POR)","Antonio Rüdiger (DEF)","Jonathan Tah (DEF)","David Raum (DEF)","Joshua Kimmich (DEF)","Toni Kroos (MED)","Leon Goretzka (MED)","Jamal Musiala (MED)","Florian Wirtz (MED)","Kai Havertz (DEL)","Niclas Füllkrug (DEL)","Leroy Sané (DEL)","Serge Gnabry (SUP)","Thomas Müller (SUP)","Ilkay Gündogan (SUP)","Aleksandar Pavlović (SUP)","Deniz Undav (SUP)","Joshua Kimmich (CAP)","Julian Nagelsmann (DT)","Fig. Especial"] },
+    { nombre:"Curazao",        bandera:"🇨🇼", jugadores:["Escudo del equipo","Eloy Room (POR)","Cuco Martina (DEF)","Jurickson Profar (DEF)","Richonell Margaret (DEF)","Gimenez Lontro (DEF)","Leandro Bacuna (MED)","Rubio Rubin (MED)","Giliano Wijnaldum (MED)","Jarchinio Antonia (MED)","Quensley Pinas (DEL)","Cyriel Dessers (DEL)","Myron Boadu (DEL)","Chederick van den Berg (SUP)","Ryan Tjin-A-Lim (SUP)","Brandley Kuwas (SUP)","Gevaro Nepomuceno (SUP)","Rangelo Janga (SUP)","Leandro Bacuna (CAP)","Remko Bicentini (DT)","Fig. Especial"] },
+    { nombre:"Costa de Marfil",bandera:"🇨🇮", jugadores:["Escudo del equipo","Yahia Fofana (POR)","Serge Aurier (DEF)","Eric Bailly (DEF)","Wilfried Singo (DEF)","Simon Deli (DEF)","Franck Kessié (MED)","Ibrahim Sangaré (MED)","Seko Fofana (MED)","Jean Michaël Seri (MED)","Wilfried Zaha (DEL)","Sébastien Haller (DEL)","Sofiane Diop (DEL)","Amad Diallo (SUP)","Nicolas Pépé (SUP)","Oumar Diakité (SUP)","Jonathan Kodjia (SUP)","Max-Alain Gradel (SUP)","Franck Kessié (CAP)","Emerse Faé (DT)","Fig. Especial"] },
+    { nombre:"Ecuador",        bandera:"🇪🇨", jugadores:["Escudo del equipo","Hernán Galíndez (POR)","Piero Hincapié (DEF)","William Pacho (DEF)","Pervis Estupiñán (DEF)","Ángelo Preciado (DEF)","Moisés Caicedo (MED)","Carlos Gruezo (MED)","Jhegson Méndez (MED)","Ángel Mena (MED)","Enner Valencia (DEL)","Gonzalo Plata (DEL)","Michael Estrada (DEL)","Jeremy Sarmiento (SUP)","Jordy Caicedo (SUP)","Alan Minda (SUP)","Jhon Cifuentes (SUP)","Kevin Rodríguez (SUP)","Enner Valencia (CAP)","Sebastián Beccacece (DT)","Fig. Especial"] }
+  ]},
+  { letra:"F", equipos:[
+    { nombre:"Países Bajos",   bandera:"🇳🇱", jugadores:["Escudo del equipo","Bart Verbruggen (POR)","Virgil van Dijk (DEF)","Matthijs de Ligt (DEF)","Denzel Dumfries (DEF)","Nathan Aké (DEF)","Frenkie de Jong (MED)","Tijjani Reijnders (MED)","Xavi Simons (MED)","Teun Koopmeiners (MED)","Cody Gakpo (DEL)","Memphis Depay (DEL)","Donyell Malen (DEL)","Wout Weghorst (SUP)","Steven Bergwijn (SUP)","Jeremie Frimpong (SUP)","Ian Maatsen (SUP)","Ryan Gravenberch (SUP)","Virgil van Dijk (CAP)","Ronald Koeman (DT)","Fig. Especial"] },
+    { nombre:"Japón",          bandera:"🇯🇵", jugadores:["Escudo del equipo","Shuichi Gonda (POR)","Maya Yoshida (DEF)","Ko Itakura (DEF)","Yuto Nagatomo (DEF)","Hiroki Sakai (DEF)","Wataru Endō (MED)","Hidemasa Morita (MED)","Ao Tanaka (MED)","Kaoru Mitoma (MED)","Takumi Minamino (DEL)","Ayase Ueda (DEL)","Takefusa Kubo (DEL)","Ritsu Doan (SUP)","Daichi Kamada (SUP)","Reo Yamane (SUP)","Yukinari Sugawara (SUP)","Junya Ito (SUP)","Maya Yoshida (CAP)","Hajime Moriyasu (DT)","Fig. Especial"] },
+    { nombre:"Suecia",         bandera:"🇸🇪", jugadores:["Escudo del equipo","Robin Olsen (POR)","Victor Lindelöf (DEF)","Isak Hien (DEF)","Ludwig Augustinsson (DEF)","Emil Krafth (DEF)","Albin Ekdal (MED)","Mattias Svanberg (MED)","Dejan Kulusevski (MED)","Viktor Claesson (MED)","Alexander Isak (DEL)","Viktor Gyökeres (DEL)","Robin Quaison (DEL)","Sebastian Larsson (SUP)","Jordan Larsson (SUP)","Isaac Kiese Thelin (SUP)","Jesper Karlsson (SUP)","Pontus Almqvist (SUP)","Victor Lindelöf (CAP)","Jon Dahl Tomasson (DT)","Fig. Especial"] },
+    { nombre:"Túnez",          bandera:"🇹🇳", jugadores:["Escudo del equipo","Aymen Dahmen (POR)","Montassar Talbi (DEF)","Yassine Meriah (DEF)","Ali Maaloul (DEF)","Dylan Bronn (DEF)","Ellyes Skhiri (MED)","Anis Ben Slimane (MED)","Hannibal Mejbri (MED)","Mohamed Ali Ben Romdhane (MED)","Seifeddine Jaziri (DEL)","Naim Sliti (DEL)","Issam Jebali (DEL)","Taha Yassine Khenissi (SUP)","Youssef Msakni (SUP)","Mohamed Drager (SUP)","Wajdi Kechrida (SUP)","Hamza Rafia (SUP)","Ellyes Skhiri (CAP)","Jalel Kadri (DT)","Fig. Especial"] }
+  ]},
+  { letra:"G", equipos:[
+    { nombre:"Bélgica",        bandera:"🇧🇪", jugadores:["Escudo del equipo","Thibaut Courtois (POR)","Toby Alderweireld (DEF)","Jan Vertonghen (DEF)","Timothy Castagne (DEF)","Arthur Theate (DEF)","Kevin De Bruyne (MED)","Youri Tielemans (MED)","Hans Vanaken (MED)","Axel Witsel (MED)","Romelu Lukaku (DEL)","Lois Openda (DEL)","Leandro Trossard (DEL)","Charles De Ketelaere (SUP)","Johan Bakayoko (SUP)","Alexis Saelemaekers (SUP)","Orel Mangala (SUP)","Dodi Lukebakio (SUP)","Kevin De Bruyne (CAP)","Domenico Tedesco (DT)","Fig. Especial"] },
+    { nombre:"Egipto",         bandera:"🇪🇬", jugadores:["Escudo del equipo","Mohamed El-Shenawy (POR)","Ahmed Hegazi (DEF)","Omar Kamal (DEF)","Mohamed Hany (DEF)","Ahmed Fatouh (DEF)","Tarek Hamed (MED)","Mohamed Elneny (MED)","Emam Ashour (MED)","Amr El-Sulaya (MED)","Mohamed Salah (DEL)","Omar Marmoush (DEL)","Mostafa Mohamed (DEL)","Kahraba (SUP)","Ramadan Sobhi (SUP)","Zizo (SUP)","Salah Mohsen (SUP)","Akram Tawfik (SUP)","Mohamed Salah (CAP)","Hossam Hassan (DT)","Fig. Especial"] },
+    { nombre:"Irán",           bandera:"🇮🇷", jugadores:["Escudo del equipo","Alireza Beiranvand (POR)","Majid Hosseini (DEF)","Ehsan Hajsafi (DEF)","Sadegh Moharrami (DEF)","Mohammad Mohebi (DEF)","Ahmad Noorollahi (MED)","Saeid Ezatolahi (MED)","Ali Gholizadeh (MED)","Mehdi Torabi (MED)","Sardar Azmoun (DEL)","Medhi Taremi (DEL)","Allahyar Sayyadmanesh (DEL)","Ali Karimi (SUP)","Ramin Rezaeian (SUP)","Karim Ansarifard (SUP)","Morteza Pouraliganji (SUP)","Voria Ghafouri (SUP)","Ehsan Hajsafi (CAP)","Amir Ghalenoei (DT)","Fig. Especial"] },
+    { nombre:"Nueva Zelanda",  bandera:"🇳🇿", jugadores:["Escudo del equipo","Stefan Marinovic (POR)","Michael Boxall (DEF)","Liberato Cacace (DEF)","Nando Pijnaker (DEF)","Tim Payne (DEF)","Joe Bell (MED)","Ryan Thomas (MED)","Marko Stamenic (MED)","Callum McCowatt (MED)","Chris Wood (DEL)","Matthew Garbett (DEL)","Elijah Just (DEL)","Ben Old (SUP)","Sarpreet Singh (SUP)","Tyler Boyd (SUP)","Finn Surman (SUP)","Kosta Barbarouses (SUP)","Chris Wood (CAP)","Darren Bazeley (DT)","Fig. Especial"] }
+  ]},
+  { letra:"H", equipos:[
+    { nombre:"España",         bandera:"🇪🇸", jugadores:["Escudo del equipo","Unai Simón (POR)","Aymeric Laporte (DEF)","Robin Le Normand (DEF)","Alejandro Balde (DEF)","Dani Carvajal (DEF)","Rodri (MED)","Pedri (MED)","Fabián Ruiz (MED)","Mikel Merino (MED)","Álvaro Morata (DEL)","Nico Williams (DEL)","Lamine Yamal (DEL)","Ferran Torres (SUP)","Dani Olmo (SUP)","Yeremy Pino (SUP)","Marcos Llorente (SUP)","Gavi (SUP)","Álvaro Morata (CAP)","Luis de la Fuente (DT)","Fig. Especial"] },
+    { nombre:"Cabo Verde",     bandera:"🇨🇻", jugadores:["Escudo del equipo","Vozinha (POR)","Roberto Lopes (DEF)","Dylan Tavares (DEF)","Stopira (DEF)","Sandro (DEF)","Kenny Rocha (MED)","Jamiro Monteiro (MED)","Garry Rodrigues (MED)","Ryan Mendes (MED)","Djaniny (DEL)","Bebé (DEL)","Lúcio Antunes (DEL)","Willy Semedo (SUP)","Marcos Nascimento (SUP)","Diogo Tavares (SUP)","Deroy Duarte (SUP)","David da Graça (SUP)","Stopira (CAP)","Pedro Brito (DT)","Fig. Especial"] },
+    { nombre:"Arabia Saudita", bandera:"🇸🇦", jugadores:["Escudo del equipo","Mohammed Al-Owais (POR)","Ali Al-Bulayhi (DEF)","Hassan Tambakti (DEF)","Saud Abdulhamid (DEF)","Abdullah Madu (DEF)","Salman Al-Faraj (MED)","Mohamed Kanno (MED)","Ali Al-Hassan (MED)","Abdulellah Al-Malki (MED)","Salem Al-Dawsari (DEL)","Firas Al-Buraikan (DEL)","Abdullah Al-Hamdan (DEL)","Nasser Al-Dawsari (SUP)","Hattan Bahebri (SUP)","Ali Al-Ghamdi (SUP)","Nawaf Al-Aqidi (SUP)","Sami Al-Najei (SUP)","Salman Al-Faraj (CAP)","Roberto Mancini (DT)","Fig. Especial"] },
+    { nombre:"Uruguay",        bandera:"🇺🇾", jugadores:["Escudo del equipo","Sergio Rochet (POR)","José María Giménez (DEF)","Mathías Olivera (DEF)","Nahitan Nández (DEF)","Matías Viña (DEF)","Lucas Torreira (MED)","Rodrigo Bentancur (MED)","Federico Valverde (MED)","Giorgian De Arrascaeta (MED)","Darwin Núñez (DEL)","Facundo Torres (DEL)","Maximiliano Araújo (DEL)","Luis Suárez (SUP)","Nicolás De La Cruz (SUP)","Brian Rodríguez (SUP)","Agustín Canobbio (SUP)","Matías Vecino (SUP)","José María Giménez (CAP)","Marcelo Bielsa (DT)","Fig. Especial"] }
+  ]},
+  { letra:"I", equipos:[
+    { nombre:"Francia",        bandera:"🇫🇷", jugadores:["Escudo del equipo","Mike Maignan (POR)","Dayot Upamecano (DEF)","Jules Koundé (DEF)","Théo Hernández (DEF)","Jonathan Clauss (DEF)","Aurélien Tchouaméni (MED)","Adrien Rabiot (MED)","Eduardo Camavinga (MED)","Antoine Griezmann (MED)","Kylian Mbappé (DEL)","Marcus Thuram (DEL)","Ousmane Dembélé (DEL)","Christopher Nkunku (SUP)","Randal Kolo Muani (SUP)","Kingsley Coman (SUP)","Youssouf Fofana (SUP)","Bradley Barcola (SUP)","Kylian Mbappé (CAP)","Didier Deschamps (DT)","Fig. Especial"] },
+    { nombre:"Senegal",        bandera:"🇸🇳", jugadores:["Escudo del equipo","Édouard Mendy (POR)","Kalidou Koulibaly (DEF)","Abdou Diallo (DEF)","Youssouf Sabaly (DEF)","Formose Mendy (DEF)","Idrissa Gueye (MED)","Cheikhou Kouyaté (MED)","Pape Gueye (MED)","Nampalys Mendy (MED)","Sadio Mané (DEL)","Ismaila Sarr (DEL)","Nicolas Jackson (DEL)","Boulaye Dia (SUP)","Iliman Ndiaye (SUP)","Famara Diédhiou (SUP)","Krepin Diatta (SUP)","Lamine Camara (SUP)","Sadio Mané (CAP)","Aliou Cissé (DT)","Fig. Especial"] },
+    { nombre:"Noruega",        bandera:"🇳🇴", jugadores:["Escudo del equipo","Ørjan Nyland (POR)","Leo Ostigard (DEF)","Andreas Hanche-Olsen (DEF)","Birger Meling (DEF)","Kristoffer Ajer (DEF)","Martin Ødegaard (MED)","Sander Berge (MED)","Mathias Normann (MED)","Fredrik Aursnes (MED)","Erling Haaland (DEL)","Alexander Sørloth (DEL)","Antonio Nusa (DEL)","Mohamed Elyounoussi (SUP)","Ola Solbakken (SUP)","Jens Petter Hauge (SUP)","Kristian Thorstvedt (SUP)","Patrick Berg (SUP)","Martin Ødegaard (CAP)","Ståle Solbakken (DT)","Fig. Especial"] },
+    { nombre:"Irak",           bandera:"🇮🇶", jugadores:["Escudo del equipo","Jalal Hassan (POR)","Ali Adnan (DEF)","Rebin Sulaka (DEF)","Saad Abdul-Amir (DEF)","Hussein Ali (DEF)","Amjed Attwan (MED)","Safaa Hadi (MED)","Bashar Resan (MED)","Hussein Jabbar (MED)","Mohanad Ali (DEL)","Ayman Hussein (DEL)","Alaa Abbas (DEL)","Amir Al-Ammari (SUP)","Firas Shaker (SUP)","Hamza Hameed (SUP)","Wisam Ali (SUP)","Mohammed Qasim (SUP)","Ali Adnan (CAP)","Jesús Casas (DT)","Fig. Especial"] }
+  ]},
+  { letra:"J", equipos:[
+    { nombre:"Argentina",      bandera:"🇦🇷", jugadores:["Escudo del equipo","Emiliano Martínez (POR)","Cristian Romero (DEF)","Nicolás Otamendi (DEF)","Nicolás Tagliafico (DEF)","Nahuel Molina (DEF)","Rodrigo De Paul (MED)","Leandro Paredes (MED)","Alexis Mac Allister (MED)","Enzo Fernández (MED)","Lionel Messi (DEL)","Lautaro Martínez (DEL)","Julián Álvarez (DEL)","Paulo Dybala (SUP)","Thiago Almada (SUP)","Nicolás González (SUP)","Giovanni Simeone (SUP)","Valentín Carboni (SUP)","Lionel Messi (CAP)","Lionel Scaloni (DT)","Fig. Especial"] },
+    { nombre:"Argelia",        bandera:"🇩🇿", jugadores:["Escudo del equipo","Raïs M'Bolhi (POR)","Djamel Benlamri (DEF)","Aïssa Mandi (DEF)","Youcef Atal (DEF)","Mehdi Zeffane (DEF)","Ismaël Bennacer (MED)","Houssem Aouar (MED)","Sofiane Feghouli (MED)","Said Benrahma (MED)","Riyad Mahrez (DEL)","Baghdad Bounedjah (DEL)","Youcef Belaïli (DEL)","Andy Delort (SUP)","Billal Brahimi (SUP)","Adam Ounas (SUP)","Zinedine Ferhat (SUP)","Abdelkader Bedrane (SUP)","Riyad Mahrez (CAP)","Vladimir Petkovic (DT)","Fig. Especial"] },
+    { nombre:"Austria",        bandera:"🇦🇹", jugadores:["Escudo del equipo","Patrick Pentz (POR)","Philipp Lienhart (DEF)","Kevin Danso (DEF)","Philipp Mwene (DEF)","Stefan Posch (DEF)","David Alaba (MED)","Florian Grillitsch (MED)","Konrad Laimer (MED)","Christoph Baumgartner (MED)","Marko Arnautović (DEL)","Michael Gregoritsch (DEL)","Sasa Kalajdzic (DEL)","Marcel Sabitzer (SUP)","Nicolas Seiwald (SUP)","Andreas Weimann (SUP)","Maximilian Wöber (SUP)","Guido Burgstaller (SUP)","David Alaba (CAP)","Ralf Rangnick (DT)","Fig. Especial"] },
+    { nombre:"Jordania",       bandera:"🇯🇴", jugadores:["Escudo del equipo","Yazeed Abulaila (POR)","Abdallah Nasib (DEF)","Yazan Al-Naimat (DEF)","Omar Al-Dardour (DEF)","Ahmad Qatato (DEF)","Nour Al-Rawabdeh (MED)","Baha' Faisal (MED)","Musa Al-Taamari (MED)","Ehsan Haddad (MED)","Mousa Al-Taamari (DEL)","Zaid Al-Rashdan (DEL)","Hamza Al-Dardour (DEL)","Baha' Hamdan (SUP)","Naser Dardour (SUP)","Ahmad Haif (SUP)","Oday Dabbagh (SUP)","Abdelatif Bahdari (SUP)","Baha' Faisal (CAP)","Hussein Ammouta (DT)","Fig. Especial"] }
+  ]},
+  { letra:"K", equipos:[
+    { nombre:"Portugal",       bandera:"🇵🇹", jugadores:["Escudo del equipo","Diogo Costa (POR)","Rúben Dias (DEF)","Pepe (DEF)","Nuno Mendes (DEF)","João Cancelo (DEF)","Rúben Neves (MED)","Bernardo Silva (MED)","Bruno Fernandes (MED)","Vitinha (MED)","Cristiano Ronaldo (DEL)","Rafael Leão (DEL)","Gonçalo Ramos (DEL)","João Félix (SUP)","Pedro Neto (SUP)","Diogo Jota (SUP)","Otávio (SUP)","Francisco Conceição (SUP)","Cristiano Ronaldo (CAP)","Roberto Martínez (DT)","Fig. Especial"] },
+    { nombre:"Rep. D. Congo",  bandera:"🇨🇩", jugadores:["Escudo del equipo","Joël Kiassumbua (POR)","Chancel Mbemba (DEF)","Glody Ngonda (DEF)","Marcel Tisserand (DEF)","Arthur Masuaku (DEF)","Yannick Bolasie (MED)","Samuel Moutoussamy (MED)","Cédric Bakambu (MED)","Jordan Ikoko (MED)","Dodi Lukebakio (DEL)","Silas Wissa (DEL)","Ben Malango (DEL)","Paul-José Mpoku (SUP)","Jonathan Bolingi (SUP)","Neeskens Kebano (SUP)","Théo Bongonda (SUP)","Fiston Mayele (SUP)","Chancel Mbemba (CAP)","Sébastien Desabre (DT)","Fig. Especial"] },
+    { nombre:"Uzbekistán",     bandera:"🇺🇿", jugadores:["Escudo del equipo","Eldorbek Suyunov (POR)","Sarvarbek Ruziev (DEF)","Khurshid Beknazarov (DEF)","Shamsiddin Tursunov (DEF)","Islom Tukhtahujaev (DEF)","Otabek Shukurov (MED)","Jasur Yakhshiboev (MED)","Bobur Abdukholiqov (MED)","Dostonbek Khamdamov (MED)","Jaloliddin Masharipov (DEL)","Eldor Shomurodov (DEL)","Abbosbek Fayzullaev (DEL)","Sherzod Nasrullayev (SUP)","Umid Achilbayev (SUP)","Nodir Sultonov (SUP)","Sanjar Tursunov (SUP)","Ruslan Nishonov (SUP)","Eldor Shomurodov (CAP)","Srecko Katanec (DT)","Fig. Especial"] },
+    { nombre:"Colombia",       bandera:"🇨🇴", jugadores:["Escudo del equipo","David Ospina (POR)","Dávinson Sánchez (DEF)","Yerry Mina (DEF)","Johan Mojica (DEF)","Daniel Muñoz (DEF)","Wilmar Barrios (MED)","Matheus Uribe (MED)","James Rodríguez (MED)","Richard Ríos (MED)","Luis Díaz (DEL)","Rafael Santos Borré (DEL)","Cucho Hernández (DEL)","Jhon Córdoba (SUP)","Duván Zapata (SUP)","Jorge Carrascal (SUP)","Jhon Arias (SUP)","Gustavo Puerta (SUP)","James Rodríguez (CAP)","Néstor Lorenzo (DT)","Fig. Especial"] }
+  ]},
+  { letra:"L", equipos:[
+    { nombre:"Inglaterra",     bandera:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", jugadores:["Escudo del equipo","Jordan Pickford (POR)","John Stones (DEF)","Harry Maguire (DEF)","Luke Shaw (DEF)","Trent Alexander-Arnold (DEF)","Declan Rice (MED)","Jude Bellingham (MED)","Phil Foden (MED)","Bukayo Saka (MED)","Harry Kane (DEL)","Marcus Rashford (DEL)","Ollie Watkins (DEL)","Raheem Sterling (SUP)","Anthony Gordon (SUP)","Cole Palmer (SUP)","Jarrod Bowen (SUP)","Conor Gallagher (SUP)","Harry Kane (CAP)","Gareth Southgate (DT)","Fig. Especial"] },
+    { nombre:"Croacia",        bandera:"🇭🇷", jugadores:["Escudo del equipo","Dominik Livaković (POR)","Joško Gvardiol (DEF)","Josip Juranović (DEF)","Borna Barišić (DEF)","Martin Erlić (DEF)","Luka Modrić (MED)","Mateo Kovačić (MED)","Marcelo Brozović (MED)","Mario Pašalić (MED)","Andrej Kramarić (DEL)","Bruno Petković (DEL)","Marko Livaja (DEL)","Ivan Perišić (SUP)","Nikola Vlašić (SUP)","Lovro Majer (SUP)","Luka Ivanušec (SUP)","Mislav Oršić (SUP)","Luka Modrić (CAP)","Zlatko Dalić (DT)","Fig. Especial"] },
+    { nombre:"Ghana",          bandera:"🇬🇭", jugadores:["Escudo del equipo","Lawrence Ati-Zigi (POR)","Daniel Amartey (DEF)","Alexander Djiku (DEF)","Abdul Rahman Baba (DEF)","Tariq Lamptey (DEF)","Thomas Partey (MED)","Mohammed Kudus (MED)","Mubarak Wakaso (MED)","Iddrisu Baba (MED)","Jordan Ayew (DEL)","Inaki Williams (DEL)","Antoine Semenyo (DEL)","André Ayew (SUP)","Osman Bukari (SUP)","Felix Afena-Gyan (SUP)","Abedi Ayew Jr. (SUP)","Ernest Nuamah (SUP)","André Ayew (CAP)","Otto Addo (DT)","Fig. Especial"] },
+    { nombre:"Panamá",         bandera:"🇵🇦", jugadores:["Escudo del equipo","Luis Mejía (POR)","Fidel Escobar (DEF)","Harold Cummings (DEF)","Éric Davis (DEF)","Andrés Andrade (DEF)","Aníbal Godoy (MED)","Adalberto Carrasquilla (MED)","Édgar Bárcenas (MED)","Armando Cooper (MED)","Rolando Blackburn (DEL)","Ismael Díaz (DEL)","César Yanis (DEL)","Abdiel Ayarza (SUP)","Freddy Góndola (SUP)","Jovani Welch (SUP)","José Fajardo (SUP)","Alberto Quintero (SUP)","Aníbal Godoy (CAP)","Thomas Christiansen (DT)","Fig. Especial"] }
+  ]}
+];
+
+const DB_TIPOS = [
+  {codigo:"ESC",pos:"ESC"},{codigo:"PT1",pos:"GK"},{codigo:"PT2",pos:"DEF"},{codigo:"PT3",pos:"DEF"},
+  {codigo:"PT4",pos:"DEF"},{codigo:"PT5",pos:"DEF"},{codigo:"PT6",pos:"MED"},{codigo:"PT7",pos:"MED"},
+  {codigo:"PT8",pos:"MED"},{codigo:"PT9",pos:"MED"},{codigo:"PT10",pos:"DEL"},{codigo:"PT11",pos:"DEL"},
+  {codigo:"PT12",pos:"DEL"},{codigo:"PT13",pos:"SUP"},{codigo:"PT14",pos:"SUP"},{codigo:"PT15",pos:"SUP"},
+  {codigo:"PT16",pos:"SUP"},{codigo:"PT17",pos:"SUP"},{codigo:"PT18",pos:"CAP"},{codigo:"PT19",pos:"DT"},
+  {codigo:"PT20",pos:"ESP"}
+];
+
+const DB_ESTADIOS = [
+  {nombre:"MetLife Stadium",ciudad:"East Rutherford, NJ · USA",bandera:"🇺🇸",capacidad:82500,inauguracion:2010,partidos:9,rol:"Gran Final",desc:"Sede de la Gran Final. A 15 km de Manhattan. Compartido por Giants y Jets de la NFL."},
+  {nombre:"AT&T Stadium",ciudad:"Arlington, TX · USA",bandera:"🇺🇸",capacidad:80000,inauguracion:2009,partidos:8,rol:"Tercer Puesto",desc:"'Jerry World'. Techo retráctil y pantalla de video gigante. Sede del tercer puesto."},
+  {nombre:"SoFi Stadium",ciudad:"Inglewood, CA · USA",bandera:"🇺🇸",capacidad:70240,inauguracion:2020,partidos:8,rol:"Fase de Grupos",desc:"El estadio más moderno del torneo (2020). Techo translúcido. Casa de Rams y Chargers."},
+  {nombre:"Levi's Stadium",ciudad:"Santa Clara, CA · USA",bandera:"🇺🇸",capacidad:68500,inauguracion:2014,partidos:7,rol:"Fase de Grupos",desc:"Casa de los 49ers. Sede de Super Bowls y Copa América 2016. Silicon Valley."},
+  {nombre:"Arrowhead Stadium",ciudad:"Kansas City, MO · USA",bandera:"🇺🇸",capacidad:76416,inauguracion:1972,partidos:6,rol:"Fase de Grupos",desc:"Uno de los estadios más ruidosos del mundo. Casa de los Chiefs. Récord Guinness de decibeles."},
+  {nombre:"Lincoln Financial Field",ciudad:"Filadelfia, PA · USA",bandera:"🇺🇸",capacidad:69796,inauguracion:2003,partidos:6,rol:"Fase de Grupos",desc:"Casa de los Eagles. Ciudad que albergó partidos del Mundial 1994."},
+  {nombre:"Gillette Stadium",ciudad:"Foxborough, MA · USA",bandera:"🇺🇸",capacidad:65878,inauguracion:2002,partidos:6,rol:"Fase de Grupos",desc:"Casa de los Patriots y Revolution MLS. Entre Boston y Providence."},
+  {nombre:"Hard Rock Stadium",ciudad:"Miami Gardens, FL · USA",bandera:"🇺🇸",capacidad:64767,inauguracion:1987,partidos:7,rol:"Fase de Grupos",desc:"Sede del Inter Miami CF. La ciudad más latinoamericana de EE.UU."},
+  {nombre:"Allegiant Stadium",ciudad:"Las Vegas, NV · USA",bandera:"🇺🇸",capacidad:65000,inauguracion:2020,partidos:6,rol:"Fase de Grupos",desc:"En el desierto de Nevada. Techo fijo traslúcido. La ciudad del espectáculo."},
+  {nombre:"Lumen Field",ciudad:"Seattle, WA · USA",bandera:"🇺🇸",capacidad:68740,inauguracion:2002,partidos:6,rol:"Fase de Grupos",desc:"Casa del Sounders FC y Seahawks. El mejor estadio de fútbol de Norteamérica."},
+  {nombre:"NRG Stadium",ciudad:"Houston, TX · USA",bandera:"🇺🇸",capacidad:72220,inauguracion:2002,partidos:7,rol:"Fase de Grupos",desc:"Techo retráctil para el clima de Houston. Ciudad más diversa de EE.UU."},
+  {nombre:"Estadio Azteca",ciudad:"Ciudad de México · MEX",bandera:"🇲🇽",capacidad:87523,inauguracion:1966,partidos:6,rol:"Partido Inaugural",desc:"El estadio más legendario. Finales de 1970 y 1986. Gol del Siglo de Maradona. 2.240 m s.n.m."},
+  {nombre:"Estadio Akron",ciudad:"Guadalajara, JAL · MEX",bandera:"🇲🇽",capacidad:49850,inauguracion:2010,partidos:5,rol:"Fase de Grupos",desc:"Estadio de las Chivas. Uno de los más bonitos de Latinoamérica."},
+  {nombre:"Estadio BBVA",ciudad:"Monterrey, NL · MEX",bandera:"🇲🇽",capacidad:53500,inauguracion:2015,partidos:5,rol:"Fase de Grupos",desc:"Con las Sierras como telón de fondo. Casa de los Rayados. Inaugurado en 2015."},
+  {nombre:"BMO Field",ciudad:"Toronto, ON · CAN",bandera:"🇨🇦",capacidad:45000,inauguracion:2007,partidos:6,rol:"Fase de Grupos",desc:"Del Toronto FC. Ciudad más multicultural del mundo. Ampliado para el Mundial."},
+  {nombre:"BC Place",ciudad:"Vancouver, BC · CAN",bandera:"🇨🇦",capacidad:54500,inauguracion:1983,partidos:6,rol:"Fase de Grupos",desc:"Techo neumático retráctil más grande del mundo. Entre el Pacífico y las Rocosas."}
+];
+
+const DB_CALENDARIO = [
+  {fecha:"11 Jun 2026",evento:"Partido Inaugural",detalle:"Estadio Azteca, Ciudad de México"},
+  {fecha:"11–26 Jun",evento:"Fase de Grupos",detalle:"12 grupos · 48 equipos"},
+  {fecha:"27 Jun – 4 Jul",evento:"Octavos de Final",detalle:"32 equipos clasificados"},
+  {fecha:"4–7 Jul",evento:"Cuartos de Final",detalle:"16 equipos"},
+  {fecha:"14–15 Jul",evento:"Semifinales",detalle:"4 equipos"},
+  {fecha:"18 Jul",evento:"Tercer Puesto",detalle:"AT&T Stadium, Dallas"},
+  {fecha:"19 Jul 2026",evento:"Gran Final 🏆",detalle:"MetLife Stadium, New York/NJ"}
+];
+
+const TPP = DB_TIPOS.length; // 21 por equipo
+const STORAGE_KEY = "wc2026_album_v3";
+
+// ── STATE (API + localStorage fallback) ──
+const API_BASE = window.location.origin;
+let _token = localStorage.getItem('wc2026_token') || null;
+let _cachedState = null;
+
+function authHeaders(){
+  return { 'Content-Type':'application/json', 'Authorization':'Bearer '+_token };
+}
+
+async function loadState(){
+  if(_cachedState) return _cachedState;
+  if(!_token) return {};
+  try {
+    const r = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+    if(!r.ok) return {};
+    const d = await r.json();
+    _cachedState = flattenState(d.estado || {});
+    return _cachedState;
+  } catch { return {}; }
+}
+
+// Flatten nested {GL__EQ: {codigo: val}} → {"GL__EQ||codigo": val} for compatibility
+function flattenState(raw){
+  const flat = {};
+  for(const [teamKey, codes] of Object.entries(raw)){
+    if(typeof codes === 'object'){
+      for(const [codigo, val] of Object.entries(codes)){
+        flat[teamKey+'||'+codigo] = val;
+      }
+    }
+  }
+  return flat;
+}
+
+// Build nested state from flat for API
+function buildNestedState(flat){
+  const nested = {};
+  for(const [k, v] of Object.entries(flat)){
+    if(v === 'vacia') continue;
+    const parts = k.split('||');
+    if(parts.length !== 2) continue;
+    const [tk, codigo] = parts;
+    if(!nested[tk]) nested[tk] = {};
+    nested[tk][codigo] = v;
+  }
+  return nested;
+}
+
+function teamKey(gl,en){ return gl+"__"+en.replace(/[^a-zA-Z0-9]/g,"_"); }
+
+function getEstado(s,gl,en,codigo){
+  const k = teamKey(gl,en)+'||'+codigo;
+  return s[k] || "vacia";
+}
+
+async function cycleEstado(gl,en,codigo){
+  if(!_cachedState) _cachedState = await loadState();
+  const k = teamKey(gl,en)+'||'+codigo;
+  const cur = _cachedState[k] || "vacia";
+  const next = cur==="vacia"?"tengo": cur==="tengo"?"repetida":"vacia";
+  if(next === 'vacia') delete _cachedState[k];
+  else _cachedState[k] = next;
+  // Save to server (non-blocking)
+  if(_token){
+    fetch(API_BASE+'/api/album/sticker', {
+      method:'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ key: teamKey(gl,en)+'__'+codigo, value: next })
+    }).catch(()=>{});
+    // Also keep flat key in sync on server
+    const nested = buildNestedState(_cachedState);
+    fetch(API_BASE+'/api/album', {
+      method:'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ estado: nested })
+    }).catch(()=>{});
+  }
+  return next;
+}
+
+// ── COUNTS (sync, use _cachedState) ──
+function getCS(){ return _cachedState || {}; }
+function countTeam(s,gl,en){
+  let t=0,r=0,f=0;
+  DB_TIPOS.forEach(tp=>{ const v=getEstado(s,gl,en,tp.codigo); if(v==="tengo")t++; else if(v==="repetida")r++; else f++; });
+  return {t,r,f,tot:TPP};
+}
+function countGroup(g){
+  const s=getCS();
+  let t=0,r=0,f=0,tot=0;
+  g.equipos.forEach(eq=>{ const c=countTeam(s,g.letra,eq.nombre); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
+  return {t,r,f,tot};
+}
+function countAll(){
+  let t=0,r=0,f=0,tot=0;
+  DB_GRUPOS.forEach(g=>{ const c=countGroup(g); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
+  return {t,r,f,tot};
+}
+
+// ── HEADER ──
+function updateHeader(){
+  const c=countAll();
+  document.getElementById("ct").textContent="✓ "+c.t;
+  document.getElementById("cf").textContent="✗ "+c.f;
+  document.getElementById("cr").textContent="↺ "+c.r;
+  const pct=c.tot>0?Math.round(c.t/c.tot*100):0;
+  document.getElementById("hpf").style.width=pct+"%";
+}
+
+// ── RENDER ALBUM ──
+let filterMode="todos";
+let searchQ="";
+
+async function renderAlbum(){
+  const con=document.getElementById("album-container");
+  con.innerHTML="";
+  const s = _cachedState || await loadState();
+  const q=searchQ.toLowerCase();
+
+  DB_GRUPOS.forEach((g,gi)=>{
+    if(q && !g.equipos.some(e=>e.nombre.toLowerCase().includes(q))) return;
+
+    // Check if group has teams matching filter
+    const visibleTeams = g.equipos.filter(eq=>{
+      if(q && !eq.nombre.toLowerCase().includes(q)) return false;
+      if(filterMode==="todos") return true;
+      const c=countTeam(s,g.letra,eq.nombre);
+      if(filterMode==="completo") return c.t===TPP;
+      if(filterMode==="incompleto") return c.t>0 && c.t<TPP;
+      if(filterMode==="nada") return c.t===0 && c.r===0;
+      return true;
+    });
+    if(!visibleTeams.length) return;
+
+    const gc=countGroup(g);
+    const pct=Math.round(gc.t/gc.tot*100);
+    const isCollapsed=localStorage.getItem("gc_"+g.letra)==="1";
+
+    const block=document.createElement("div");
+    block.className="gblock";
+    block.innerHTML=`
+      <div class="ghdr${isCollapsed?" collapsed":""}" id="gh_${g.letra}">
+        <div class="gletter">G${g.letra}</div>
+        <div class="gname">Grupo ${g.letra} — ${g.equipos.map(e=>e.bandera).join(" ")}</div>
+        <div class="gpbar"><div class="gpfill" id="gpf_${g.letra}" style="width:${pct}%"></div></div>
+        <div class="gptext" id="gpt_${g.letra}">${gc.t}/${gc.tot} (${pct}%)</div>
+        <span class="gtog">▼</span>
+      </div>
+      <div class="gbody${isCollapsed?" hidden":""}" id="gb_${g.letra}"></div>`;
+    con.appendChild(block);
+
+    document.getElementById("gh_"+g.letra).addEventListener("click",()=>{
+      const body=document.getElementById("gb_"+g.letra);
+      const hdr=document.getElementById("gh_"+g.letra);
+      const h=body.classList.toggle("hidden");
+      hdr.classList.toggle("collapsed",h);
+      localStorage.setItem("gc_"+g.letra,h?"1":"0");
+    });
+
+    const gb=document.getElementById("gb_"+g.letra);
+    visibleTeams.forEach((eq,ei)=>{
+      gb.appendChild(buildTeamCard(s,g,gi,eq,g.equipos.indexOf(eq)));
+    });
+  });
+}
+
+function buildTeamCard(s,g,gi,eq,ei){
+  const c=countTeam(s,g.letra,eq.nombre);
+  const pct=Math.round(c.t/c.tot*100);
+  const complete=c.t===TPP;
+
+  const card=document.createElement("div");
+  card.className="tcard"+(complete?" complete":"");
+  card.id="tc_"+g.letra+"_"+ei;
+
+  card.innerHTML=`
+    <div class="tchdr">
+      <div class="tname-wrap">
+        <span class="tflag">${eq.bandera}</span>
+        <span class="tname">${eq.nombre}</span>
+      </div>
+      <div class="tright">
+        <span class="tcount" id="tct_${g.letra}_${ei}">${c.t}/${c.tot}</span>
+      </div>
+    </div>
+    <div class="tpbar"><div class="tpfill" id="tpf_${g.letra}_${ei}" style="width:${pct}%"></div></div>
+    <div class="stickers" id="stk_${g.letra}_${ei}"></div>
+    <button class="plist-toggle" id="plt_${g.letra}_${ei}">▶ Ver listado de jugadores</button>
+    <div class="plist" id="pl_${g.letra}_${ei}"></div>`;
+
+  const stkDiv=card.querySelector("#stk_"+g.letra+"_"+ei);
+  DB_TIPOS.forEach((tp,ti)=>{
+    const estado=getEstado(s,g.letra,eq.nombre,tp.codigo);
+    const num=gi*4*TPP + g.equipos.indexOf(eq)*TPP + ti + 1;
+    const isFoil=ti===0; // primer sticker = escudo = foil
+
+    const lbl=document.createElement("label");
+    lbl.className="slabel"+(isFoil?" foil":"");
+    lbl.title=eq.jugadores[ti]||tp.codigo;
+
+    const inp=document.createElement("input");
+    inp.type="checkbox";
+    inp.dataset.estado=estado;
+    inp.dataset.gl=g.letra;
+    inp.dataset.en=eq.nombre;
+    inp.dataset.tc=tp.codigo;
+    inp.dataset.gi=gi;
+    inp.dataset.ei=g.equipos.indexOf(eq);
+    inp.dataset.ti=ti;
+
+    const box=document.createElement("div");
+    box.className="sbox";
+
+    const numEl=document.createElement("span");
+    numEl.className="snum";
+    numEl.textContent=num;
+
+    lbl.appendChild(inp);
+    lbl.appendChild(box);
+    lbl.appendChild(numEl);
+    stkDiv.appendChild(lbl);
+
+    inp.addEventListener("click",(e)=>{
+      e.preventDefault();
+      const next=await cycleEstado(g.letra,eq.nombre,tp.codigo);
+      inp.dataset.estado=next;
+      updateTeamCard(g,gi,g.equipos.indexOf(eq),eq);
+      updateGroupProgress(g);
+      updateHeader();
+      const msgs={"tengo":"✓ Tengo","repetida":"↺ Repetida","vacia":"Quitada"};
+      showToast(msgs[next]+" — "+(eq.jugadores[ti]||tp.codigo));
+    });
+  });
+
+  // Player list
+  const plistToggle=card.querySelector("#plt_"+g.letra+"_"+ei);
+  const plistDiv=card.querySelector("#pl_"+g.letra+"_"+ei);
+
+  plistToggle.addEventListener("click",()=>{
+    const open=plistDiv.classList.toggle("open");
+    plistToggle.textContent=(open?"▼ Ocultar":"▶ Ver")+" listado de jugadores";
+    if(open && !plistDiv.dataset.built){
+      buildPlayerList(plistDiv,s,g,gi,eq,g.equipos.indexOf(eq));
+      plistDiv.dataset.built="1";
+    }
+  });
+
+  return card;
+}
+
+function buildPlayerList(div,s,g,gi,eq,ei){
+  div.innerHTML="";
+  DB_TIPOS.forEach((tp,ti)=>{
+    const estado=getEstado(s,g.letra,eq.nombre,tp.codigo);
+    const num=gi*4*TPP + ei*TPP + ti + 1;
+    const nombre=eq.jugadores[ti]||tp.codigo;
+    const row=document.createElement("div");
+    row.className="plist-row";
+    row.id="plr_"+g.letra+"_"+ei+"_"+ti;
+    row.innerHTML=`
+      <span class="plist-num">${num}</span>
+      <span class="plist-pos pos-${tp.pos}">${tp.pos}</span>
+      <span class="plist-name">${nombre}</span>
+      <div class="plist-st ${estado}"></div>`;
+    div.appendChild(row);
+  });
+}
+
+function updateTeamCard(g,gi,ei,eq){
+  const s=loadState();
+  const c=countTeam(s,g.letra,eq.nombre);
+  const pct=Math.round(c.t/c.tot*100);
+  const complete=c.t===c.tot;
+  const card=document.getElementById("tc_"+g.letra+"_"+ei);
+  if(card){
+    card.classList.toggle("complete",complete);
+    const tct=document.getElementById("tct_"+g.letra+"_"+ei);
+    if(tct) tct.textContent=c.t+"/"+c.tot;
+    const tpf=document.getElementById("tpf_"+g.letra+"_"+ei);
+    if(tpf) tpf.style.width=pct+"%";
+    // update sticker states
+    card.querySelectorAll(".slabel input").forEach(inp=>{
+      const cur=getEstado(s,inp.dataset.gl,inp.dataset.en,inp.dataset.tc);
+      inp.dataset.estado=cur;
+    });
+    // update player list if open
+    const pl=document.getElementById("pl_"+g.letra+"_"+ei);
+    if(pl && pl.dataset.built){
+      buildPlayerList(pl,s,g,gi,eq,ei);
+    }
+  }
+}
+
+function updateGroupProgress(g){
+  const gc=countGroup(g);
+  const p=Math.round(gc.t/gc.tot*100);
+  const pf=document.getElementById("gpf_"+g.letra);
+  const pt=document.getElementById("gpt_"+g.letra);
+  if(pf) pf.style.width=p+"%";
+  if(pt) pt.textContent=gc.t+"/"+gc.tot+" ("+p+"%)";
+}
+
+// ── ESTADIOS ──
+let filterS="all";
+function buildCountryTabs(){
+  const tabs=document.getElementById("ctabs");
+  [["all","🌍 Todos"],["USA","🇺🇸 EE.UU."],["MEX","🇲🇽 México"],["CAN","🇨🇦 Canadá"]].forEach(([v,l])=>{
+    const btn=document.createElement("button");
+    btn.className="ctab"+(v==="all"?" active":"");
+    btn.textContent=l;
+    btn.addEventListener("click",()=>{
+      filterS=v;
+      document.querySelectorAll(".ctab").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      renderStadiums();
+    });
+    tabs.appendChild(btn);
+  });
+}
+function renderStadiums(){
+  const grid=document.getElementById("sgrid"); grid.innerHTML="";
+  DB_ESTADIOS.forEach(st=>{
+    const pais=st.ciudad.split("·")[1]?.trim();
+    if(filterS!=="all" && pais!==filterS) return;
+    const bg=pais==="MEX"?"#1a3d0a":pais==="CAN"?"#3d0a1a":"#0a1f3d";
+    const card=document.createElement("div"); card.className="scard";
+    card.innerHTML=`
+      <div class="svis" style="background:${bg}20;"><span style="font-size:40px;z-index:1;position:relative;">${st.bandera}</span></div>
+      <div class="sbody">
+        <div class="sname">${st.nombre}</div>
+        <div class="scity">${st.bandera} ${st.ciudad}</div>
+        <div class="sstats">
+          <div class="sst"><div class="sstl">Capacidad</div><div class="sstv">${st.capacidad.toLocaleString("es-AR")}</div></div>
+          <div class="sst"><div class="sstl">Partidos</div><div class="sstv">${st.partidos}</div></div>
+          <div class="sst"><div class="sstl">Inauguración</div><div class="sstv">${st.inauguracion}</div></div>
+          <div class="sst"><div class="sstl">Rol</div><div class="sstv" style="font-size:11px;">${st.rol}</div></div>
+        </div>
+        <div class="sdesc">${st.desc}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── STATS ──
+function renderStats(){
+  const c=countAll();
+  const pct=c.tot>0?Math.round(c.t/c.tot*100):0;
+  document.getElementById("bigstats").innerHTML=`
+    <div class="bstat"><div class="bsv o">${c.tot}</div><div class="bsl">Total</div></div>
+    <div class="bstat"><div class="bsv g">${c.t}</div><div class="bsl">Tengo</div></div>
+    <div class="bstat"><div class="bsv r">${c.f}</div><div class="bsl">Faltan</div></div>
+    <div class="bstat"><div class="bsv y">${c.r}</div><div class="bsl">Repetidas</div></div>
+    <div class="bstat"><div class="bsv o">${pct}%</div><div class="bsl">Completado</div></div>`;
+  const tb=document.getElementById("gtbody"); tb.innerHTML="";
+  DB_GRUPOS.forEach(g=>{
+    const gc=countGroup(g); const p=Math.round(gc.t/gc.tot*100);
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td><b style="color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:16px;">G${g.letra}</b></td>
+      <td style="font-size:11px;">${g.equipos.map(e=>e.bandera+" "+e.nombre).join("<br>")}</td>
+      <td style="color:var(--green);font-weight:600;">${gc.t}</td>
+      <td style="color:#ef5350;">${gc.f}</td>
+      <td style="color:var(--gold);">${gc.r}</td>
+      <td><div class="pcell"><div class="pmini"><div class="pmini-f" style="width:${p}%"></div></div><span style="font-size:11px;color:var(--text2);min-width:28px;">${p}%</span></div></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// ── INFO ──
+function renderInfo(){
+  const cards=[
+    {icon:"🌍",title:"Países Sede",value:"3",desc:"EE.UU., México y Canadá co-organizan el torneo por primera vez."},
+    {icon:"⚽",title:"Equipos",value:"48",desc:"Primera edición con 48 selecciones. Ampliado desde los 32 de Qatar 2022."},
+    {icon:"🏟️",title:"Estadios",value:"16",desc:"11 en EE.UU., 3 en México y 2 en Canadá."},
+    {icon:"🔵",title:"Grupos",value:"12",desc:"12 grupos de 4 equipos. Clasifican los 2 primeros más los 8 mejores terceros."},
+    {icon:"🎯",title:"Partidos",value:"104",desc:"Récord histórico de partidos en una sola Copa del Mundo."},
+    {icon:"🏆",title:"Defensor",value:"ARG",desc:"Argentina defenderá el título conquistado en Qatar 2022."},
+    {icon:"📅",title:"Inicio",value:"11 JUN",desc:"Partido inaugural el 11 de junio en el Estadio Azteca, CDMX."},
+    {icon:"🏁",title:"Final",value:"19 JUL",desc:"Gran Final en el MetLife Stadium, New York/NJ."},
+  ];
+  document.getElementById("igrid").innerHTML=cards.map(c=>`
+    <div class="icard"><div class="iicon">${c.icon}</div><div class="ititle">${c.title}</div><div class="ival">${c.value}</div><div class="idesc">${c.desc}</div></div>`).join("");
+  document.getElementById("timeline").innerHTML=DB_CALENDARIO.map(e=>`
+    <div class="tli"><div class="tli-d">${e.fecha}</div><div class="tli-e">${e.evento}</div><div class="tli-s">${e.detalle}</div></div>`).join("");
+}
+
+// ── NAV (handled in auth section below) ──
+
+// ── FILTER BUTTONS ──
+document.querySelectorAll(".fbtn[data-filter]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    filterMode=btn.dataset.filter;
+    document.querySelectorAll(".fbtn[data-filter]").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    renderAlbum();
+  });
+});
+
+document.getElementById("fsearch").addEventListener("input",e=>{ searchQ=e.target.value; renderAlbum(); });
+
+// ── CSV EXPORTS ──
+function buildCSV(estado){
+  const s = getCS();
+  const nombre = loadName();
+  const rows = [["Numero","Grupo","Equipo","Figurita","Posicion","Estado"]];
+  DB_GRUPOS.forEach((g, gi) => {
+    g.equipos.forEach((eq, ei) => {
+      DB_TIPOS.forEach((tp, ti) => {
+        const cur = getEstado(s, g.letra, eq.nombre, tp.codigo);
+        if(cur !== estado) return;
+        const num = gi * 4 * TPP + ei * TPP + ti + 1;
+        const jugador = eq.jugadores[ti] || tp.codigo;
+        rows.push([num, "Grupo "+g.letra, eq.nombre, jugador, tp.pos, estado==="vacia"?"Falta":"Repetida"]);
+      });
+    });
+  });
+  if(rows.length === 1) return null; // solo header = sin datos
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  return { csv, count: rows.length - 1, nombre };
+}
+
+function downloadCSV(content, filename){
+  const bom = "\uFEFF"; // UTF-8 BOM para que Excel lo abra bien
+  const blob = new Blob([bom + content], { type:"text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById("btn-csv-faltantes").addEventListener("click", () => {
+  const result = buildCSV("vacia");
+  if(!result){ showToast("🎉 ¡No te falta ninguna figurita!"); return; }
+  const safeName = result.nombre.replace(/[^a-zA-Z0-9áéíóúñ\s]/g,"").trim().replace(/\s+/g,"_")||"album";
+  const fecha = new Date().toISOString().slice(0,10);
+  downloadCSV(result.csv, `faltantes_${safeName}_${fecha}.csv`);
+  showToast(`📋 ${result.count} faltantes exportadas`);
+  closeModal();
+});
+
+document.getElementById("btn-csv-repetidas").addEventListener("click", () => {
+  const result = buildCSV("repetida");
+  if(!result){ showToast("No tenés figuritas repetidas por ahora"); return; }
+  const safeName = result.nombre.replace(/[^a-zA-Z0-9áéíóúñ\s]/g,"").trim().replace(/\s+/g,"_")||"album";
+  const fecha = new Date().toISOString().slice(0,10);
+  downloadCSV(result.csv, `repetidas_${safeName}_${fecha}.csv`);
+  showToast(`🔄 ${result.count} repetidas exportadas`);
+  closeModal();
+});
+
+// ── HELP MODAL ──
+document.getElementById("btn-help").addEventListener("click",()=>{
+  document.getElementById("help-overlay").classList.add("open");
+});
+document.getElementById("help-close").addEventListener("click",()=>{
+  document.getElementById("help-overlay").classList.remove("open");
+});
+document.getElementById("help-overlay").addEventListener("click",(e)=>{
+  if(e.target===e.currentTarget) document.getElementById("help-overlay").classList.remove("open");
+});
+
+// ── PROFILE NAME ──
+const NAME_KEY = "wc2026_nombre";
+function loadName(){ return localStorage.getItem(NAME_KEY)||"Mi álbum"; }
+function saveName(n){ localStorage.setItem(NAME_KEY,n); }
+function updateProfileBadge(){
+  const n=loadName();
+  const initial=n.trim().charAt(0).toUpperCase()||"?";
+  document.getElementById("profile-avatar").textContent=initial;
+  document.getElementById("profile-name").textContent=n;
+}
+
+// ── MODAL ──
+function openModal(){
+  document.getElementById("modal-nombre").value=loadName();
+  document.getElementById("modal-overlay").classList.add("open");
+}
+function closeModal(){ document.getElementById("modal-overlay").classList.remove("open"); }
+
+document.getElementById("profile-badge").addEventListener("click", openModal);
+document.getElementById("modal-close").addEventListener("click", closeModal);
+document.getElementById("modal-overlay").addEventListener("click",(e)=>{ if(e.target===e.currentTarget) closeModal(); });
+
+document.getElementById("btn-save-name").addEventListener("click",()=>{
+  const n=document.getElementById("modal-nombre").value.trim()||"Mi álbum";
+  saveName(n);
+  updateProfileBadge();
+  showToast("✓ Nombre guardado: "+n);
+  closeModal();
+});
+
+// ── EXPORT JSON ──
+document.getElementById("btn-export").addEventListener("click",()=>{
+  const nombre=loadName();
+  const estado=buildNestedState(getCS());
+  const c=countAll();
+  const pct=c.tot>0?Math.round(c.t/c.tot*100):0;
+  const exportData={
+    version:1,
+    nombre:nombre,
+    fecha:new Date().toISOString(),
+    resumen:{ tengo:c.t, faltan:c.f, repetidas:c.r, total:c.tot, porcentaje:pct },
+    estado:estado
+  };
+  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  const safeName=nombre.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g,"").trim().replace(/\s+/g,"_")||"album";
+  a.href=URL.createObjectURL(blob);
+  a.download="mundial2026_"+safeName+".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast("💾 Progreso exportado como "+a.download);
+  closeModal();
+});
+
+// ── IMPORT JSON ──
+document.getElementById("btn-import-trigger").addEventListener("click",()=>{
+  document.getElementById("file-import").click();
+});
+document.getElementById("file-import").addEventListener("change",(e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.estado) throw new Error("Formato inválido");
+      // Restore state
+      saveState(data.estado);
+      // Restore name if present
+      if(data.nombre){
+        saveName(data.nombre);
+        updateProfileBadge();
+      }
+      renderAlbum();
+      updateHeader();
+      showToast("📂 Progreso cargado"+(data.nombre?" de "+data.nombre:""));
+      closeModal();
+    } catch(err){
+      alert("Error al cargar el archivo. Asegurate de que sea un JSON exportado desde este álbum.");
+    }
+    e.target.value=""; // reset input
+  };
+  reader.readAsText(file);
+});
+
+// ── RESET ──
+document.getElementById("btn-reset-modal").addEventListener("click",()=>{
+  if(!confirm("¿Reiniciar todo el álbum? Esta acción no se puede deshacer.")) return;
+  _cachedState = {};
+  if(_token){
+    fetch(API_BASE+'/api/album', {
+      method:'PUT', headers:authHeaders(),
+      body: JSON.stringify({ estado: {} })
+    }).catch(()=>{});
+  }
+  renderAlbum();
+  updateHeader();
+  showToast("↺ Álbum reiniciado");
+  closeModal();
+});
+
+// ── TOAST ──
+let _tt;
+function showToast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove("show"),1800);
+}
+
+// ── INIT ──
+async function init(){
+  showLoadingOverlay(true);
+  try {
+    const saved = localStorage.getItem('wc2026_token');
+    if(saved){
+      _token = saved;
+      const r = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+      if(r.ok){
+        const d = await r.json();
+        _cachedState = flattenState(d.estado || {});
+        document.getElementById('auth-nombre-display').textContent = d.nombre;
+      } else {
+        // Token expired
+        _token = null;
+        localStorage.removeItem('wc2026_token');
+      }
+    }
+  } catch(e){ console.warn('Init load error', e); }
+  showLoadingOverlay(false);
+
+  if(!_token){
+    showAuthModal();
+  } else {
+    document.getElementById('profile-name').textContent =
+      localStorage.getItem('wc2026_nombre') || 'Mi álbum';
+    await renderAlbum();
+    buildCountryTabs();
+    renderStadiums();
+    renderInfo();
+    updateHeader();
+    updateProfileBadge();
+    await renderRanking();
+  }
+}
+init();
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+let _authMode = 'login';
+
+function showAuthModal(){
+  document.getElementById('auth-overlay').classList.remove('hidden');
+}
+function hideAuthModal(){
+  document.getElementById('auth-overlay').classList.add('hidden');
+}
+function showLoadingOverlay(show){
+  document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+}
+
+document.getElementById('tab-login').addEventListener('click', ()=>{
+  _authMode='login';
+  document.getElementById('tab-login').classList.add('active');
+  document.getElementById('tab-register').classList.remove('active');
+  document.getElementById('auth-submit-btn').textContent='Ingresar';
+  document.getElementById('auth-error').textContent='';
+});
+document.getElementById('tab-register').addEventListener('click', ()=>{
+  _authMode='register';
+  document.getElementById('tab-register').classList.add('active');
+  document.getElementById('tab-login').classList.remove('active');
+  document.getElementById('auth-submit-btn').textContent='Crear cuenta';
+  document.getElementById('auth-error').textContent='';
+});
+
+document.getElementById('auth-submit-btn').addEventListener('click', handleAuth);
+document.getElementById('auth-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuth(); });
+
+async function handleAuth(){
+  const nombre   = document.getElementById('auth-nombre').value.trim();
+  const password = document.getElementById('auth-pass').value;
+  const errEl    = document.getElementById('auth-error');
+  errEl.textContent = '';
+
+  if(!nombre || !password){ errEl.textContent='Completá todos los campos'; return; }
+
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  try {
+    const endpoint = _authMode==='login' ? '/api/login' : '/api/register';
+    const r = await fetch(API_BASE+endpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ nombre, password })
+    });
+    const d = await r.json();
+    if(!r.ok){ errEl.textContent = d.error || 'Error'; btn.disabled=false; btn.textContent=_authMode==='login'?'Ingresar':'Crear cuenta'; return; }
+
+    _token = d.token;
+    localStorage.setItem('wc2026_token', _token);
+    localStorage.setItem('wc2026_nombre', d.nombre);
+    _cachedState = flattenState(d.estado || {});
+
+    hideAuthModal();
+    showLoadingOverlay(true);
+
+    document.getElementById('auth-nombre-display').textContent = d.nombre;
+    document.getElementById('profile-name').textContent = d.nombre;
+    document.getElementById('profile-avatar').textContent = d.nombre.charAt(0).toUpperCase();
+
+    await renderAlbum();
+    buildCountryTabs();
+    renderStadiums();
+    renderInfo();
+    updateHeader();
+    updateProfileBadge();
+    await renderRanking();
+    showLoadingOverlay(false);
+  } catch(e){
+    errEl.textContent = 'Error de conexión';
+    btn.disabled=false;
+    btn.textContent=_authMode==='login'?'Ingresar':'Crear cuenta';
+  }
+}
+
+document.getElementById('btn-logout').addEventListener('click', ()=>{
+  if(!confirm('¿Cerrar sesión?')) return;
+  _token = null;
+  _cachedState = null;
+  localStorage.removeItem('wc2026_token');
+  localStorage.removeItem('wc2026_nombre');
+  document.getElementById('auth-nombre-display').textContent='';
+  document.getElementById('auth-nombre').value='';
+  document.getElementById('auth-pass').value='';
+  showAuthModal();
+});
+
+// ══════════════════════════════════════════
+// RANKING
+// ══════════════════════════════════════════
+async function renderRanking(){
+  try {
+    const r = await fetch(API_BASE+'/api/usuarios');
+    if(!r.ok) return;
+    const usuarios = await r.json();
+    const myNombre = localStorage.getItem('wc2026_nombre')||'';
+    const tbody = document.getElementById('rank-body');
+    if(!tbody) return;
+    if(!usuarios.length){
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;">Aún no hay coleccionistas registrados</td></tr>';
+      return;
+    }
+    // Sort by tengo desc
+    usuarios.sort((a,b)=>b.tengo-a.tengo);
+    tbody.innerHTML = usuarios.map((u,i)=>{
+      const posClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const isMe = u.nombre.toLowerCase()===myNombre.toLowerCase();
+      const date = u.updated_at ? new Date(u.updated_at).toLocaleDateString('es-AR') : '-';
+      return `<tr class="${isMe?'rank-me':''}">
+        <td><span class="rank-pos ${posClass}">${i+1}</span></td>
+        <td><div class="rank-name">${u.nombre}${isMe?' <span style="color:var(--gold);font-size:11px;">(vos)</span>':''}</div><div style="font-size:11px;color:var(--text3);">Actualizado: ${date}</div></td>
+        <td style="color:var(--green);font-weight:700;">${u.tengo}</td>
+        <td style="color:var(--gold);">${u.repetidas}</td>
+        <td>
+          <div class="rank-bar-wrap">
+            <span style="font-size:12px;color:var(--text2);">${u.pct}%</span>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:${u.pct}%"></div></div>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e){ console.warn('Ranking error', e); }
+}
+
+// Nav: add ranking page handling
+document.querySelectorAll(".nbtn").forEach(btn=>{
+  btn.addEventListener("click",async ()=>{
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".nbtn").forEach(b=>b.classList.remove("active"));
+    document.getElementById("page-"+btn.dataset.page).classList.add("active");
+    btn.classList.add("active");
+    if(btn.dataset.page==="estadisticas") renderStats();
+    if(btn.dataset.page==="ranking") await renderRanking();
+  });
+});
+
+</script>
+</body>
+</html>
