@@ -247,6 +247,25 @@ app.post('/api/change-password', authMiddleware, async (req, res) => {
   res.json({ ok: true });
 });
 
+// GET /api/health — check server + supabase connection
+app.get('/api/health', async (req, res) => {
+  const checks = {
+    server: 'ok',
+    supabase_url: !!process.env.SUPABASE_URL,
+    supabase_key: !!process.env.SUPABASE_SERVICE_KEY,
+    jwt_secret: !!process.env.JWT_SECRET,
+    supabase_connection: false,
+    error: null
+  };
+  try {
+    const { error } = await supabase.from('usuarios').select('id').limit(1);
+    if (error) { checks.error = error.message; }
+    else { checks.supabase_connection = true; }
+  } catch(e) { checks.error = e.message; }
+  const allOk = checks.supabase_url && checks.supabase_key && checks.jwt_secret && checks.supabase_connection;
+  res.status(allOk ? 200 : 500).json(checks);
+});
+
 // Catch-all: serve frontend
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));

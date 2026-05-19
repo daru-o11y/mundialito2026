@@ -553,6 +553,31 @@ input[data-estado="repetida"].foil-input + .sbox,
   </div>
 </div>
 
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay hidden" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">⚽ MUNDIAL 2026</div>
+    <div class="auth-sub">Álbum de Figuritas</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login">Ingresar</button>
+      <button class="auth-tab" id="tab-register">Registrarse</button>
+    </div>
+    <div id="auth-form">
+      <div class="auth-field"><label>Nombre</label><input type="text" id="auth-nombre" placeholder="Tu nombre o apodo" maxlength="30" autocomplete="username"></div>
+      <div class="auth-field"><label>Contraseña</label><input type="password" id="auth-pass" placeholder="Tu contraseña" maxlength="50" autocomplete="current-password"></div>
+      <button class="auth-submit" id="auth-submit-btn">Ingresar</button>
+      <div class="auth-error" id="auth-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Cargando tu álbum...</div>
+</div>
+
 <div class="main">
 
 <!-- ── ALBUM ── -->
@@ -596,6 +621,17 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="timeline" id="timeline"></div>
   </div>
 </div>
+
+
+  <div class="page" id="page-ranking">
+    <div class="stitle">Ranking de Coleccionistas</div>
+    <div class="twrap">
+      <table class="rank-table">
+        <thead><tr><th>#</th><th>Coleccionista</th><th>Tengo</th><th>Repetidas</th><th>Progreso</th></tr></thead>
+        <tbody id="rank-body"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:13px;">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 
 </div><!-- /main -->
 <div class="toast" id="toast"></div>
@@ -989,7 +1025,7 @@ function buildPlayerList(div,s,g,gi,eq,ei){
 }
 
 function updateTeamCard(g,gi,ei,eq){
-  const s=loadState();
+  const s=getCS();
   const c=countTeam(s,g.letra,eq.nombre);
   const pct=Math.round(c.t/c.tot*100);
   const complete=c.t===c.tot;
@@ -1249,7 +1285,6 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       const data=JSON.parse(ev.target.result);
       if(!data.estado) throw new Error("Formato inválido");
       // Restore state
-      saveState(data.estado);
       // Restore name if present
       if(data.nombre){
         saveName(data.nombre);
@@ -1294,6 +1329,23 @@ function showToast(msg){
 // ── INIT ──
 async function init(){
   showLoadingOverlay(true);
+
+  // 1. Check server health first
+  try {
+    const health = await fetch(API_BASE+'/api/health');
+    const hdata = await health.json();
+    if(!health.ok){
+      showLoadingOverlay(false);
+      showServerError(hdata);
+      return;
+    }
+  } catch(e){
+    showLoadingOverlay(false);
+    showServerError({ error: 'No se puede conectar al servidor: '+e.message });
+    return;
+  }
+
+  // 2. Try to restore session
   try {
     const saved = localStorage.getItem('wc2026_token');
     if(saved){
@@ -1304,12 +1356,12 @@ async function init(){
         _cachedState = flattenState(d.estado || {});
         document.getElementById('auth-nombre-display').textContent = d.nombre;
       } else {
-        // Token expired
         _token = null;
         localStorage.removeItem('wc2026_token');
       }
     }
-  } catch(e){ console.warn('Init load error', e); }
+  } catch(e){ console.warn('Init load error', e); _token = null; }
+
   showLoadingOverlay(false);
 
   if(!_token){
@@ -1326,7 +1378,27 @@ async function init(){
     await renderRanking();
   }
 }
-init();
+
+function showServerError(data){
+  const overlay = document.getElementById('auth-overlay');
+  const box = overlay.querySelector('.auth-box');
+  box.innerHTML = \`
+    <div class="auth-logo">⚠️ Error de servidor</div>
+    <div class="auth-sub" style="color:#ef5350;margin-bottom:16px;">No se puede conectar. Revisá las variables de entorno en Render.</div>
+    <div style="background:var(--bg2);border-radius:8px;padding:12px;font-size:12px;font-family:monospace;color:var(--text2);text-align:left;line-height:1.8;">
+      <div>🔗 SUPABASE_URL: \${data.supabase_url ? '✅' : '❌ falta'}</div>
+      <div>🔑 SUPABASE_SERVICE_KEY: \${data.supabase_key ? '✅' : '❌ falta'}</div>
+      <div>🔐 JWT_SECRET: \${data.jwt_secret ? '✅' : '❌ falta'}</div>
+      <div>🗄️ Conexión BD: \${data.supabase_connection ? '✅' : '❌ falló'}</div>
+      \${data.error ? '<div style="color:#ef5350;margin-top:8px;">Error: '+data.error+'</div>' : ''}
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:14px;line-height:1.6;">
+      Ir a Render → tu servicio → <b>Environment</b> → verificar las 3 variables.<br>
+      Luego hacer <b>Manual Deploy</b> para aplicar los cambios.
+    </div>
+  \`;
+  overlay.classList.remove('hidden');
+}
 // ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
@@ -1470,6 +1542,9 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
   });
 });
 
+
+// ── START ──
+document.addEventListener("DOMContentLoaded", ()=>{ init(); });
 </script>
 </body>
 </html>
