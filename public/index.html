@@ -342,7 +342,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 .modal-input-sm:focus { border-color:var(--gold); }
 
 /* ── AUTH MODAL ── */
-.auth-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:300; display:flex; align-items:center; justify-content:center; }
+.auth-overlay { position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; align-items:center; justify-content:center; }
 .auth-overlay.hidden { display:none; }
 .auth-box { background:var(--bg3); border:1px solid var(--border2); border-radius:16px; padding:28px; width:360px; max-width:90vw; box-shadow:0 24px 64px rgba(0,0,0,.6); }
 .auth-logo { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--gold); letter-spacing:2px; text-align:center; margin-bottom:4px; }
@@ -1605,6 +1605,7 @@ async function init(){
     updateHeader();
     updateProfileBadge();
     await renderRanking();
+    startInactivityTimer();
   }
 }
 
@@ -1702,6 +1703,7 @@ async function handleAuth(){
     updateHeader();
     updateProfileBadge();
     await renderRanking();
+    startInactivityTimer();
     showLoadingOverlay(false);
   } catch(e){
     errEl.textContent = 'Error de conexión';
@@ -1710,17 +1712,62 @@ async function handleAuth(){
   }
 }
 
-document.getElementById('btn-logout').addEventListener('click', ()=>{
-  if(!confirm('¿Cerrar sesión?')) return;
+function doLogout(reason){
   _token = null;
   _cachedState = null;
+  _userRol = 'coleccionista';
   localStorage.removeItem('wc2026_token');
   localStorage.removeItem('wc2026_nombre');
-  document.getElementById('auth-nombre-display').textContent='';
-  document.getElementById('auth-nombre').value='';
-  document.getElementById('auth-pass').value='';
+  // Reset nav to default
+  document.querySelectorAll('.nbtn').forEach(b => { b.classList.remove('active'); b.style.display = ''; });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-album').classList.add('active');
+  // Reset auth form
+  document.getElementById('auth-nombre-display').textContent = '';
+  document.getElementById('auth-nombre').value = '';
+  document.getElementById('auth-pass').value = '';
+  document.getElementById('auth-error').textContent = reason || '';
+  // Reset tab to login
+  _authMode = 'login';
+  document.getElementById('tab-login').classList.add('active');
+  document.getElementById('tab-register').classList.remove('active');
+  document.getElementById('auth-submit-btn').textContent = 'Ingresar';
+  // Show full-screen login
   showAuthModal();
+  stopInactivityTimer();
+}
+
+document.getElementById('btn-logout').addEventListener('click', ()=>{
+  if(!confirm('¿Cerrar sesión?')) return;
+  doLogout();
 });
+
+// ── INACTIVITY TIMEOUT (10 minutos) ──
+let _inactivityTimer = null;
+const INACTIVITY_MS = 10 * 60 * 1000; // 10 minutos
+
+function resetInactivityTimer(){
+  clearTimeout(_inactivityTimer);
+  _inactivityTimer = setTimeout(()=>{
+    if(_token){
+      doLogout('Sesión cerrada por inactividad (10 min)');
+    }
+  }, INACTIVITY_MS);
+}
+
+function startInactivityTimer(){
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(ev => {
+    document.addEventListener(ev, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+}
+
+function stopInactivityTimer(){
+  clearTimeout(_inactivityTimer);
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(ev => {
+    document.removeEventListener(ev, resetInactivityTimer);
+  });
+}
 
 // ══════════════════════════════════════════
 // RANKING
