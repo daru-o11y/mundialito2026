@@ -630,7 +630,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 </div>
 
 <!-- MODAL CREAR USUARIO (admin) -->
-<div class="modal-overlay hidden" id="crear-usuario-overlay">
+<div class="modal-overlay hidden" id="crear-usuario-overlay" style="z-index:350;">
   <div class="modal modal-wrap">
     <button class="modal-close" id="crear-usuario-close">✕</button>
     <div class="modal-title">➕ Crear Usuario</div>
@@ -777,7 +777,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="ctabs" id="admin-tabs" style="margin-bottom:18px;">
       <button class="ctab active" data-atab="usuarios">👥 Usuarios</button>
       <button class="ctab" data-atab="logs">📋 Logs de acceso</button>
-      <button class="fbtn" id="btn-crear-usuario" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
+      <button class="fbtn" id="btn-crear-usuario" onclick="document.getElementById('crear-usuario-overlay').classList.remove('hidden');document.getElementById('cu-nombre').value='';document.getElementById('cu-pass').value='';document.getElementById('cu-error').textContent='';" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
       <button class="fbtn" id="admin-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
     </div>
 
