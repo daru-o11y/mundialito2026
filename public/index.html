@@ -945,11 +945,18 @@ async function loadState(){
 // Flatten nested {GL__EQ: {codigo: val}} → {"GL__EQ||codigo": val} for compatibility
 function flattenState(raw){
   const flat = {};
+  const validVals = new Set(['tengo','repetida']);
   for(const [teamKey, codes] of Object.entries(raw)){
-    if(typeof codes === 'object'){
+    if(codes && typeof codes === 'object' && !Array.isArray(codes)){
+      // Formato anidado: {"A__M_xico": {"ESC": "tengo"}}
       for(const [codigo, val] of Object.entries(codes)){
-        flat[teamKey+'||'+codigo] = val;
+        if(validVals.has(val)){
+          flat[teamKey+'||'+codigo] = val;
+        }
       }
+    } else if(typeof codes === 'string' && validVals.has(codes)){
+      // Formato flat directo: {"A__M_xico||ESC": "tengo"}
+      flat[teamKey] = codes;
     }
   }
   return flat;
@@ -1006,24 +1013,41 @@ async function _doSave(){
   _saveStatus = 'saving';
   _updateSaveIndicator();
   try {
+    // _cachedState es flat: {"A__M_xico||ESC": "tengo"}
+    // buildNestedState lo convierte a: {"A__M_xico": {"ESC": "tengo"}}
+    // Ese formato anidado es lo que guarda el servidor
     const nested = buildNestedState(_cachedState);
-    // Sanitizar antes de enviar: solo claves válidas, solo valores válidos
-    const sanitized = {};
-    const validVals = new Set(['tengo','repetida']);
-    for(const [k, v] of Object.entries(nested)){
-      if(typeof k === 'string' && k.length < 200 && validVals.has(v)){
-        sanitized[k] = v;
+
+    // Verificar que nested no está vacío cuando _cachedState tiene datos
+    const totalMarcadas = Object.keys(_cachedState).filter(k => 
+      _cachedState[k] === 'tengo' || _cachedState[k] === 'repetida'
+    ).length;
+
+    if(totalMarcadas > 0 && Object.keys(nested).length === 0){
+      // buildNestedState falló — guardar flat directamente como fallback
+      console.warn('buildNestedState produjo vacío, usando flat como fallback');
+      const flatSanitized = {};
+      const validVals = new Set(['tengo','repetida']);
+      for(const [k, v] of Object.entries(_cachedState)){
+        if(validVals.has(v)) flatSanitized[k] = v;
       }
+      const r2 = await fetch(API_BASE+'/api/album', {
+        method:'PUT', headers: authHeaders(),
+        body: JSON.stringify({ estado: flatSanitized })
+      });
+      _saveStatus = r2.ok ? 'saved' : 'error';
+      _updateSaveIndicator();
+      return;
     }
+
     const r = await fetch(API_BASE+'/api/album', {
       method:'PUT',
       headers: authHeaders(),
-      body: JSON.stringify({ estado: sanitized })
+      body: JSON.stringify({ estado: nested })
     });
     _saveStatus = r.ok ? 'saved' : 'error';
   } catch(e){
     _saveStatus = 'error';
-    // Reintentar en 5 segundos si falla
     setTimeout(_doSave, 5000);
   }
   _updateSaveIndicator();
