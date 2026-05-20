@@ -2089,30 +2089,34 @@ async function init(){
   }
 
   // 2. Try to restore session
+  let _sessionData = null;
   try {
     const saved = localStorage.getItem('wc2026_token');
     if(saved){
       _token = saved;
       const r = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
       if(r.ok){
-        const d = await r.json();
-        _cachedState = flattenState(d.estado || {});
-        document.getElementById('auth-nombre-display').textContent = d.nombre;
+        _sessionData = await r.json();
+        _cachedState = flattenState(_sessionData.estado || {});
+        document.getElementById('auth-nombre-display').textContent = _sessionData.nombre;
+        localStorage.setItem('wc2026_nombre', _sessionData.nombre);
       } else {
         _token = null;
+        _sessionData = null;
         localStorage.removeItem('wc2026_token');
       }
     }
-  } catch(e){ console.warn('Init load error', e); _token = null; }
+  } catch(e){ console.warn('Init load error', e); _token = null; _sessionData = null; }
 
   showLoadingOverlay(false);
 
-  if(!_token){
+  if(!_token || !_sessionData){
     showAuthModal();
   } else {
-    document.getElementById('profile-name').textContent =
-      localStorage.getItem('wc2026_nombre') || 'Mi álbum';
-    setRol(d.rol || 'coleccionista');
+    const rol = _sessionData.rol || 'coleccionista';
+    document.getElementById('profile-name').textContent = _sessionData.nombre;
+    document.getElementById('save-indicator').style.display = '';
+    setRol(rol);
     await renderAlbum();
     buildCountryTabs();
     renderStadiums();
