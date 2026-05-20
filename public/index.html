@@ -759,7 +759,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="ctabs" id="admin-tabs" style="margin-bottom:18px;">
       <button class="ctab active" data-atab="usuarios">👥 Usuarios</button>
       <button class="ctab" data-atab="logs">📋 Logs de acceso</button>
-      <button class="fbtn" id="btn-crear-usuario" onclick="document.getElementById('crear-usuario-overlay').style.display='flex';document.getElementById('cu-nombre').value='';document.getElementById('cu-pass').value='';document.getElementById('cu-error').textContent='';" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
+      <button class="fbtn" id="btn-crear-usuario" onclick="openCrearUsuario()" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
       <button class="fbtn" id="admin-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
     </div>
 
@@ -1711,19 +1711,24 @@ document.getElementById('admin-refresh').addEventListener('click', ()=>{
 });
 
 // ── CREAR USUARIO (admin) ──
-document.getElementById('btn-crear-usuario').addEventListener('click', ()=>{
+function openCrearUsuario(){
   document.getElementById('cu-nombre').value = '';
   document.getElementById('cu-pass').value = '';
   document.getElementById('cu-rol').value = 'coleccionista';
   document.getElementById('cu-error').textContent = '';
   document.getElementById('crear-usuario-overlay').style.display='flex';
-});
-document.getElementById('crear-usuario-close').addEventListener('click', ()=>{
+}
+function closeCrearUsuario(){
   document.getElementById('crear-usuario-overlay').style.display='none';
-});
-document.getElementById('crear-usuario-overlay').addEventListener('click', e=>{
-  if(e.target === e.currentTarget)
-    document.getElementById('crear-usuario-overlay').style.display='none';
+}
+// Listeners se agregan después del DOM ready
+window.addEventListener('DOMContentLoaded', ()=>{
+  const cuClose = document.getElementById('crear-usuario-close');
+  const cuOverlay = document.getElementById('crear-usuario-overlay');
+  if(cuClose) cuClose.addEventListener('click', closeCrearUsuario);
+  if(cuOverlay) cuOverlay.addEventListener('click', e=>{
+    if(e.target === e.currentTarget) closeCrearUsuario();
+  });
 });
 document.getElementById('cu-submit').addEventListener('click', async ()=>{
   const nombre   = document.getElementById('cu-nombre').value.trim();
