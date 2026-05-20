@@ -454,7 +454,6 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="chip t" id="ct">✓ 0</div>
     <div class="chip f" id="cf">✗ 0</div>
     <div class="chip r" id="cr">↺ 0</div>
-    <span id="auth-nombre-display" style="font-size:12px;color:var(--text3);"></span>
     <button class="logout-btn" id="btn-logout">Salir</button>
     <div class="profile-badge" id="profile-badge" title="Tu perfil">
       <div class="profile-avatar" id="profile-avatar">?</div>
@@ -601,6 +600,45 @@ input[data-estado="repetida"].foil-input + .sbox,
     </div>
 
     <div class="help-section">
+      <div class="help-section-title">Intercambio de Figuritas 🚧</div>
+      <div class="help-item">
+        <div class="help-icon">🔍</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Buscar figuritas</div>
+          <div class="help-item-desc">Ves todos los usuarios que tienen figuritas repetidas disponibles. Hacés click en uno para ver su álbum de repetidas.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">⚽</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Proponer un intercambio</div>
+          <div class="help-item-desc">Al tocar una figurita repetida de otro usuario, podés elegir cuál de tus repetidas ofrecés a cambio y enviar la propuesta.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">📋</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Mis propuestas</div>
+          <div class="help-item-desc">
+            Ves todas tus propuestas enviadas y recibidas con su estado:<br>
+            <span class="help-tag" style="background:rgba(255,165,0,.15);color:#ffa500;">Pendiente</span>
+            <span class="help-tag" style="background:rgba(0,200,83,.15);color:var(--green);">Aceptado</span>
+            <span class="help-tag" style="background:rgba(239,83,80,.15);color:#ef5350;">Rechazado</span>
+            <span class="help-tag">Cancelado</span><br>
+            Como receptor podés aceptar o rechazar. Como solicitante podés cancelar.
+          </div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">🔔</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Notificaciones</div>
+          <div class="help-item-desc">Si tenés propuestas pendientes recibidas, aparece un banner amarillo al entrar a la sección de intercambios.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
       <div class="help-section-title">Guardado automático</div>
       <div class="help-item">
         <div class="help-icon">💡</div>
@@ -702,6 +740,15 @@ input[data-estado="repetida"].foil-input + .sbox,
 
   <div class="page" id="page-intercambios">
     <div class="stitle">Intercambio de Figuritas</div>
+
+    <!-- Banner en construcción -->
+    <div style="background:rgba(255,165,0,.12);border:1px solid rgba(255,165,0,.3);border-radius:8px;padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:22px;">🚧</span>
+      <div>
+        <div style="font-weight:700;color:#ffa500;font-size:14px;">Sección en construcción</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">El sistema de intercambios está siendo mejorado. Podés explorar la funcionalidad pero puede haber cambios próximamente.</div>
+      </div>
+    </div>
 
     <!-- Notificación pendientes -->
     <div id="interc-notif" style="margin-bottom:16px;"></div>
@@ -2115,7 +2162,7 @@ async function init(){
       if(r.ok){
         _sessionData = await r.json();
         _cachedState = flattenState(_sessionData.estado || {});
-        document.getElementById('auth-nombre-display').textContent = _sessionData.nombre;
+        // auth-nombre-display removed
         localStorage.setItem('wc2026_nombre', _sessionData.nombre);
       } else {
         _token = null;
@@ -2228,7 +2275,7 @@ async function handleAuth(){
     hideAuthModal();
     showLoadingOverlay(true);
 
-    document.getElementById('auth-nombre-display').textContent = d.nombre;
+    // auth-nombre-display removed
     document.getElementById('profile-name').textContent = d.nombre;
     document.getElementById('profile-avatar').textContent = d.nombre.charAt(0).toUpperCase();
     setRol(d.rol || 'coleccionista');
@@ -2265,7 +2312,7 @@ function doLogout(reason){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-album').classList.add('active');
   // Reset auth form completamente
-  document.getElementById('auth-nombre-display').textContent = '';
+  // auth-nombre-display removed
   document.getElementById('save-indicator').style.display='none';
   document.getElementById('auth-nombre').value = '';
   document.getElementById('auth-pass').value = '';
