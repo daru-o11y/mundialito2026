@@ -73,7 +73,9 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .gtog { color:var(--text3); font-size:13px; transition:transform .2s; }
 .ghdr.collapsed .gtog { transform:rotate(-90deg); }
 .gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
-.gbody.hidden { display:none; }
+.gbody.hidden { display:none !important; }
+.modal-overlay.hidden { display:none !important; }
+.auth-overlay.hidden  { display:none !important; }
 
 /* ── TEAM CARD ── */
 .tcard { background:var(--bg3); border:1px solid var(--border2); border-radius:8px; overflow:hidden; transition:box-shadow .2s; }
