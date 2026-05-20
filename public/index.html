@@ -396,7 +396,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
     <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
     <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
-    <button class="nbtn" data-page="ranking" data-roles="coleccionista">🏆 Ranking</button>
+    <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
   <div class="hstats">
@@ -1706,9 +1706,9 @@ async function handleAuth(){
     startInactivityTimer();
     showLoadingOverlay(false);
   } catch(e){
-    errEl.textContent = 'Error de conexión';
-    btn.disabled=false;
-    btn.textContent=_authMode==='login'?'Ingresar':'Crear cuenta';
+    errEl.textContent = 'Error de conexión. Intentá de nuevo.';
+    btn.disabled = false;
+    btn.textContent = _authMode==='login' ? 'Ingresar' : 'Crear cuenta';
   }
 }
 
@@ -1718,11 +1718,14 @@ function doLogout(reason){
   _userRol = 'coleccionista';
   localStorage.removeItem('wc2026_token');
   localStorage.removeItem('wc2026_nombre');
-  // Reset nav to default
-  document.querySelectorAll('.nbtn').forEach(b => { b.classList.remove('active'); b.style.display = ''; });
+  // Reset nav: ocultar todo excepto album activo
+  document.querySelectorAll('.nbtn[data-roles]').forEach(b => { 
+    b.classList.remove('active'); 
+    b.style.display = 'none'; 
+  });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-album').classList.add('active');
-  // Reset auth form
+  // Reset auth form completamente
   document.getElementById('auth-nombre-display').textContent = '';
   document.getElementById('auth-nombre').value = '';
   document.getElementById('auth-pass').value = '';
@@ -1731,7 +1734,9 @@ function doLogout(reason){
   _authMode = 'login';
   document.getElementById('tab-login').classList.add('active');
   document.getElementById('tab-register').classList.remove('active');
-  document.getElementById('auth-submit-btn').textContent = 'Ingresar';
+  const submitBtn = document.getElementById('auth-submit-btn');
+  submitBtn.textContent = 'Ingresar';
+  submitBtn.disabled = false;
   // Show full-screen login
   showAuthModal();
   stopInactivityTimer();
