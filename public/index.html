@@ -1712,34 +1712,27 @@ document.getElementById('admin-refresh').addEventListener('click', ()=>{
 
 // ── CREAR USUARIO (admin) ──
 function openCrearUsuario(){
+  const el = document.getElementById('crear-usuario-overlay');
+  if(!el) return;
   document.getElementById('cu-nombre').value = '';
   document.getElementById('cu-pass').value = '';
   document.getElementById('cu-rol').value = 'coleccionista';
   document.getElementById('cu-error').textContent = '';
-  document.getElementById('crear-usuario-overlay').style.display='flex';
+  el.style.display = 'flex';
 }
 function closeCrearUsuario(){
-  document.getElementById('crear-usuario-overlay').style.display='none';
+  const el = document.getElementById('crear-usuario-overlay');
+  if(el) el.style.display = 'none';
 }
-// Listeners se agregan después del DOM ready
-window.addEventListener('DOMContentLoaded', ()=>{
-  const cuClose = document.getElementById('crear-usuario-close');
-  const cuOverlay = document.getElementById('crear-usuario-overlay');
-  if(cuClose) cuClose.addEventListener('click', closeCrearUsuario);
-  if(cuOverlay) cuOverlay.addEventListener('click', e=>{
-    if(e.target === e.currentTarget) closeCrearUsuario();
-  });
-});
-document.getElementById('cu-submit').addEventListener('click', async ()=>{
+async function submitCrearUsuario(){
   const nombre   = document.getElementById('cu-nombre').value.trim();
   const password = document.getElementById('cu-pass').value;
   const rol      = document.getElementById('cu-rol').value;
   const errEl    = document.getElementById('cu-error');
+  const btn      = document.getElementById('cu-submit');
   errEl.textContent = '';
   if(!nombre || !password){ errEl.textContent = 'Completá todos los campos'; return; }
   if(password.length < 4){ errEl.textContent = 'Mínimo 4 caracteres'; return; }
-
-  const btn = document.getElementById('cu-submit');
   btn.disabled = true; btn.textContent = '...';
   try {
     const r = await fetch(API_BASE+'/api/admin/crear-usuario', {
@@ -1747,14 +1740,27 @@ document.getElementById('cu-submit').addEventListener('click', async ()=>{
       body: JSON.stringify({ nombre, password, rol })
     });
     const d = await r.json();
-    if(!r.ok){ errEl.textContent = d.error || 'Error al crear usuario'; btn.disabled=false; btn.textContent='✓ Crear usuario'; return; }
-    document.getElementById('crear-usuario-overlay').style.display='none';
+    if(!r.ok){
+      errEl.textContent = d.error || 'Error al crear usuario';
+      btn.disabled = false; btn.textContent = '✓ Crear usuario';
+      return;
+    }
+    closeCrearUsuario();
     showToast('✓ Usuario '+nombre+' creado como '+rol);
     loadAdminUsers();
   } catch(e){
     errEl.textContent = 'Error de conexión';
   }
   btn.disabled = false; btn.textContent = '✓ Crear usuario';
+}
+// Todos los listeners del modal se registran al final cuando el DOM está completo
+window.addEventListener('load', ()=>{
+  const cuClose   = document.getElementById('crear-usuario-close');
+  const cuOverlay = document.getElementById('crear-usuario-overlay');
+  const cuSubmit  = document.getElementById('cu-submit');
+  if(cuClose)   cuClose.addEventListener('click', closeCrearUsuario);
+  if(cuOverlay) cuOverlay.addEventListener('click', e=>{ if(e.target===e.currentTarget) closeCrearUsuario(); });
+  if(cuSubmit)  cuSubmit.addEventListener('click', submitCrearUsuario);
 });
 
 // ══════════════════════════════════════════
