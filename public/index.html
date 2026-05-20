@@ -361,6 +361,32 @@ input[data-estado="repetida"].foil-input + .sbox,
 .modal-input-sm { width:100%; background:var(--bg2); border:1px solid var(--border2); color:var(--text); font-family:'Barlow',sans-serif; font-size:13px; padding:7px 11px; border-radius:7px; outline:none; transition:border-color .18s; }
 .modal-input-sm:focus { border-color:var(--gold); }
 
+
+/* ── LOGIN ANIMATION ── */
+@keyframes run {
+  0%   { transform: translateX(-8px) scaleX(1); }
+  25%  { transform: translateX(0px) scaleX(1) rotate(-5deg); }
+  50%  { transform: translateX(8px) scaleX(1); }
+  75%  { transform: translateX(0px) scaleX(1) rotate(5deg); }
+  100% { transform: translateX(-8px) scaleX(1); }
+}
+@keyframes ball-bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes fade-dots {
+  0%,100% { opacity:.3; } 50% { opacity:1; }
+}
+.login-loading {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  font-size:16px; letter-spacing:2px;
+}
+.login-loading .runner { animation: run 0.6s ease-in-out infinite; display:inline-block; }
+.login-loading .ball   { animation: ball-bounce 0.4s ease-in-out infinite; display:inline-block; font-size:14px; }
+.login-loading .dot    { animation: fade-dots 0.8s ease-in-out infinite; display:inline-block; font-size:20px; }
+.login-loading .dot:nth-child(3) { animation-delay:.15s; }
+.login-loading .dot:nth-child(4) { animation-delay:.3s; }
+
 /* ── AUTH MODAL ── */
 .auth-overlay { position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; align-items:center; justify-content:center; }
 .auth-overlay.hidden { display:none; }
@@ -695,23 +721,38 @@ input[data-estado="repetida"].foil-input + .sbox,
   <div class="page" id="page-intercambios">
     <div class="stitle">Intercambio de Figuritas</div>
 
-    <!-- Mis notificaciones -->
+    <!-- Notificación pendientes -->
     <div id="interc-notif" style="margin-bottom:16px;"></div>
 
     <!-- Sub tabs -->
     <div class="ctabs" style="margin-bottom:18px;">
-      <button class="ctab active" data-itab="proponer">🔍 Buscar intercambio</button>
+      <button class="ctab active" data-itab="buscar">🔍 Buscar figuritas</button>
       <button class="ctab" data-itab="mis">📋 Mis propuestas</button>
       <button class="fbtn" id="interc-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
     </div>
 
-    <!-- Tab: Proponer -->
-    <div id="itab-proponer">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">
-        Seleccioná un usuario para ver sus figuritas repetidas y proponerle un intercambio.
+    <!-- Tab: Buscar -->
+    <div id="itab-buscar">
+      <!-- Vista 1: Lista de usuarios con repetidas -->
+      <div id="iview-usuarios">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">
+          Usuarios con figuritas repetidas disponibles para intercambiar:
+        </div>
+        <div class="tgrid" id="interc-usuarios-grid">
+          <div style="color:var(--text3);font-size:13px;padding:12px;">Cargando...</div>
+        </div>
       </div>
-      <div class="tgrid" id="interc-usuarios-grid">
-        <div style="color:var(--text3);font-size:13px;padding:12px;">Cargando usuarios...</div>
+
+      <!-- Vista 2: Album de repetidas de un usuario -->
+      <div id="iview-album" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <button class="fbtn" id="iview-back" style="font-size:12px;padding:4px 12px;">← Volver</button>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);" id="iview-title">Album de repetidas</div>
+            <div style="font-size:12px;color:var(--text3);" id="iview-subtitle"></div>
+          </div>
+        </div>
+        <div id="iview-album-content"></div>
       </div>
     </div>
 
@@ -1067,8 +1108,11 @@ async function renderAlbum(){
       if(q && !eq.nombre.toLowerCase().includes(q)) return false;
       if(filterMode==="todos") return true;
       const c=countTeam(s,g.letra,eq.nombre);
+      // completo = tiene las 21 como "tengo"
       if(filterMode==="completo") return c.t===TPP;
-      if(filterMode==="incompleto") return c.t>0 && c.t<TPP;
+      // incompleto = tiene al menos alguna marcada (tengo o repetida) pero no está completo
+      if(filterMode==="incompleto") return (c.t>0 || c.r>0) && c.t<TPP;
+      // sin empezar = no tiene ninguna marcada
       if(filterMode==="nada") return c.t===0 && c.r===0;
       return true;
     });
@@ -1727,44 +1771,62 @@ document.getElementById('cu-submit').addEventListener('click', async ()=>{
 });
 
 // ══════════════════════════════════════════
-// INTERCAMBIOS
+// INTERCAMBIOS — nuevo flujo
 // ══════════════════════════════════════════
-let _itab = 'proponer';
+let _itab = 'buscar';
 let _intercUsers = [];
-let _misRepetidas = [];
+let _currentIntercUser = null;
 
-// Sub-tab switching
+// ── Sub-tab switching ──
 document.querySelectorAll('[data-itab]').forEach(btn => {
   btn.addEventListener('click', () => {
     _itab = btn.dataset.itab;
     document.querySelectorAll('[data-itab]').forEach(b => b.classList.toggle('active', b.dataset.itab === _itab));
-    document.getElementById('itab-proponer').style.display = _itab === 'proponer' ? '' : 'none';
-    document.getElementById('itab-mis').style.display      = _itab === 'mis'      ? '' : 'none';
-    if(_itab === 'proponer') loadIntercUsuarios();
-    if(_itab === 'mis')      loadMisPropuestas();
+    document.getElementById('itab-buscar').style.display = _itab === 'buscar' ? '' : 'none';
+    document.getElementById('itab-mis').style.display    = _itab === 'mis'    ? '' : 'none';
+    if(_itab === 'buscar') { showIntercUsuarios(); loadIntercUsuarios(); }
+    if(_itab === 'mis')    loadMisPropuestas();
   });
 });
+
 document.getElementById('interc-refresh').addEventListener('click', () => {
-  if(_itab === 'proponer') loadIntercUsuarios();
+  if(_itab === 'buscar') loadIntercUsuarios();
   else loadMisPropuestas();
   loadIntercNotif();
 });
 
-// Decode figurita key to human description
-function keyToDesc(key) {
-  // key format: "A__México__PT1" or flat "A__México||PT1"
-  const parts = key.replace('||','__').split('__');
-  if(parts.length < 3) return key;
-  const grupo = parts[0];
-  const equipo = parts[1].replace(/_/g,' ');
-  const tipo = parts[2];
-  const tipos = { ESC:'Escudo',PT1:'Portero',PT2:'Def.1',PT3:'Def.2',PT4:'Def.3',PT5:'Def.4',
-    PT6:'Med.1',PT7:'Med.2',PT8:'Med.3',PT9:'Med.4',PT10:'Del.1',PT11:'Del.2',PT12:'Del.3',
-    PT13:'Sup.1',PT14:'Sup.2',PT15:'Sup.3',PT16:'Sup.4',PT17:'Sup.5',PT18:'Capitán',PT19:'DT',PT20:'Especial' };
-  return `Grupo ${grupo} · ${equipo} · ${tipos[tipo]||tipo}`;
+document.getElementById('iview-back').addEventListener('click', () => {
+  showIntercUsuarios();
+});
+
+function showIntercUsuarios(){
+  document.getElementById('iview-usuarios').style.display = '';
+  document.getElementById('iview-album').style.display    = 'none';
+}
+function showIntercAlbum(){
+  document.getElementById('iview-usuarios').style.display = 'none';
+  document.getElementById('iview-album').style.display    = '';
 }
 
-// Load notification banner (propuestas recibidas pendientes)
+// ── Parse JWT ──
+function parseJwt(token){
+  try { return JSON.parse(atob(token.split('.')[1])); } catch{ return null; }
+}
+
+// ── Decode key to readable description ──
+function keyToDesc(key) {
+  const parts = key.replace(/\|\|/g,'__').split('__');
+  if(parts.length < 3) return key;
+  const grupo  = parts[0];
+  const equipo = parts.slice(1, parts.length-1).join(' ').replace(/_/g,' ');
+  const tipo   = parts[parts.length-1];
+  const tipos  = { ESC:'Escudo',PT1:'Portero',PT2:'Def.1',PT3:'Def.2',PT4:'Def.3',PT5:'Def.4',
+    PT6:'Med.1',PT7:'Med.2',PT8:'Med.3',PT9:'Med.4',PT10:'Del.1',PT11:'Del.2',PT12:'Del.3',
+    PT13:'Sup.1',PT14:'Sup.2',PT15:'Sup.3',PT16:'Sup.4',PT17:'Sup.5',PT18:'Capitán',PT19:'DT',PT20:'Especial' };
+  return `Gr.${grupo} · ${equipo} · ${tipos[tipo]||tipo}`;
+}
+
+// ── Notificación ──
 async function loadIntercNotif() {
   if(!_token) return;
   try {
@@ -1772,63 +1834,180 @@ async function loadIntercNotif() {
     if(!r.ok) return;
     const data = await r.json();
     const myId = parseJwt(_token)?.userId;
-    const pendRecibidas = data.filter(i => i.receptor_id === myId && i.estado === 'pendiente');
-    const notif = document.getElementById('interc-notif');
-    if(!notif) return;
-    if(pendRecibidas.length > 0){
-      notif.innerHTML = `<div class="notif-banner">🔔 Tenés <b>${pendRecibidas.length}</b> propuesta${pendRecibidas.length>1?'s':''} de intercambio pendiente${pendRecibidas.length>1?'s':''}. <span style="cursor:pointer;text-decoration:underline;margin-left:6px;" onclick="switchItab('mis')">Ver →</span></div>`;
-    } else {
-      notif.innerHTML = '';
-    }
+    const pend = data.filter(i => i.receptor_id === myId && i.estado === 'pendiente');
+    const el   = document.getElementById('interc-notif');
+    if(!el) return;
+    el.innerHTML = pend.length > 0
+      ? `<div class="notif-banner">🔔 Tenés <b>${pend.length}</b> propuesta${pend.length>1?'s':''} pendiente${pend.length>1?'s':''}. <span style="cursor:pointer;text-decoration:underline;margin-left:6px;" onclick="document.querySelector('[data-itab=mis]').click()">Ver →</span></div>`
+      : '';
   } catch(e){}
 }
 
-function switchItab(tab){
-  document.querySelector('[data-itab="'+tab+'"]')?.click();
-}
-
-function parseJwt(token){
-  try { return JSON.parse(atob(token.split('.')[1])); } catch{ return null; }
-}
-
+// ── Lista de usuarios con repetidas ──
 async function loadIntercUsuarios() {
   const grid = document.getElementById('interc-usuarios-grid');
   grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">Cargando...</div>';
   try {
     const r = await fetch(API_BASE+'/api/intercambios/usuarios', { headers: authHeaders() });
-    if(!r.ok) { grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error al cargar</div>'; return; }
+    if(!r.ok){ grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error al cargar</div>'; return; }
     _intercUsers = await r.json();
-    // Mis repetidas para ofrecer
-    _misRepetidas = Object.keys(_cachedState||{}).filter(k => (_cachedState[k])==='repetida');
+    const conRep = _intercUsers.filter(u => u.totalRep > 0);
 
-    if(!_intercUsers.length){
-      grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">No hay otros usuarios registrados aún.</div>';
+    if(!conRep.length){
+      grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">Ningún usuario tiene figuritas repetidas disponibles aún.</div>';
       return;
     }
 
     grid.innerHTML = '';
-    _intercUsers.forEach(u => {
+    conRep.forEach(u => {
       const card = document.createElement('div');
       card.className = 'interc-user-card';
       card.innerHTML = `
         <div class="interc-user-name">👤 ${u.nombre}</div>
         <div class="interc-user-stats">
-          <span class="interc-rep-count">↺ ${u.totalRep} repetidas</span>
-          <span style="color:var(--text3);">· ${u.tengo.length} tengo</span>
+          <span class="interc-rep-count">↺ ${u.totalRep} repetidas disponibles</span>
         </div>
-        ${u.totalRep === 0 ? '<div class="interc-no-rep" style="margin-top:4px;">Sin repetidas disponibles</div>' : ''}
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;">Tocá para ver su álbum de repetidas →</div>
       `;
-      if(u.totalRep > 0){
-        card.addEventListener('click', () => openIntercModal(u));
-      } else {
-        card.style.opacity = '0.5';
-        card.style.cursor = 'default';
-      }
+      card.addEventListener('click', () => openIntercAlbum(u));
       grid.appendChild(card);
     });
   } catch(e){ grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; }
 }
 
+// ── Ver álbum de repetidas de un usuario ──
+function openIntercAlbum(u){
+  _currentIntercUser = u;
+  document.getElementById('iview-title').textContent   = `Repetidas de ${u.nombre}`;
+  document.getElementById('iview-subtitle').textContent = `${u.totalRep} figuritas disponibles para intercambiar`;
+  showIntercAlbum();
+
+  const albumDiv = document.getElementById('iview-album-content');
+  albumDiv.innerHTML = '';
+
+  // Agrupar repetidas por grupo y equipo
+  const grouped = {};
+  u.repetidas.forEach(key => {
+    const parts = key.replace(/\|\|/g,'__').split('__');
+    const grupo  = parts[0] || '?';
+    const equipo = parts.slice(1, parts.length-1).join('__').replace(/_/g,' ') || '?';
+    const gk     = `${grupo}__${equipo}`;
+    if(!grouped[gk]) grouped[gk] = { grupo, equipo, keys:[] };
+    grouped[gk].keys.push(key);
+  });
+
+  Object.values(grouped).forEach(({ grupo, equipo, keys }) => {
+    const section = document.createElement('div');
+    section.style.cssText = 'margin-bottom:16px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;overflow:hidden;';
+    section.innerHTML = `
+      <div style="padding:8px 14px;background:var(--bg4);border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);">G${grupo}</span>
+        <span style="font-weight:700;color:var(--text);font-size:14px;">${equipo}</span>
+        <span style="font-size:11px;color:var(--yellow);margin-left:auto;">↺ ${keys.length} repetida${keys.length>1?'s':''}</span>
+      </div>
+      <div class="figrid" id="rep-figs-${grupo}-${equipo.replace(/[^a-zA-Z0-9]/g,'_')}"></div>
+    `;
+    albumDiv.appendChild(section);
+
+    const figsDiv = section.querySelector(`#rep-figs-${grupo}-${equipo.replace(/[^a-zA-Z0-9]/g,'_')}`);
+    keys.forEach(key => {
+      const parts = key.replace(/\|\|/g,'__').split('__');
+      const tipo  = parts[parts.length-1];
+      const tipos = { ESC:'Escudo',PT1:'POR',PT2:'DEF',PT3:'DEF',PT4:'DEF',PT5:'DEF',
+        PT6:'MED',PT7:'MED',PT8:'MED',PT9:'MED',PT10:'DEL',PT11:'DEL',PT12:'DEL',
+        PT13:'SUP',PT14:'SUP',PT15:'SUP',PT16:'SUP',PT17:'SUP',PT18:'CAP',PT19:'DT',PT20:'ESP' };
+
+      const fig = document.createElement('div');
+      fig.className = 'fig repetida';
+      fig.style.cursor = 'pointer';
+      fig.innerHTML = `
+        <div class="fnum" style="font-size:11px;">↺</div>
+        <div class="ftype">${tipos[tipo]||tipo}</div>
+        <div class="ftt"><b>${keyToDesc(key)}</b><small style="color:var(--gold);">Click para intercambiar</small></div>
+      `;
+      fig.addEventListener('click', () => openIntercPropuesta(key));
+      figsDiv.appendChild(fig);
+    });
+  });
+}
+
+// ── Popup de propuesta ──
+function openIntercPropuesta(pideKey){
+  const misRep = Object.keys(_cachedState||{}).filter(k => (_cachedState||{})[k]==='repetida');
+  const modal  = document.getElementById('interc-modal-overlay');
+  const cont   = document.getElementById('interc-modal-content');
+
+  cont.innerHTML = `
+    <div style="margin-bottom:14px;padding:10px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;">Figurita que querés</div>
+      <div style="font-weight:700;color:var(--gold);font-size:14px;">${keyToDesc(pideKey)}</div>
+      <div style="font-size:11px;color:var(--text2);">de <b>${_currentIntercUser?.nombre}</b></div>
+    </div>
+    <div class="interc-section-label" style="margin-bottom:8px;">Elegí qué figurita ofrecés a cambio:</div>
+    ${misRep.length === 0
+      ? '<div style="color:#ef5350;font-size:13px;padding:12px;background:rgba(239,83,80,.08);border-radius:6px;margin-bottom:12px;">No tenés figuritas repetidas para ofrecer.</div>'
+      : `<div class="fig-select-grid" id="prop-ofrece-grid" style="max-height:220px;overflow-y:auto;margin-bottom:14px;"></div>`
+    }
+    <button class="modal-btn primary" id="prop-submit" ${misRep.length===0?'disabled style="opacity:.5;"':''}>Enviar propuesta</button>
+    <div class="auth-error" id="prop-error" style="margin-top:8px;"></div>
+  `;
+
+  let selectedOfreceKey = null;
+
+  const grid = document.getElementById('prop-ofrece-grid');
+  if(grid){
+    misRep.forEach(key => {
+      const div = document.createElement('div');
+      div.className = 'fig-select-item';
+      div.textContent = keyToDesc(key);
+      div.addEventListener('click', () => {
+        grid.querySelectorAll('.fig-select-item').forEach(d => d.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedOfreceKey = key;
+        const btn = document.getElementById('prop-submit');
+        if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+      });
+      grid.appendChild(div);
+    });
+    // disable submit until selection
+    const btn = document.getElementById('prop-submit');
+    if(btn){ btn.disabled=true; btn.style.opacity='.5'; }
+  }
+
+  document.getElementById('prop-submit').addEventListener('click', async () => {
+    if(!selectedOfreceKey && misRep.length > 0) return;
+    const errEl = document.getElementById('prop-error');
+    const btn   = document.getElementById('prop-submit');
+    btn.disabled=true; btn.textContent='...';
+    try {
+      const r = await fetch(API_BASE+'/api/intercambios', {
+        method:'POST', headers: authHeaders(),
+        body: JSON.stringify({
+          receptor_id: _currentIntercUser.id,
+          pide_key:    pideKey,
+          pide_desc:   keyToDesc(pideKey),
+          ofrece_key:  selectedOfreceKey,
+          ofrece_desc: keyToDesc(selectedOfreceKey)
+        })
+      });
+      const d = await r.json();
+      if(r.ok){
+        modal.classList.add('hidden');
+        showToast('✓ Propuesta enviada a '+_currentIntercUser.nombre);
+      } else {
+        errEl.textContent = d.error || 'Error al enviar';
+        btn.disabled=false; btn.textContent='Enviar propuesta';
+      }
+    } catch(e){
+      errEl.textContent = 'Error de conexión';
+      btn.disabled=false; btn.textContent='Enviar propuesta';
+    }
+  });
+
+  modal.classList.remove('hidden');
+}
+
+// ── Mis propuestas ──
 async function loadMisPropuestas(){
   const tbody = document.getElementById('interc-mis-body');
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>';
@@ -1845,26 +2024,24 @@ async function loadMisPropuestas(){
       const soy = i.solicitante_id === myId ? 'solicitante' : 'receptor';
       const contraparte = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
       const fecha = new Date(i.created_at).toLocaleDateString('es-AR');
-      let acciones = '';
+      const dir   = soy === 'solicitante' ? '→' : '←';
+      let acc = '';
       if(i.estado === 'pendiente'){
-        if(soy === 'receptor'){
-          acciones = `<button class="abtn info" onclick="responderInterc('${i.id}','aceptado')">✓ Aceptar</button>
-                      <button class="abtn danger" onclick="responderInterc('${i.id}','rechazado')">✗ Rechazar</button>`;
-        } else {
-          acciones = `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
-        }
+        acc = soy === 'receptor'
+          ? `<button class="abtn info" onclick="responderInterc('${i.id}','aceptado')">✓ Aceptar</button>
+             <button class="abtn danger" onclick="responderInterc('${i.id}','rechazado')">✗ Rechazar</button>`
+          : `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
       }
-      const dirIcon = soy === 'solicitante' ? '→' : '←';
       return `<tr>
         <td><span class="estado-badge ${i.estado}">${i.estado}</span></td>
-        <td style="font-weight:600;color:var(--text);">${dirIcon} ${contraparte}</td>
+        <td style="font-weight:600;color:var(--text);">${dir} ${contraparte}</td>
         <td style="font-size:12px;color:var(--text2);">${i.pide_desc}</td>
         <td style="font-size:12px;color:var(--text2);">${i.ofrece_desc}</td>
         <td style="font-size:11px;color:var(--text3);">${fecha}</td>
-        <td><div class="admin-actions">${acciones}</div></td>
+        <td><div class="admin-actions">${acc}</div></td>
       </tr>`;
     }).join('');
-  } catch(e){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
+  } catch(e){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error</td></tr>'; }
 }
 
 async function responderInterc(id, accion){
@@ -1876,124 +2053,11 @@ async function responderInterc(id, accion){
     });
     const d = await r.json();
     if(r.ok){
-      const labels = { aceptado:'✓ Intercambio aceptado', rechazado:'Propuesta rechazada', cancelado:'Propuesta cancelada' };
-      showToast(labels[accion]);
+      showToast({ aceptado:'✓ Intercambio aceptado!', rechazado:'Propuesta rechazada', cancelado:'Propuesta cancelada' }[accion]);
       loadMisPropuestas();
       loadIntercNotif();
     } else { alert('Error: '+d.error); }
   } catch(e){ alert('Error de conexión'); }
-}
-
-// Modal para proponer intercambio
-let _selectedPideKey = null;
-let _selectedOfreceKey = null;
-let _currentIntercUser = null;
-
-function openIntercModal(u){
-  _currentIntercUser = u;
-  _selectedPideKey = null;
-  _selectedOfreceKey = null;
-
-  const misRep = Object.keys(_cachedState||{}).filter(k => (_cachedState[k])==='repetida');
-
-  const content = document.getElementById('interc-modal-content');
-  content.innerHTML = `
-    <div style="margin-bottom:16px;">
-      <div class="interc-section-label">1. Elegí qué figurita querés pedirle a <b style="color:var(--gold);">${u.nombre}</b></div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Sus repetidas disponibles (${u.repetidas.length}):</div>
-      <div class="fig-select-grid" id="imod-pide-grid"></div>
-    </div>
-    <div style="margin-bottom:16px;">
-      <div class="interc-section-label">2. Elegí qué figurita le ofrecés a cambio</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Tus repetidas disponibles (${misRep.length}):</div>
-      ${misRep.length === 0 
-        ? '<div style="color:#ef5350;font-size:13px;padding:10px;background:rgba(239,83,80,.08);border-radius:6px;">No tenés figuritas repetidas para ofrecer.</div>'
-        : '<div class="fig-select-grid" id="imod-ofrece-grid"></div>'
-      }
-    </div>
-    <button class="modal-btn primary" id="imod-submit" disabled style="opacity:.5;">Enviar propuesta</button>
-    <div class="auth-error" id="imod-error" style="margin-top:8px;"></div>
-  `;
-
-  // Populate pide grid
-  const pideGrid = document.getElementById('imod-pide-grid');
-  if(pideGrid){
-    u.repetidas.forEach(key => {
-      const div = document.createElement('div');
-      div.className = 'fig-select-item';
-      div.textContent = keyToDesc(key);
-      div.dataset.key = key;
-      div.addEventListener('click', () => {
-        pideGrid.querySelectorAll('.fig-select-item').forEach(d => d.classList.remove('selected'));
-        div.classList.add('selected');
-        _selectedPideKey = key;
-        checkIntercReady();
-      });
-      pideGrid.appendChild(div);
-    });
-  }
-
-  // Populate ofrece grid
-  const ofreceGrid = document.getElementById('imod-ofrece-grid');
-  if(ofreceGrid){
-    misRep.forEach(key => {
-      const div = document.createElement('div');
-      div.className = 'fig-select-item';
-      div.textContent = keyToDesc(key);
-      div.dataset.key = key;
-      div.addEventListener('click', () => {
-        ofreceGrid.querySelectorAll('.fig-select-item').forEach(d => d.classList.remove('selected'));
-        div.classList.add('selected');
-        _selectedOfreceKey = key;
-        checkIntercReady();
-      });
-      ofreceGrid.appendChild(div);
-    });
-  }
-
-  document.getElementById('imod-submit').addEventListener('click', enviarPropuesta);
-  document.getElementById('interc-modal-overlay').classList.remove('hidden');
-}
-
-function checkIntercReady(){
-  const btn = document.getElementById('imod-submit');
-  if(btn){
-    const ready = _selectedPideKey && _selectedOfreceKey;
-    btn.disabled = !ready;
-    btn.style.opacity = ready ? '1' : '.5';
-  }
-}
-
-async function enviarPropuesta(){
-  if(!_selectedPideKey || !_selectedOfreceKey || !_currentIntercUser) return;
-  const errEl = document.getElementById('imod-error');
-  errEl.textContent = '';
-  const btn = document.getElementById('imod-submit');
-  btn.disabled = true; btn.textContent = '...';
-  try {
-    const r = await fetch(API_BASE+'/api/intercambios', {
-      method:'POST', headers: authHeaders(),
-      body: JSON.stringify({
-        receptor_id: _currentIntercUser.id,
-        pide_key: _selectedPideKey,
-        pide_desc: keyToDesc(_selectedPideKey),
-        ofrece_key: _selectedOfreceKey,
-        ofrece_desc: keyToDesc(_selectedOfreceKey)
-      })
-    });
-    const d = await r.json();
-    if(r.ok){
-      document.getElementById('interc-modal-overlay').classList.add('hidden');
-      showToast('✓ Propuesta enviada a '+_currentIntercUser.nombre);
-      loadIntercUsuarios();
-    } else {
-      errEl.textContent = d.error || 'Error al enviar propuesta';
-      btn.disabled = false; btn.textContent = 'Enviar propuesta';
-    }
-  } catch(e){
-    errEl.textContent = 'Error de conexión';
-    btn.disabled = false; btn.textContent = 'Enviar propuesta';
-  }
 }
 
 // Modal close
@@ -2123,7 +2187,7 @@ async function handleAuth(){
 
   const btn = document.getElementById('auth-submit-btn');
   btn.disabled = true;
-  btn.textContent = '...';
+  btn.innerHTML = '<span class="login-loading"><span class="runner">🏃</span><span class="ball">⚽</span><span class="dot">·</span><span class="dot">·</span><span class="dot">·</span></span>';
 
   try {
     const endpoint = _authMode==='login' ? '/api/login' : '/api/register';
