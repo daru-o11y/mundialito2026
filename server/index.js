@@ -77,10 +77,12 @@ app.post('/api/register', async (req, res) => {
   );
 
   // Log de registro
-  await supabase.from('logs').insert({
-    usuario_id: data.id, usuario_nombre: data.nombre,
-    accion: 'registro', detalle: 'Cuenta creada'
-  }).catch(() => {});
+  try {
+    await supabase.from('logs').insert({
+      usuario_id: data.id, usuario_nombre: data.nombre,
+      accion: 'registro', detalle: 'Cuenta creada'
+    });
+  } catch(_) {}
 
   res.json({ token, nombre: data.nombre, userId: data.id, rol: data.rol || 'coleccionista' });
 });
@@ -110,10 +112,12 @@ app.post('/api/login', async (req, res) => {
   );
 
   // Log de acceso
-  await supabase.from('logs').insert({
-    usuario_id: data.id, usuario_nombre: data.nombre,
-    accion: 'login', detalle: 'Ingreso exitoso'
-  }).catch(() => {});
+  try {
+    await supabase.from('logs').insert({
+      usuario_id: data.id, usuario_nombre: data.nombre,
+      accion: 'login', detalle: 'Ingreso exitoso'
+    });
+  } catch(_) {}
 
   res.json({ token, nombre: data.nombre, userId: data.id, rol, estado: data.estado });
 });
