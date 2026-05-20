@@ -1382,21 +1382,20 @@ async function init(){
 function showServerError(data){
   const overlay = document.getElementById('auth-overlay');
   const box = overlay.querySelector('.auth-box');
-  box.innerHTML = \`
+  box.innerHTML = `
     <div class="auth-logo">⚠️ Error de servidor</div>
     <div class="auth-sub" style="color:#ef5350;margin-bottom:16px;">No se puede conectar. Revisá las variables de entorno en Render.</div>
     <div style="background:var(--bg2);border-radius:8px;padding:12px;font-size:12px;font-family:monospace;color:var(--text2);text-align:left;line-height:1.8;">
-      <div>🔗 SUPABASE_URL: \${data.supabase_url ? '✅' : '❌ falta'}</div>
-      <div>🔑 SUPABASE_SERVICE_KEY: \${data.supabase_key ? '✅' : '❌ falta'}</div>
-      <div>🔐 JWT_SECRET: \${data.jwt_secret ? '✅' : '❌ falta'}</div>
-      <div>🗄️ Conexión BD: \${data.supabase_connection ? '✅' : '❌ falló'}</div>
-      \${data.error ? '<div style="color:#ef5350;margin-top:8px;">Error: '+data.error+'</div>' : ''}
+      <div>SUPABASE_URL: ${data.supabase_url ? 'OK' : 'FALTA'}</div>
+      <div>SUPABASE_SERVICE_KEY: ${data.supabase_key ? 'OK' : 'FALTA'}</div>
+      <div>JWT_SECRET: ${data.jwt_secret ? 'OK' : 'FALTA'}</div>
+      <div>Conexion BD: ${data.supabase_connection ? 'OK' : 'FALLO'}</div>
+      ${data.error ? '<div style="color:#ef5350;margin-top:8px;">Error: '+data.error+'</div>' : ''}
     </div>
     <div style="font-size:11px;color:var(--text3);margin-top:14px;line-height:1.6;">
-      Ir a Render → tu servicio → <b>Environment</b> → verificar las 3 variables.<br>
-      Luego hacer <b>Manual Deploy</b> para aplicar los cambios.
+      Ir a Render → tu servicio → Environment → verificar las 3 variables.
     </div>
-  \`;
+  `;
   overlay.classList.remove('hidden');
 }
 // ══════════════════════════════════════════
