@@ -631,26 +631,6 @@ input[data-estado="repetida"].foil-input + .sbox,
   </div>
 </div>
 
-<!-- MODAL CREAR USUARIO (admin) -->
-<div class="modal-overlay hidden" id="crear-usuario-overlay" style="z-index:350;">
-  <div class="modal modal-wrap">
-    <button class="modal-close" id="crear-usuario-close">✕</button>
-    <div class="modal-title">➕ Crear Usuario</div>
-    <div class="modal-label">Nombre</div>
-    <input class="modal-input" type="text" id="cu-nombre" placeholder="Nombre del coleccionista" maxlength="30">
-    <div class="modal-label">Contraseña</div>
-    <input class="modal-input" type="password" id="cu-pass" placeholder="Mínimo 4 caracteres" maxlength="50">
-    <div class="modal-label">Rol</div>
-    <select class="modal-input" id="cu-rol" style="cursor:pointer;">
-      <option value="coleccionista">Coleccionista</option>
-      <option value="admin">Admin</option>
-    </select>
-    <div class="modal-actions" style="margin-top:4px;">
-      <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>
-    </div>
-    <div class="auth-error" id="cu-error" style="margin-top:8px;"></div>
-  </div>
-</div>
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay hidden" id="auth-overlay">
   <div class="auth-box">
@@ -779,7 +759,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="ctabs" id="admin-tabs" style="margin-bottom:18px;">
       <button class="ctab active" data-atab="usuarios">👥 Usuarios</button>
       <button class="ctab" data-atab="logs">📋 Logs de acceso</button>
-      <button class="fbtn" id="btn-crear-usuario" onclick="document.getElementById('crear-usuario-overlay').classList.remove('hidden');document.getElementById('cu-nombre').value='';document.getElementById('cu-pass').value='';document.getElementById('cu-error').textContent='';" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
+      <button class="fbtn" id="btn-crear-usuario" onclick="document.getElementById('crear-usuario-overlay').style.display='flex';document.getElementById('cu-nombre').value='';document.getElementById('cu-pass').value='';document.getElementById('cu-error').textContent='';" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
       <button class="fbtn" id="admin-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
     </div>
 
@@ -1736,14 +1716,14 @@ document.getElementById('btn-crear-usuario').addEventListener('click', ()=>{
   document.getElementById('cu-pass').value = '';
   document.getElementById('cu-rol').value = 'coleccionista';
   document.getElementById('cu-error').textContent = '';
-  document.getElementById('crear-usuario-overlay').classList.remove('hidden');
+  document.getElementById('crear-usuario-overlay').style.display='flex';
 });
 document.getElementById('crear-usuario-close').addEventListener('click', ()=>{
-  document.getElementById('crear-usuario-overlay').classList.add('hidden');
+  document.getElementById('crear-usuario-overlay').style.display='none';
 });
 document.getElementById('crear-usuario-overlay').addEventListener('click', e=>{
   if(e.target === e.currentTarget)
-    document.getElementById('crear-usuario-overlay').classList.add('hidden');
+    document.getElementById('crear-usuario-overlay').style.display='none';
 });
 document.getElementById('cu-submit').addEventListener('click', async ()=>{
   const nombre   = document.getElementById('cu-nombre').value.trim();
@@ -1763,7 +1743,7 @@ document.getElementById('cu-submit').addEventListener('click', async ()=>{
     });
     const d = await r.json();
     if(!r.ok){ errEl.textContent = d.error || 'Error al crear usuario'; btn.disabled=false; btn.textContent='✓ Crear usuario'; return; }
-    document.getElementById('crear-usuario-overlay').classList.add('hidden');
+    document.getElementById('crear-usuario-overlay').style.display='none';
     showToast('✓ Usuario '+nombre+' creado como '+rol);
     loadAdminUsers();
   } catch(e){
@@ -2354,5 +2334,26 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
 // ── START ──
 document.addEventListener("DOMContentLoaded", ()=>{ init(); });
 </script>
+
+<!-- MODAL CREAR USUARIO (admin) -->
+<div id="crear-usuario-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;">
+  <div class="modal modal-wrap">
+    <button class="modal-close" id="crear-usuario-close">✕</button>
+    <div class="modal-title">➕ Crear Usuario</div>
+    <div class="modal-label">Nombre</div>
+    <input class="modal-input" type="text" id="cu-nombre" placeholder="Nombre del coleccionista" maxlength="30">
+    <div class="modal-label">Contraseña</div>
+    <input class="modal-input" type="password" id="cu-pass" placeholder="Mínimo 4 caracteres" maxlength="50">
+    <div class="modal-label">Rol</div>
+    <select class="modal-input" id="cu-rol" style="cursor:pointer;">
+      <option value="coleccionista">Coleccionista</option>
+      <option value="admin">Admin</option>
+    </select>
+    <div class="modal-actions" style="margin-top:4px;">
+      <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>
+    </div>
+    <div class="auth-error" id="cu-error" style="margin-top:8px;"></div>
+  </div>
+</div>
 </body>
 </html>
