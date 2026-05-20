@@ -324,6 +324,23 @@ input[data-estado="repetida"].foil-input + .sbox,
   .stickers { grid-template-columns:repeat(7,1fr); }
 }
 
+
+/* ── ADMIN ── */
+.role-badge { display:inline-block; padding:2px 9px; border-radius:12px; font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.role-badge.admin { background:rgba(255,215,0,.15); color:var(--gold); border:1px solid rgba(255,215,0,.3); }
+.role-badge.coleccionista { background:rgba(100,180,255,.1); color:#60a5fa; border:1px solid rgba(100,180,255,.25); }
+.admin-actions { display:flex; gap:5px; flex-wrap:wrap; }
+.abtn { background:var(--bg2); border:1px solid var(--border2); color:var(--text2); font-size:11px; font-family:'Barlow',sans-serif; font-weight:500; padding:4px 10px; border-radius:5px; cursor:pointer; transition:all .18s; white-space:nowrap; }
+.abtn:hover { border-color:var(--gold); color:var(--gold); }
+.abtn.danger { color:#ef5350; border-color:rgba(239,83,80,.3); }
+.abtn.danger:hover { background:rgba(239,83,80,.15); border-color:#ef5350; }
+.abtn.info { color:#60a5fa; border-color:rgba(96,165,250,.3); }
+.abtn.info:hover { background:rgba(96,165,250,.1); }
+
+/* ── MODAL AMPLIADO ── */
+.modal-input-sm { width:100%; background:var(--bg2); border:1px solid var(--border2); color:var(--text); font-family:'Barlow',sans-serif; font-size:13px; padding:7px 11px; border-radius:7px; outline:none; transition:border-color .18s; }
+.modal-input-sm:focus { border-color:var(--gold); }
+
 /* ── AUTH MODAL ── */
 .auth-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:300; display:flex; align-items:center; justify-content:center; }
 .auth-overlay.hidden { display:none; }
@@ -375,11 +392,12 @@ input[data-estado="repetida"].foil-input + .sbox,
 <header class="header">
   <div class="logo">FIFA WC <em>2026</em></div>
   <nav class="nav">
-    <button class="nbtn active" data-page="album">📒 Álbum</button>
-    <button class="nbtn" data-page="estadios">🏟️ Estadios</button>
-    <button class="nbtn" data-page="estadisticas">📊 Progreso</button>
-    <button class="nbtn" data-page="info">ℹ️ Info</button>
-    <button class="nbtn" data-page="ranking">🏆 Ranking</button>
+    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">📒 Álbum</button>
+    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
+    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
+    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
+    <button class="nbtn" data-page="ranking" data-roles="coleccionista">🏆 Ranking</button>
+    <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
   <div class="hstats">
     <div class="hpbar"><div class="hpfill" id="hpf" style="width:0%"></div></div>
@@ -622,6 +640,42 @@ input[data-estado="repetida"].foil-input + .sbox,
   </div>
 </div>
 
+
+  <div class="page" id="page-admin">
+    <div class="stitle">Panel de Administración</div>
+    <div class="bigstats" id="admin-bigstats" style="margin-bottom:20px;"></div>
+
+    <!-- Admin sub-tabs -->
+    <div class="ctabs" id="admin-tabs" style="margin-bottom:18px;">
+      <button class="ctab active" data-atab="usuarios">👥 Usuarios</button>
+      <button class="ctab" data-atab="logs">📋 Logs de acceso</button>
+      <button class="fbtn" id="admin-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
+    </div>
+
+    <!-- Tab: Usuarios -->
+    <div id="atab-usuarios">
+      <div class="twrap">
+        <table class="gtbl">
+          <thead><tr><th>Usuario</th><th>Rol</th><th>Tengo</th><th>Rep.</th><th>Avance</th><th>Registrado</th><th>Último acceso</th><th>Acciones</th></tr></thead>
+          <tbody id="admin-users-body">
+            <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px;">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Logs -->
+    <div id="atab-logs" style="display:none;">
+      <div class="twrap">
+        <table class="gtbl">
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead>
+          <tbody id="admin-logs-body">
+            <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px;">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <div class="page" id="page-ranking">
     <div class="stitle">Ranking de Coleccionistas</div>
@@ -1326,6 +1380,180 @@ function showToast(msg){
   clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove("show"),1800);
 }
 
+// ══════════════════════════════════════════
+// ROLES & NAV
+// ══════════════════════════════════════════
+let _userRol = 'coleccionista';
+
+function setRol(rol){
+  _userRol = rol;
+  // Show/hide nav buttons based on role
+  document.querySelectorAll('.nbtn[data-roles]').forEach(btn => {
+    const roles = btn.dataset.roles.split(',');
+    btn.style.display = roles.includes(rol) ? '' : 'none';
+  });
+  // Header chips: show for all
+  // Stats page: coleccionista sees own, admin sees all
+}
+
+// ══════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════
+let _adminTab = 'usuarios';
+
+function switchAdminTab(tab){
+  _adminTab = tab;
+  document.querySelectorAll('[data-atab]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.atab === tab);
+  });
+  document.getElementById('atab-usuarios').style.display = tab === 'usuarios' ? '' : 'none';
+  document.getElementById('atab-logs').style.display     = tab === 'logs'     ? '' : 'none';
+  if(tab === 'usuarios') loadAdminUsers();
+  if(tab === 'logs')     loadAdminLogs();
+}
+
+async function loadAdminStats(){
+  try {
+    const r = await fetch(API_BASE+'/api/admin/stats', { headers: authHeaders() });
+    if(!r.ok) return;
+    const s = await r.json();
+    document.getElementById('admin-bigstats').innerHTML = `
+      <div class="bstat"><div class="bsv o">${s.total_usuarios}</div><div class="bsl">Usuarios</div></div>
+      <div class="bstat"><div class="bsv g">${s.coleccionistas}</div><div class="bsl">Coleccionistas</div></div>
+      <div class="bstat"><div class="bsv y">${s.admins}</div><div class="bsl">Admins</div></div>
+      <div class="bstat"><div class="bsv o">${s.activos_7d}</div><div class="bsl">Activos 7 días</div></div>
+      <div class="bstat"><div class="bsv g">${s.total_tengo}</div><div class="bsl">Total tengo</div></div>
+      <div class="bstat"><div class="bsv o">${s.promedio_completado}%</div><div class="bsl">Promedio</div></div>
+      ${s.mas_completo ? `<div class="bstat"><div class="bsv o" style="font-size:18px;margin-top:6px;">${s.mas_completo.nombre}</div><div class="bsl">Más completo (${s.mas_completo.pct}%)</div></div>` : ''}
+    `;
+  } catch(e){ console.warn('Admin stats error', e); }
+}
+
+async function loadAdminUsers(){
+  const tbody = document.getElementById('admin-users-body');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>';
+  try {
+    const r = await fetch(API_BASE+'/api/admin/usuarios', { headers: authHeaders() });
+    if(!r.ok){ tbody.innerHTML = '<tr><td colspan="8" style="color:#ef5350;padding:16px;text-align:center;">Error al cargar</td></tr>'; return; }
+    const users = await r.json();
+    const myNombre = localStorage.getItem('wc2026_nombre')||'';
+    if(!users.length){
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:16px;">No hay usuarios</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const isMe = u.nombre.toLowerCase() === myNombre.toLowerCase();
+      const created = u.created_at ? new Date(u.created_at).toLocaleDateString('es-AR') : '-';
+      const updated = u.updated_at ? new Date(u.updated_at).toLocaleDateString('es-AR') : '-';
+      return `<tr ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
+        <td>
+          <b style="color:var(--text);">${u.nombre}</b>
+          ${isMe ? '<span style="color:var(--gold);font-size:10px;margin-left:5px;">(vos)</span>' : ''}
+        </td>
+        <td><span class="role-badge ${u.rol}">${u.rol}</span></td>
+        <td style="color:var(--green);font-weight:600;">${u.tengo}</td>
+        <td style="color:var(--gold);">${u.repetidas}</td>
+        <td>
+          <div class="pcell">
+            <div class="pmini"><div class="pmini-f" style="width:${u.pct}%"></div></div>
+            <span style="font-size:11px;color:var(--text2);min-width:32px;">${u.pct}%</span>
+          </div>
+        </td>
+        <td style="font-size:11px;color:var(--text3);">${created}</td>
+        <td style="font-size:11px;color:var(--text3);">${updated}</td>
+        <td>
+          <div class="admin-actions">
+            <button class="abtn info" onclick="adminVerAlbum('${u.id}','${u.nombre}')">👁 Ver</button>
+            ${!isMe ? `<button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>` : ''}
+            ${!isMe ? `<button class="abtn danger" onclick="adminReset('${u.id}','${u.nombre}')">↺ Reset</button>` : ''}
+            ${!isMe ? `<button class="abtn danger" onclick="adminEliminar('${u.id}','${u.nombre}')">🗑</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e){ tbody.innerHTML = '<tr><td colspan="8" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
+}
+
+async function loadAdminLogs(){
+  const tbody = document.getElementById('admin-logs-body');
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>';
+  try {
+    const r = await fetch(API_BASE+'/api/admin/logs', { headers: authHeaders() });
+    if(!r.ok){ tbody.innerHTML = '<tr><td colspan="4" style="color:#ef5350;padding:16px;">Error</td></tr>'; return; }
+    const logs = await r.json();
+    if(!logs.length){
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:16px;">Sin registros aún</td></tr>';
+      return;
+    }
+    const accionColor = { login:'var(--green)', registro:'#60a5fa', logout:'var(--text3)' };
+    tbody.innerHTML = logs.map(l => {
+      const fecha = l.created_at ? new Date(l.created_at).toLocaleString('es-AR') : '-';
+      const color = accionColor[l.accion] || 'var(--text2)';
+      return `<tr>
+        <td style="font-size:11px;color:var(--text3);white-space:nowrap;">${fecha}</td>
+        <td style="font-weight:600;color:var(--text);">${l.usuario_nombre || '-'}</td>
+        <td><span style="color:${color};font-weight:600;font-size:12px;text-transform:uppercase;">${l.accion}</span></td>
+        <td style="font-size:12px;color:var(--text2);">${l.detalle || ''}</td>
+      </tr>`;
+    }).join('');
+  } catch(e){ tbody.innerHTML = '<tr><td colspan="4" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
+}
+
+async function adminVerAlbum(id, nombre){
+  try {
+    const r = await fetch(API_BASE+'/api/admin/album/'+id, { headers: authHeaders() });
+    const d = await r.json();
+    const tengo = Object.values(d.estado||{}).filter(v=>v==='tengo').length;
+    const rep   = Object.values(d.estado||{}).filter(v=>v==='repetida').length;
+    const falta = 1008 - tengo - rep;
+    alert(`📒 Álbum de ${nombre}\n\n✓ Tengo: ${tengo}\n↺ Repetidas: ${rep}\n✗ Faltan: ${falta}\n\nProgreso: ${Math.round(tengo/1008*100)}%`);
+  } catch(e){ alert('Error al cargar el álbum'); }
+}
+
+async function adminCambiarPass(id, nombre){
+  const nueva = prompt(`Nueva contraseña para ${nombre}:`);
+  if(!nueva || nueva.length < 4){ if(nueva !== null) alert('Mínimo 4 caracteres'); return; }
+  try {
+    const r = await fetch(API_BASE+'/api/admin/change-password/'+id, {
+      method:'POST', headers: authHeaders(), body: JSON.stringify({ newPassword: nueva })
+    });
+    const d = await r.json();
+    if(r.ok) showToast('✓ Contraseña cambiada para '+nombre);
+    else alert('Error: '+d.error);
+  } catch(e){ alert('Error de conexión'); }
+}
+
+async function adminReset(id, nombre){
+  if(!confirm(`¿Resetear el álbum de ${nombre}?\nNo se puede deshacer.`)) return;
+  try {
+    const r = await fetch(API_BASE+'/api/admin/reset/'+id, { method:'POST', headers: authHeaders() });
+    const d = await r.json();
+    if(r.ok){ showToast('↺ Álbum de '+nombre+' reseteado'); loadAdminUsers(); }
+    else alert('Error: '+d.error);
+  } catch(e){ alert('Error de conexión'); }
+}
+
+async function adminEliminar(id, nombre){
+  if(!confirm(`¿ELIMINAR al usuario ${nombre}?\nSe borra todo. No se puede deshacer.`)) return;
+  try {
+    const r = await fetch(API_BASE+'/api/admin/usuario/'+id, { method:'DELETE', headers: authHeaders() });
+    const d = await r.json();
+    if(r.ok){ showToast('🗑 Usuario '+nombre+' eliminado'); loadAdminUsers(); }
+    else alert('Error: '+d.error);
+  } catch(e){ alert('Error de conexión'); }
+}
+
+// Admin tab clicks
+document.querySelectorAll('[data-atab]').forEach(btn => {
+  btn.addEventListener('click', () => switchAdminTab(btn.dataset.atab));
+});
+
+document.getElementById('admin-refresh').addEventListener('click', ()=>{
+  loadAdminStats();
+  if(_adminTab === 'usuarios') loadAdminUsers();
+  if(_adminTab === 'logs')     loadAdminLogs();
+});
+
 // ── INIT ──
 async function init(){
   showLoadingOverlay(true);
@@ -1369,6 +1597,7 @@ async function init(){
   } else {
     document.getElementById('profile-name').textContent =
       localStorage.getItem('wc2026_nombre') || 'Mi álbum';
+    setRol(d.rol || 'coleccionista');
     await renderAlbum();
     buildCountryTabs();
     renderStadiums();
@@ -1464,6 +1693,7 @@ async function handleAuth(){
     document.getElementById('auth-nombre-display').textContent = d.nombre;
     document.getElementById('profile-name').textContent = d.nombre;
     document.getElementById('profile-avatar').textContent = d.nombre.charAt(0).toUpperCase();
+    setRol(d.rol || 'coleccionista');
 
     await renderAlbum();
     buildCountryTabs();
@@ -1538,6 +1768,7 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
     btn.classList.add("active");
     if(btn.dataset.page==="estadisticas") renderStats();
     if(btn.dataset.page==="ranking") await renderRanking();
+    if(btn.dataset.page==="admin"){ loadAdminStats(); loadAdminUsers(); }
   });
 });
 
