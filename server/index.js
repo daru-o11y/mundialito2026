@@ -302,6 +302,169 @@ app.get('/api/admin/logs', authMiddleware, adminMiddleware, async (req, res) => 
   res.json(data || []);
 });
 
+
+// POST /api/admin/crear-usuario — crear usuario desde el panel admin
+app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req, res) => {
+  const { nombre, password, rol } = req.body;
+  if (!nombre || !password)
+    return res.status(400).json({ error: 'Nombre y contraseña requeridos' });
+  if (nombre.trim().length < 2 || nombre.trim().length > 30)
+    return res.status(400).json({ error: 'El nombre debe tener entre 2 y 30 caracteres' });
+  if (password.length < 4)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
+  if (!['admin','coleccionista'].includes(rol))
+    return res.status(400).json({ error: 'Rol inválido' });
+
+  const { data: existing } = await supabase
+    .from('usuarios').select('id').ilike('nombre', nombre.trim()).single();
+  if (existing)
+    return res.status(409).json({ error: 'Ese nombre ya está en uso' });
+
+  const hash = await bcrypt.hash(password, 10);
+  const { data, error } = await supabase
+    .from('usuarios')
+    .insert({ nombre: nombre.trim(), password_hash: hash, estado: {}, rol })
+    .select('id, nombre, rol')
+    .single();
+
+  if (error) {
+    console.error('Create user error:', error);
+    return res.status(500).json({ error: 'Error al crear usuario' });
+  }
+
+  try {
+    await supabase.from('logs').insert({
+      usuario_id: data.id, usuario_nombre: data.nombre,
+      accion: 'registro', detalle: 'Creado por admin'
+    });
+  } catch(_) {}
+
+  res.json({ ok: true, nombre: data.nombre, rol: data.rol });
+});
+
+
+// ════════════════════════════════════════════
+// INTERCAMBIOS
+// ════════════════════════════════════════════
+
+function sanitizeFigKey(key) {
+  if (typeof key !== 'string') return null;
+  if (key.length > 150) return null;
+  // Solo letras, números, guiones bajos — formato del álbum
+  if (!/^[A-Za-z0-9_]+$/.test(key)) return null;
+  return key;
+}
+
+function sanitizeText(text, maxLen = 120) {
+  if (typeof text !== 'string') return '';
+  return text.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
+}
+
+// GET /api/intercambios — mis propuestas enviadas y recibidas
+app.get('/api/intercambios', authMiddleware, async (req, res) => {
+  const { data, error } = await supabase
+    .from('intercambios')
+    .select('*')
+    .or(`solicitante_id.eq.${req.userId},receptor_id.eq.${req.userId}`)
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) return res.status(500).json({ error: 'Error al obtener intercambios' });
+  res.json(data || []);
+});
+
+// GET /api/intercambios/usuarios — lista de usuarios con sus repetidas (para proponer)
+app.get('/api/intercambios/usuarios', authMiddleware, async (req, res) => {
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('id, nombre, estado')
+    .neq('id', req.userId);
+  if (error) return res.status(500).json({ error: 'Error' });
+  const result = (data || []).map(u => {
+    const estado = u.estado || {};
+    const repetidas = Object.keys(estado).filter(k => estado[k] === 'repetida');
+    const tengo     = Object.keys(estado).filter(k => estado[k] === 'tengo');
+    return { id: u.id, nombre: u.nombre, repetidas, tengo, totalRep: repetidas.length };
+  });
+  res.json(result);
+});
+
+// POST /api/intercambios — crear propuesta de intercambio
+app.post('/api/intercambios', authMiddleware, async (req, res) => {
+  const { receptor_id, pide_key, pide_desc, ofrece_key, ofrece_desc } = req.body;
+
+  const cleanPideKey   = sanitizeFigKey(pide_key);
+  const cleanOfreceKey = sanitizeFigKey(ofrece_key);
+  const cleanPideDesc  = sanitizeText(pide_desc);
+  const cleanOfreceDesc = sanitizeText(ofrece_desc);
+
+  if (!receptor_id || !cleanPideKey || !cleanOfreceKey)
+    return res.status(400).json({ error: 'Datos inválidos o incompletos' });
+  if (receptor_id === req.userId)
+    return res.status(400).json({ error: 'No podés intercambiar con vos mismo' });
+
+  // Verificar que el solicitante tiene la figurita que ofrece (repetida)
+  const { data: solData } = await supabase
+    .from('usuarios').select('nombre, estado').eq('id', req.userId).single();
+  if (!solData) return res.status(404).json({ error: 'Usuario no encontrado' });
+  if ((solData.estado || {})[cleanOfreceKey] !== 'repetida')
+    return res.status(400).json({ error: 'No tenés esa figurita como repetida' });
+
+  // Verificar que el receptor tiene la figurita pedida (repetida)
+  const { data: recData } = await supabase
+    .from('usuarios').select('nombre, estado').eq('id', receptor_id).single();
+  if (!recData) return res.status(404).json({ error: 'Receptor no encontrado' });
+  if ((recData.estado || {})[cleanPideKey] !== 'repetida')
+    return res.status(400).json({ error: 'Ese usuario ya no tiene esa figurita como repetida' });
+
+  // No duplicar propuestas pendientes
+  const { data: existing } = await supabase
+    .from('intercambios').select('id')
+    .eq('solicitante_id', req.userId).eq('receptor_id', receptor_id)
+    .eq('pide_key', cleanPideKey).eq('estado', 'pendiente').single();
+  if (existing)
+    return res.status(409).json({ error: 'Ya tenés una propuesta pendiente para esa figurita' });
+
+  const { data, error } = await supabase
+    .from('intercambios')
+    .insert({
+      solicitante_id: req.userId, solicitante_nom: solData.nombre,
+      receptor_id,                receptor_nom: recData.nombre,
+      pide_key: cleanPideKey,     pide_desc: cleanPideDesc,
+      ofrece_key: cleanOfreceKey, ofrece_desc: cleanOfreceDesc,
+      estado: 'pendiente'
+    })
+    .select().single();
+
+  if (error) return res.status(500).json({ error: 'Error al crear propuesta' });
+  res.json({ ok: true, intercambio: data });
+});
+
+// PATCH /api/intercambios/:id — aceptar o rechazar
+app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
+  const { accion } = req.body; // 'aceptado' | 'rechazado' | 'cancelado'
+  if (!['aceptado','rechazado','cancelado'].includes(accion))
+    return res.status(400).json({ error: 'Acción inválida' });
+
+  const { data: interc } = await supabase
+    .from('intercambios').select('*').eq('id', req.params.id).single();
+  if (!interc) return res.status(404).json({ error: 'Intercambio no encontrado' });
+
+  // Solo el receptor puede aceptar/rechazar; solo el solicitante puede cancelar
+  if (accion === 'cancelado' && interc.solicitante_id !== req.userId)
+    return res.status(403).json({ error: 'Solo el solicitante puede cancelar' });
+  if (['aceptado','rechazado'].includes(accion) && interc.receptor_id !== req.userId)
+    return res.status(403).json({ error: 'Solo el receptor puede aceptar o rechazar' });
+  if (interc.estado !== 'pendiente')
+    return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
+
+  const { error } = await supabase
+    .from('intercambios')
+    .update({ estado: accion, updated_at: new Date().toISOString() })
+    .eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: 'Error al actualizar' });
+  res.json({ ok: true, estado: accion });
+});
+
 // ════════════════════════════════════════════
 // HEALTH
 // ════════════════════════════════════════════

@@ -325,6 +325,26 @@ input[data-estado="repetida"].foil-input + .sbox,
 }
 
 
+
+/* ── INTERCAMBIOS ── */
+.interc-user-card { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius); padding:14px; cursor:pointer; transition:all .18s; }
+.interc-user-card:hover { border-color:var(--gold); transform:translateY(-2px); box-shadow:0 4px 16px rgba(255,215,0,.15); }
+.interc-user-name { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.interc-user-stats { display:flex; gap:10px; font-size:12px; }
+.interc-rep-count { color:var(--gold); font-weight:600; }
+.interc-no-rep { color:var(--text3); font-size:12px; font-style:italic; }
+.estado-badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; }
+.estado-badge.pendiente  { background:rgba(255,165,0,.15); color:#ffa500; border:1px solid rgba(255,165,0,.3); }
+.estado-badge.aceptado   { background:rgba(0,200,83,.15);  color:var(--green); border:1px solid rgba(0,200,83,.3); }
+.estado-badge.rechazado  { background:rgba(239,83,80,.15); color:#ef5350; border:1px solid rgba(239,83,80,.3); }
+.estado-badge.cancelado  { background:rgba(100,100,100,.15); color:var(--text3); border:1px solid var(--border2); }
+.notif-banner { background:rgba(255,165,0,.12); border:1px solid rgba(255,165,0,.3); border-radius:8px; padding:10px 16px; font-size:13px; color:#ffa500; display:flex; align-items:center; gap:8px; }
+.fig-select-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; margin:10px 0 16px; max-height:200px; overflow-y:auto; }
+.fig-select-item { background:var(--bg2); border:1px solid var(--border2); border-radius:6px; padding:8px 10px; cursor:pointer; font-size:12px; transition:all .15s; }
+.fig-select-item:hover { border-color:var(--gold); color:var(--gold); }
+.fig-select-item.selected { background:rgba(255,215,0,.12); border-color:var(--gold); color:var(--gold); font-weight:600; }
+.interc-section-label { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px; }
+
 /* ── ADMIN ── */
 .role-badge { display:inline-block; padding:2px 9px; border-radius:12px; font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
 .role-badge.admin { background:rgba(255,215,0,.15); color:var(--gold); border:1px solid rgba(255,215,0,.3); }
@@ -396,11 +416,13 @@ input[data-estado="repetida"].foil-input + .sbox,
     <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
     <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
     <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
-    <button class="nbtn" data-page="ranking" data-roles="coleccionista">🏆 Ranking</button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔄 Intercambios</button>
+    <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
   <div class="hstats">
     <div class="hpbar"><div class="hpfill" id="hpf" style="width:0%"></div></div>
+    <span id="save-indicator" style="font-size:11px;color:var(--text3);white-space:nowrap;display:none;"></span>
     <div class="chip t" id="ct">✓ 0</div>
     <div class="chip f" id="cf">✗ 0</div>
     <div class="chip r" id="cr">↺ 0</div>
@@ -572,12 +594,41 @@ input[data-estado="repetida"].foil-input + .sbox,
 </div>
 
 
+<!-- MODAL PROPONER INTERCAMBIO -->
+<div class="modal-overlay hidden" id="interc-modal-overlay">
+  <div class="modal modal-wrap" style="width:500px;max-height:85vh;overflow-y:auto;">
+    <button class="modal-close" id="interc-modal-close">✕</button>
+    <div class="modal-title">🔄 Proponer Intercambio</div>
+    <div id="interc-modal-content"></div>
+  </div>
+</div>
+
+<!-- MODAL CREAR USUARIO (admin) -->
+<div class="modal-overlay hidden" id="crear-usuario-overlay">
+  <div class="modal modal-wrap">
+    <button class="modal-close" id="crear-usuario-close">✕</button>
+    <div class="modal-title">➕ Crear Usuario</div>
+    <div class="modal-label">Nombre</div>
+    <input class="modal-input" type="text" id="cu-nombre" placeholder="Nombre del coleccionista" maxlength="30">
+    <div class="modal-label">Contraseña</div>
+    <input class="modal-input" type="password" id="cu-pass" placeholder="Mínimo 4 caracteres" maxlength="50">
+    <div class="modal-label">Rol</div>
+    <select class="modal-input" id="cu-rol" style="cursor:pointer;">
+      <option value="coleccionista">Coleccionista</option>
+      <option value="admin">Admin</option>
+    </select>
+    <div class="modal-actions" style="margin-top:4px;">
+      <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>
+    </div>
+    <div class="auth-error" id="cu-error" style="margin-top:8px;"></div>
+  </div>
+</div>
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay hidden" id="auth-overlay">
   <div class="auth-box">
     <div class="auth-logo">⚽ MUNDIAL 2026</div>
     <div class="auth-sub">Álbum de Figuritas</div>
-    <div class="auth-tabs">
+    <div class="auth-tabs" style="display:none;">
       <button class="auth-tab active" id="tab-login">Ingresar</button>
       <button class="auth-tab" id="tab-register">Registrarse</button>
     </div>
@@ -641,6 +692,42 @@ input[data-estado="repetida"].foil-input + .sbox,
 </div>
 
 
+  <div class="page" id="page-intercambios">
+    <div class="stitle">Intercambio de Figuritas</div>
+
+    <!-- Mis notificaciones -->
+    <div id="interc-notif" style="margin-bottom:16px;"></div>
+
+    <!-- Sub tabs -->
+    <div class="ctabs" style="margin-bottom:18px;">
+      <button class="ctab active" data-itab="proponer">🔍 Buscar intercambio</button>
+      <button class="ctab" data-itab="mis">📋 Mis propuestas</button>
+      <button class="fbtn" id="interc-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
+    </div>
+
+    <!-- Tab: Proponer -->
+    <div id="itab-proponer">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">
+        Seleccioná un usuario para ver sus figuritas repetidas y proponerle un intercambio.
+      </div>
+      <div class="tgrid" id="interc-usuarios-grid">
+        <div style="color:var(--text3);font-size:13px;padding:12px;">Cargando usuarios...</div>
+      </div>
+    </div>
+
+    <!-- Tab: Mis propuestas -->
+    <div id="itab-mis" style="display:none;">
+      <div class="twrap">
+        <table class="gtbl">
+          <thead><tr><th>Estado</th><th>Con quién</th><th>Yo pido</th><th>Yo ofrezco</th><th>Fecha</th><th>Acción</th></tr></thead>
+          <tbody id="interc-mis-body">
+            <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-admin">
     <div class="stitle">Panel de Administración</div>
     <div class="bigstats" id="admin-bigstats" style="margin-bottom:20px;"></div>
@@ -649,6 +736,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="ctabs" id="admin-tabs" style="margin-bottom:18px;">
       <button class="ctab active" data-atab="usuarios">👥 Usuarios</button>
       <button class="ctab" data-atab="logs">📋 Logs de acceso</button>
+      <button class="fbtn" id="btn-crear-usuario" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
       <button class="fbtn" id="admin-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
     </div>
 
@@ -872,22 +960,64 @@ async function cycleEstado(gl,en,codigo){
   const next = cur==="vacia"?"tengo": cur==="tengo"?"repetida":"vacia";
   if(next === 'vacia') delete _cachedState[k];
   else _cachedState[k] = next;
-  // Save to server (non-blocking)
+  // Save to server with debounce (evita race conditions)
   if(_token){
-    fetch(API_BASE+'/api/album/sticker', {
-      method:'PATCH',
-      headers: authHeaders(),
-      body: JSON.stringify({ key: teamKey(gl,en)+'__'+codigo, value: next })
-    }).catch(()=>{});
-    // Also keep flat key in sync on server
-    const nested = buildNestedState(_cachedState);
-    fetch(API_BASE+'/api/album', {
-      method:'PUT',
-      headers: authHeaders(),
-      body: JSON.stringify({ estado: nested })
-    }).catch(()=>{});
+    _scheduleSave();
   }
   return next;
+}
+
+// ── DEBOUNCED SAVE ──
+let _saveTimer = null;
+let _saveStatus = 'saved'; // 'saved' | 'pending' | 'saving' | 'error'
+
+function _scheduleSave(){
+  _saveStatus = 'pending';
+  _updateSaveIndicator();
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(_doSave, 1500); // espera 1.5s sin cambios antes de guardar
+}
+
+async function _doSave(){
+  if(!_token || !_cachedState) return;
+  _saveStatus = 'saving';
+  _updateSaveIndicator();
+  try {
+    const nested = buildNestedState(_cachedState);
+    // Sanitizar antes de enviar: solo claves válidas, solo valores válidos
+    const sanitized = {};
+    const validVals = new Set(['tengo','repetida']);
+    for(const [k, v] of Object.entries(nested)){
+      if(typeof k === 'string' && k.length < 200 && validVals.has(v)){
+        sanitized[k] = v;
+      }
+    }
+    const r = await fetch(API_BASE+'/api/album', {
+      method:'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ estado: sanitized })
+    });
+    _saveStatus = r.ok ? 'saved' : 'error';
+  } catch(e){
+    _saveStatus = 'error';
+    // Reintentar en 5 segundos si falla
+    setTimeout(_doSave, 5000);
+  }
+  _updateSaveIndicator();
+}
+
+function _updateSaveIndicator(){
+  const el = document.getElementById('save-indicator');
+  if(!el) return;
+  const map = {
+    saved:   { text:'✓ Guardado',   color:'var(--green)' },
+    pending: { text:'● Pendiente',  color:'var(--gold)' },
+    saving:  { text:'↑ Guardando…', color:'var(--text3)' },
+    error:   { text:'✗ Error al guardar — reintentando', color:'#ef5350' }
+  };
+  const s = map[_saveStatus] || map.saved;
+  el.textContent = s.text;
+  el.style.color = s.color;
 }
 
 // ── COUNTS (sync, use _cachedState) ──
@@ -1554,6 +1684,327 @@ document.getElementById('admin-refresh').addEventListener('click', ()=>{
   if(_adminTab === 'logs')     loadAdminLogs();
 });
 
+// ── CREAR USUARIO (admin) ──
+document.getElementById('btn-crear-usuario').addEventListener('click', ()=>{
+  document.getElementById('cu-nombre').value = '';
+  document.getElementById('cu-pass').value = '';
+  document.getElementById('cu-rol').value = 'coleccionista';
+  document.getElementById('cu-error').textContent = '';
+  document.getElementById('crear-usuario-overlay').classList.remove('hidden');
+});
+document.getElementById('crear-usuario-close').addEventListener('click', ()=>{
+  document.getElementById('crear-usuario-overlay').classList.add('hidden');
+});
+document.getElementById('crear-usuario-overlay').addEventListener('click', e=>{
+  if(e.target === e.currentTarget)
+    document.getElementById('crear-usuario-overlay').classList.add('hidden');
+});
+document.getElementById('cu-submit').addEventListener('click', async ()=>{
+  const nombre   = document.getElementById('cu-nombre').value.trim();
+  const password = document.getElementById('cu-pass').value;
+  const rol      = document.getElementById('cu-rol').value;
+  const errEl    = document.getElementById('cu-error');
+  errEl.textContent = '';
+  if(!nombre || !password){ errEl.textContent = 'Completá todos los campos'; return; }
+  if(password.length < 4){ errEl.textContent = 'Mínimo 4 caracteres'; return; }
+
+  const btn = document.getElementById('cu-submit');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const r = await fetch(API_BASE+'/api/admin/crear-usuario', {
+      method:'POST', headers: authHeaders(),
+      body: JSON.stringify({ nombre, password, rol })
+    });
+    const d = await r.json();
+    if(!r.ok){ errEl.textContent = d.error || 'Error al crear usuario'; btn.disabled=false; btn.textContent='✓ Crear usuario'; return; }
+    document.getElementById('crear-usuario-overlay').classList.add('hidden');
+    showToast('✓ Usuario '+nombre+' creado como '+rol);
+    loadAdminUsers();
+  } catch(e){
+    errEl.textContent = 'Error de conexión';
+  }
+  btn.disabled = false; btn.textContent = '✓ Crear usuario';
+});
+
+// ══════════════════════════════════════════
+// INTERCAMBIOS
+// ══════════════════════════════════════════
+let _itab = 'proponer';
+let _intercUsers = [];
+let _misRepetidas = [];
+
+// Sub-tab switching
+document.querySelectorAll('[data-itab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    _itab = btn.dataset.itab;
+    document.querySelectorAll('[data-itab]').forEach(b => b.classList.toggle('active', b.dataset.itab === _itab));
+    document.getElementById('itab-proponer').style.display = _itab === 'proponer' ? '' : 'none';
+    document.getElementById('itab-mis').style.display      = _itab === 'mis'      ? '' : 'none';
+    if(_itab === 'proponer') loadIntercUsuarios();
+    if(_itab === 'mis')      loadMisPropuestas();
+  });
+});
+document.getElementById('interc-refresh').addEventListener('click', () => {
+  if(_itab === 'proponer') loadIntercUsuarios();
+  else loadMisPropuestas();
+  loadIntercNotif();
+});
+
+// Decode figurita key to human description
+function keyToDesc(key) {
+  // key format: "A__México__PT1" or flat "A__México||PT1"
+  const parts = key.replace('||','__').split('__');
+  if(parts.length < 3) return key;
+  const grupo = parts[0];
+  const equipo = parts[1].replace(/_/g,' ');
+  const tipo = parts[2];
+  const tipos = { ESC:'Escudo',PT1:'Portero',PT2:'Def.1',PT3:'Def.2',PT4:'Def.3',PT5:'Def.4',
+    PT6:'Med.1',PT7:'Med.2',PT8:'Med.3',PT9:'Med.4',PT10:'Del.1',PT11:'Del.2',PT12:'Del.3',
+    PT13:'Sup.1',PT14:'Sup.2',PT15:'Sup.3',PT16:'Sup.4',PT17:'Sup.5',PT18:'Capitán',PT19:'DT',PT20:'Especial' };
+  return `Grupo ${grupo} · ${equipo} · ${tipos[tipo]||tipo}`;
+}
+
+// Load notification banner (propuestas recibidas pendientes)
+async function loadIntercNotif() {
+  if(!_token) return;
+  try {
+    const r = await fetch(API_BASE+'/api/intercambios', { headers: authHeaders() });
+    if(!r.ok) return;
+    const data = await r.json();
+    const myId = parseJwt(_token)?.userId;
+    const pendRecibidas = data.filter(i => i.receptor_id === myId && i.estado === 'pendiente');
+    const notif = document.getElementById('interc-notif');
+    if(!notif) return;
+    if(pendRecibidas.length > 0){
+      notif.innerHTML = `<div class="notif-banner">🔔 Tenés <b>${pendRecibidas.length}</b> propuesta${pendRecibidas.length>1?'s':''} de intercambio pendiente${pendRecibidas.length>1?'s':''}. <span style="cursor:pointer;text-decoration:underline;margin-left:6px;" onclick="switchItab('mis')">Ver →</span></div>`;
+    } else {
+      notif.innerHTML = '';
+    }
+  } catch(e){}
+}
+
+function switchItab(tab){
+  document.querySelector('[data-itab="'+tab+'"]')?.click();
+}
+
+function parseJwt(token){
+  try { return JSON.parse(atob(token.split('.')[1])); } catch{ return null; }
+}
+
+async function loadIntercUsuarios() {
+  const grid = document.getElementById('interc-usuarios-grid');
+  grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">Cargando...</div>';
+  try {
+    const r = await fetch(API_BASE+'/api/intercambios/usuarios', { headers: authHeaders() });
+    if(!r.ok) { grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error al cargar</div>'; return; }
+    _intercUsers = await r.json();
+    // Mis repetidas para ofrecer
+    _misRepetidas = Object.keys(_cachedState||{}).filter(k => (_cachedState[k])==='repetida');
+
+    if(!_intercUsers.length){
+      grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">No hay otros usuarios registrados aún.</div>';
+      return;
+    }
+
+    grid.innerHTML = '';
+    _intercUsers.forEach(u => {
+      const card = document.createElement('div');
+      card.className = 'interc-user-card';
+      card.innerHTML = `
+        <div class="interc-user-name">👤 ${u.nombre}</div>
+        <div class="interc-user-stats">
+          <span class="interc-rep-count">↺ ${u.totalRep} repetidas</span>
+          <span style="color:var(--text3);">· ${u.tengo.length} tengo</span>
+        </div>
+        ${u.totalRep === 0 ? '<div class="interc-no-rep" style="margin-top:4px;">Sin repetidas disponibles</div>' : ''}
+      `;
+      if(u.totalRep > 0){
+        card.addEventListener('click', () => openIntercModal(u));
+      } else {
+        card.style.opacity = '0.5';
+        card.style.cursor = 'default';
+      }
+      grid.appendChild(card);
+    });
+  } catch(e){ grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; }
+}
+
+async function loadMisPropuestas(){
+  const tbody = document.getElementById('interc-mis-body');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>';
+  try {
+    const r = await fetch(API_BASE+'/api/intercambios', { headers: authHeaders() });
+    if(!r.ok){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error</td></tr>'; return; }
+    const data = await r.json();
+    const myId = parseJwt(_token)?.userId;
+    if(!data.length){
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">No tenés propuestas aún</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(i => {
+      const soy = i.solicitante_id === myId ? 'solicitante' : 'receptor';
+      const contraparte = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
+      const fecha = new Date(i.created_at).toLocaleDateString('es-AR');
+      let acciones = '';
+      if(i.estado === 'pendiente'){
+        if(soy === 'receptor'){
+          acciones = `<button class="abtn info" onclick="responderInterc('${i.id}','aceptado')">✓ Aceptar</button>
+                      <button class="abtn danger" onclick="responderInterc('${i.id}','rechazado')">✗ Rechazar</button>`;
+        } else {
+          acciones = `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
+        }
+      }
+      const dirIcon = soy === 'solicitante' ? '→' : '←';
+      return `<tr>
+        <td><span class="estado-badge ${i.estado}">${i.estado}</span></td>
+        <td style="font-weight:600;color:var(--text);">${dirIcon} ${contraparte}</td>
+        <td style="font-size:12px;color:var(--text2);">${i.pide_desc}</td>
+        <td style="font-size:12px;color:var(--text2);">${i.ofrece_desc}</td>
+        <td style="font-size:11px;color:var(--text3);">${fecha}</td>
+        <td><div class="admin-actions">${acciones}</div></td>
+      </tr>`;
+    }).join('');
+  } catch(e){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
+}
+
+async function responderInterc(id, accion){
+  const msgs = { aceptado:'¿Aceptar este intercambio?', rechazado:'¿Rechazar esta propuesta?', cancelado:'¿Cancelar tu propuesta?' };
+  if(!confirm(msgs[accion])) return;
+  try {
+    const r = await fetch(API_BASE+'/api/intercambios/'+id, {
+      method:'PATCH', headers: authHeaders(), body: JSON.stringify({ accion })
+    });
+    const d = await r.json();
+    if(r.ok){
+      const labels = { aceptado:'✓ Intercambio aceptado', rechazado:'Propuesta rechazada', cancelado:'Propuesta cancelada' };
+      showToast(labels[accion]);
+      loadMisPropuestas();
+      loadIntercNotif();
+    } else { alert('Error: '+d.error); }
+  } catch(e){ alert('Error de conexión'); }
+}
+
+// Modal para proponer intercambio
+let _selectedPideKey = null;
+let _selectedOfreceKey = null;
+let _currentIntercUser = null;
+
+function openIntercModal(u){
+  _currentIntercUser = u;
+  _selectedPideKey = null;
+  _selectedOfreceKey = null;
+
+  const misRep = Object.keys(_cachedState||{}).filter(k => (_cachedState[k])==='repetida');
+
+  const content = document.getElementById('interc-modal-content');
+  content.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div class="interc-section-label">1. Elegí qué figurita querés pedirle a <b style="color:var(--gold);">${u.nombre}</b></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Sus repetidas disponibles (${u.repetidas.length}):</div>
+      <div class="fig-select-grid" id="imod-pide-grid"></div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div class="interc-section-label">2. Elegí qué figurita le ofrecés a cambio</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Tus repetidas disponibles (${misRep.length}):</div>
+      ${misRep.length === 0 
+        ? '<div style="color:#ef5350;font-size:13px;padding:10px;background:rgba(239,83,80,.08);border-radius:6px;">No tenés figuritas repetidas para ofrecer.</div>'
+        : '<div class="fig-select-grid" id="imod-ofrece-grid"></div>'
+      }
+    </div>
+    <button class="modal-btn primary" id="imod-submit" disabled style="opacity:.5;">Enviar propuesta</button>
+    <div class="auth-error" id="imod-error" style="margin-top:8px;"></div>
+  `;
+
+  // Populate pide grid
+  const pideGrid = document.getElementById('imod-pide-grid');
+  if(pideGrid){
+    u.repetidas.forEach(key => {
+      const div = document.createElement('div');
+      div.className = 'fig-select-item';
+      div.textContent = keyToDesc(key);
+      div.dataset.key = key;
+      div.addEventListener('click', () => {
+        pideGrid.querySelectorAll('.fig-select-item').forEach(d => d.classList.remove('selected'));
+        div.classList.add('selected');
+        _selectedPideKey = key;
+        checkIntercReady();
+      });
+      pideGrid.appendChild(div);
+    });
+  }
+
+  // Populate ofrece grid
+  const ofreceGrid = document.getElementById('imod-ofrece-grid');
+  if(ofreceGrid){
+    misRep.forEach(key => {
+      const div = document.createElement('div');
+      div.className = 'fig-select-item';
+      div.textContent = keyToDesc(key);
+      div.dataset.key = key;
+      div.addEventListener('click', () => {
+        ofreceGrid.querySelectorAll('.fig-select-item').forEach(d => d.classList.remove('selected'));
+        div.classList.add('selected');
+        _selectedOfreceKey = key;
+        checkIntercReady();
+      });
+      ofreceGrid.appendChild(div);
+    });
+  }
+
+  document.getElementById('imod-submit').addEventListener('click', enviarPropuesta);
+  document.getElementById('interc-modal-overlay').classList.remove('hidden');
+}
+
+function checkIntercReady(){
+  const btn = document.getElementById('imod-submit');
+  if(btn){
+    const ready = _selectedPideKey && _selectedOfreceKey;
+    btn.disabled = !ready;
+    btn.style.opacity = ready ? '1' : '.5';
+  }
+}
+
+async function enviarPropuesta(){
+  if(!_selectedPideKey || !_selectedOfreceKey || !_currentIntercUser) return;
+  const errEl = document.getElementById('imod-error');
+  errEl.textContent = '';
+  const btn = document.getElementById('imod-submit');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const r = await fetch(API_BASE+'/api/intercambios', {
+      method:'POST', headers: authHeaders(),
+      body: JSON.stringify({
+        receptor_id: _currentIntercUser.id,
+        pide_key: _selectedPideKey,
+        pide_desc: keyToDesc(_selectedPideKey),
+        ofrece_key: _selectedOfreceKey,
+        ofrece_desc: keyToDesc(_selectedOfreceKey)
+      })
+    });
+    const d = await r.json();
+    if(r.ok){
+      document.getElementById('interc-modal-overlay').classList.add('hidden');
+      showToast('✓ Propuesta enviada a '+_currentIntercUser.nombre);
+      loadIntercUsuarios();
+    } else {
+      errEl.textContent = d.error || 'Error al enviar propuesta';
+      btn.disabled = false; btn.textContent = 'Enviar propuesta';
+    }
+  } catch(e){
+    errEl.textContent = 'Error de conexión';
+    btn.disabled = false; btn.textContent = 'Enviar propuesta';
+  }
+}
+
+// Modal close
+document.getElementById('interc-modal-close').addEventListener('click', ()=>{
+  document.getElementById('interc-modal-overlay').classList.add('hidden');
+});
+document.getElementById('interc-modal-overlay').addEventListener('click', e=>{
+  if(e.target === e.currentTarget)
+    document.getElementById('interc-modal-overlay').classList.add('hidden');
+});
+
 // ── INIT ──
 async function init(){
   showLoadingOverlay(true);
@@ -1605,6 +2056,7 @@ async function init(){
     updateHeader();
     updateProfileBadge();
     await renderRanking();
+    loadIntercNotif();
     startInactivityTimer();
   }
 }
@@ -1695,6 +2147,7 @@ async function handleAuth(){
     document.getElementById('profile-name').textContent = d.nombre;
     document.getElementById('profile-avatar').textContent = d.nombre.charAt(0).toUpperCase();
     setRol(d.rol || 'coleccionista');
+    document.getElementById('save-indicator').style.display='';
 
     await renderAlbum();
     buildCountryTabs();
@@ -1703,12 +2156,13 @@ async function handleAuth(){
     updateHeader();
     updateProfileBadge();
     await renderRanking();
+    loadIntercNotif();
     startInactivityTimer();
     showLoadingOverlay(false);
   } catch(e){
-    errEl.textContent = 'Error de conexión';
-    btn.disabled=false;
-    btn.textContent=_authMode==='login'?'Ingresar':'Crear cuenta';
+    errEl.textContent = 'Error de conexión. Intentá de nuevo.';
+    btn.disabled = false;
+    btn.textContent = _authMode==='login' ? 'Ingresar' : 'Crear cuenta';
   }
 }
 
@@ -1718,12 +2172,16 @@ function doLogout(reason){
   _userRol = 'coleccionista';
   localStorage.removeItem('wc2026_token');
   localStorage.removeItem('wc2026_nombre');
-  // Reset nav to default
-  document.querySelectorAll('.nbtn').forEach(b => { b.classList.remove('active'); b.style.display = ''; });
+  // Reset nav: ocultar todo excepto album activo
+  document.querySelectorAll('.nbtn[data-roles]').forEach(b => { 
+    b.classList.remove('active'); 
+    b.style.display = 'none'; 
+  });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-album').classList.add('active');
-  // Reset auth form
+  // Reset auth form completamente
   document.getElementById('auth-nombre-display').textContent = '';
+  document.getElementById('save-indicator').style.display='none';
   document.getElementById('auth-nombre').value = '';
   document.getElementById('auth-pass').value = '';
   document.getElementById('auth-error').textContent = reason || '';
@@ -1731,7 +2189,9 @@ function doLogout(reason){
   _authMode = 'login';
   document.getElementById('tab-login').classList.add('active');
   document.getElementById('tab-register').classList.remove('active');
-  document.getElementById('auth-submit-btn').textContent = 'Ingresar';
+  const submitBtn = document.getElementById('auth-submit-btn');
+  submitBtn.textContent = 'Ingresar';
+  submitBtn.disabled = false;
   // Show full-screen login
   showAuthModal();
   stopInactivityTimer();
@@ -1816,6 +2276,7 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
     if(btn.dataset.page==="estadisticas") renderStats();
     if(btn.dataset.page==="ranking") await renderRanking();
     if(btn.dataset.page==="admin"){ loadAdminStats(); loadAdminUsers(); }
+    if(btn.dataset.page==="intercambios"){ loadIntercUsuarios(); loadIntercNotif(); }
   });
 });
 
