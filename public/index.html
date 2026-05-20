@@ -572,12 +572,32 @@ input[data-estado="repetida"].foil-input + .sbox,
 </div>
 
 
+<!-- MODAL CREAR USUARIO (admin) -->
+<div class="modal-overlay hidden" id="crear-usuario-overlay">
+  <div class="modal modal-wrap">
+    <button class="modal-close" id="crear-usuario-close">✕</button>
+    <div class="modal-title">➕ Crear Usuario</div>
+    <div class="modal-label">Nombre</div>
+    <input class="modal-input" type="text" id="cu-nombre" placeholder="Nombre del coleccionista" maxlength="30">
+    <div class="modal-label">Contraseña</div>
+    <input class="modal-input" type="password" id="cu-pass" placeholder="Mínimo 4 caracteres" maxlength="50">
+    <div class="modal-label">Rol</div>
+    <select class="modal-input" id="cu-rol" style="cursor:pointer;">
+      <option value="coleccionista">Coleccionista</option>
+      <option value="admin">Admin</option>
+    </select>
+    <div class="modal-actions" style="margin-top:4px;">
+      <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>
+    </div>
+    <div class="auth-error" id="cu-error" style="margin-top:8px;"></div>
+  </div>
+</div>
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay hidden" id="auth-overlay">
   <div class="auth-box">
     <div class="auth-logo">⚽ MUNDIAL 2026</div>
     <div class="auth-sub">Álbum de Figuritas</div>
-    <div class="auth-tabs">
+    <div class="auth-tabs" style="display:none;">
       <button class="auth-tab active" id="tab-login">Ingresar</button>
       <button class="auth-tab" id="tab-register">Registrarse</button>
     </div>
@@ -649,6 +669,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="ctabs" id="admin-tabs" style="margin-bottom:18px;">
       <button class="ctab active" data-atab="usuarios">👥 Usuarios</button>
       <button class="ctab" data-atab="logs">📋 Logs de acceso</button>
+      <button class="fbtn" id="btn-crear-usuario" style="background:rgba(0,200,83,.12);color:var(--green);border-color:rgba(0,200,83,.3);font-size:11px;padding:4px 14px;">+ Crear usuario</button>
       <button class="fbtn" id="admin-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
     </div>
 
@@ -1552,6 +1573,48 @@ document.getElementById('admin-refresh').addEventListener('click', ()=>{
   loadAdminStats();
   if(_adminTab === 'usuarios') loadAdminUsers();
   if(_adminTab === 'logs')     loadAdminLogs();
+});
+
+// ── CREAR USUARIO (admin) ──
+document.getElementById('btn-crear-usuario').addEventListener('click', ()=>{
+  document.getElementById('cu-nombre').value = '';
+  document.getElementById('cu-pass').value = '';
+  document.getElementById('cu-rol').value = 'coleccionista';
+  document.getElementById('cu-error').textContent = '';
+  document.getElementById('crear-usuario-overlay').classList.remove('hidden');
+});
+document.getElementById('crear-usuario-close').addEventListener('click', ()=>{
+  document.getElementById('crear-usuario-overlay').classList.add('hidden');
+});
+document.getElementById('crear-usuario-overlay').addEventListener('click', e=>{
+  if(e.target === e.currentTarget)
+    document.getElementById('crear-usuario-overlay').classList.add('hidden');
+});
+document.getElementById('cu-submit').addEventListener('click', async ()=>{
+  const nombre   = document.getElementById('cu-nombre').value.trim();
+  const password = document.getElementById('cu-pass').value;
+  const rol      = document.getElementById('cu-rol').value;
+  const errEl    = document.getElementById('cu-error');
+  errEl.textContent = '';
+  if(!nombre || !password){ errEl.textContent = 'Completá todos los campos'; return; }
+  if(password.length < 4){ errEl.textContent = 'Mínimo 4 caracteres'; return; }
+
+  const btn = document.getElementById('cu-submit');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const r = await fetch(API_BASE+'/api/admin/crear-usuario', {
+      method:'POST', headers: authHeaders(),
+      body: JSON.stringify({ nombre, password, rol })
+    });
+    const d = await r.json();
+    if(!r.ok){ errEl.textContent = d.error || 'Error al crear usuario'; btn.disabled=false; btn.textContent='✓ Crear usuario'; return; }
+    document.getElementById('crear-usuario-overlay').classList.add('hidden');
+    showToast('✓ Usuario '+nombre+' creado como '+rol);
+    loadAdminUsers();
+  } catch(e){
+    errEl.textContent = 'Error de conexión';
+  }
+  btn.disabled = false; btn.textContent = '✓ Crear usuario';
 });
 
 // ── INIT ──

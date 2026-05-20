@@ -302,6 +302,46 @@ app.get('/api/admin/logs', authMiddleware, adminMiddleware, async (req, res) => 
   res.json(data || []);
 });
 
+
+// POST /api/admin/crear-usuario — crear usuario desde el panel admin
+app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req, res) => {
+  const { nombre, password, rol } = req.body;
+  if (!nombre || !password)
+    return res.status(400).json({ error: 'Nombre y contraseña requeridos' });
+  if (nombre.trim().length < 2 || nombre.trim().length > 30)
+    return res.status(400).json({ error: 'El nombre debe tener entre 2 y 30 caracteres' });
+  if (password.length < 4)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
+  if (!['admin','coleccionista'].includes(rol))
+    return res.status(400).json({ error: 'Rol inválido' });
+
+  const { data: existing } = await supabase
+    .from('usuarios').select('id').ilike('nombre', nombre.trim()).single();
+  if (existing)
+    return res.status(409).json({ error: 'Ese nombre ya está en uso' });
+
+  const hash = await bcrypt.hash(password, 10);
+  const { data, error } = await supabase
+    .from('usuarios')
+    .insert({ nombre: nombre.trim(), password_hash: hash, estado: {}, rol })
+    .select('id, nombre, rol')
+    .single();
+
+  if (error) {
+    console.error('Create user error:', error);
+    return res.status(500).json({ error: 'Error al crear usuario' });
+  }
+
+  try {
+    await supabase.from('logs').insert({
+      usuario_id: data.id, usuario_nombre: data.nombre,
+      accion: 'registro', detalle: 'Creado por admin'
+    });
+  } catch(_) {}
+
+  res.json({ ok: true, nombre: data.nombre, rol: data.rol });
+});
+
 // ════════════════════════════════════════════
 // HEALTH
 // ════════════════════════════════════════════
