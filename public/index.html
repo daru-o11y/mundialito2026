@@ -1266,7 +1266,6 @@ function buildTeamCard(s,g,gi,eq,ei){
   card.className="tcard"+(complete?" complete":"");
   card.id="tc_"+g.letra+"_"+ei;
 
-  const faltaTeam = TPP - c.t - c.r;
   card.innerHTML=`
     <div class="tchdr">
       <div class="tname-wrap">
@@ -1278,25 +1277,14 @@ function buildTeamCard(s,g,gi,eq,ei){
       </div>
     </div>
     <div class="tpbar"><div class="tpfill" id="tpf_${g.letra}_${ei}" style="width:${pct}%"></div></div>
-    <div class="tcard-inner">
-      <div class="tcard-sidebar">
-        <div class="tflag-big">${eq.bandera}</div>
-        <div class="tside-stat"><div class="tside-val green">${c.t}</div><div class="tside-lbl">tengo</div></div>
-        <div class="tpbar-v"><div class="tpbar-vf" id="tpbv_${g.letra}_${ei}" style="height:${pct}%"></div></div>
-        <div class="tside-stat"><div class="tside-val yellow">${c.r}</div><div class="tside-lbl">rep</div></div>
-        <div class="tside-stat"><div class="tside-val red">${faltaTeam}</div><div class="tside-lbl">falta</div></div>
-      </div>
-      <div class="tcard-main">
-        <div class="stickers" id="stk_${g.letra}_${ei}"></div>
-      </div>
-    </div>
+    <div class="stickers" id="stk_${g.letra}_${ei}"></div>
     <button class="plist-toggle" id="plt_${g.letra}_${ei}">▶ Ver listado de jugadores</button>
     <div class="plist" id="pl_${g.letra}_${ei}"></div>`;
 
   const stkDiv=card.querySelector("#stk_"+g.letra+"_"+ei);
   DB_TIPOS.forEach((tp,ti)=>{
     const estado=getEstado(s,g.letra,eq.nombre,tp.codigo);
-    const num=gi*4*TPP + g.equipos.indexOf(eq)*TPP + ti + 1;
+    const num=ti + 1;
     const isFoil=ti===0; // primer sticker = escudo = foil
 
     const lbl=document.createElement("label");
@@ -1357,7 +1345,7 @@ function buildPlayerList(div,s,g,gi,eq,ei){
   div.innerHTML="";
   DB_TIPOS.forEach((tp,ti)=>{
     const estado=getEstado(s,g.letra,eq.nombre,tp.codigo);
-    const num=gi*4*TPP + g.equipos.indexOf(eq)*TPP + ti + 1;
+    const num=ti + 1;
     const nombre=eq.jugadores[ti]||tp.codigo;
     const row=document.createElement("div");
     row.className="plist-row";
@@ -2004,11 +1992,12 @@ async function loadIntercUsuarios() {
       card.className = 'interc-user-card';
       card.innerHTML = `
         <div class="interc-user-name">👤 ${u.nombre}</div>
-        <div class="interc-user-stats">
-          <span class="interc-rep-count">↺ ${u.totalRep} repetida${u.totalRep!==1?'s':''} disponible${u.totalRep!==1?'s':''}</span>
-          ${u.reservadas.length > 0 ? `<span style="color:#ff6b6b;font-size:11px;">· 🔒 ${u.reservadas.length} reservada${u.reservadas.length!==1?'s':''}</span>` : ''}
+        <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;">
+          <span style="background:rgba(0,200,83,.12);color:var(--green);border:1px solid rgba(0,200,83,.3);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;">✓ ${u.tengo.length} tengo</span>
+          <span style="background:rgba(255,215,0,.12);color:var(--gold);border:1px solid rgba(255,215,0,.3);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;">↺ ${u.totalRep} repetidas</span>
+          ${u.reservadas.length > 0 ? `<span style="background:rgba(200,50,50,.12);color:#ff6b6b;border:1px solid rgba(200,50,50,.3);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;">🔒 ${u.reservadas.length} reservadas</span>` : ''}
         </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;">Tocá para ver su álbum de repetidas →</div>
+        <div style="font-size:11px;color:var(--text3);">Tocá para ver sus repetidas y proponer un intercambio →</div>
       `;
       card.addEventListener('click', () => openIntercAlbum(u));
       grid.appendChild(card);
