@@ -415,6 +415,27 @@ async function liberarFiguritas(userId, keys) {
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
 }
 
+// Confirmar figuritas: reservada → tengo (intercambio aceptado)
+async function confirmarFiguritas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return;
+  const estado = data.estado || {};
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
+        estado[teamKey][codigo] = 'tengo';
+      } else if (estado[flatKey] === 'reservada') {
+        estado[flatKey] = 'tengo';
+      }
+    } else if (estado[flatKey] === 'reservada') {
+      estado[flatKey] = 'tengo';
+    }
+  });
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
 // GET /api/intercambios — mis propuestas
 app.get('/api/intercambios', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
@@ -541,6 +562,25 @@ app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
 
   // Validar permisos
+  const isParticipante = interc.solicitante_id === req.userId || interc.receptor_id === req.userId;
+  if (!isParticipante)
+    return res.status(403).json({ error: 'No sos parte de este intercambio' });
+
+  // Intercambio aceptado: solo se puede cancelar por cualquiera de los dos
+  if (interc.estado === 'aceptado') {
+    if (accion !== 'cancelado')
+      return res.status(400).json({ error: 'Un intercambio aceptado solo se puede cancelar' });
+    await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
+    const { error: errCan } = await supabase.from('intercambios')
+      .update({ estado: 'cancelado', updated_at: new Date().toISOString() })
+      .eq('id', interc.id);
+    if (errCan) return res.status(500).json({ error: 'Error al cancelar' });
+    return res.json({ ok: true, estado: 'cancelado' });
+  }
+
+  if (interc.estado !== 'pendiente')
+    return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
+
   if (accion === 'cancelado' && interc.solicitante_id !== req.userId)
     return res.status(403).json({ error: 'Solo el solicitante puede cancelar' });
   if (['aceptado','rechazado','contraoferta'].includes(accion) && interc.receptor_id !== req.userId)
@@ -567,17 +607,75 @@ app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
     return res.json({ ok: true, estado: 'pendiente', contraoferta: true });
   }
 
-  // Para aceptar, rechazar o cancelar: liberar figuritas de B si no se acepta
   if (accion === 'rechazado' || accion === 'cancelado') {
+    // Liberar figuritas de B → vuelven a repetida
     await liberarFiguritas(interc.solicitante_id, interc.ofrece_keys || []);
   }
 
+  // Al aceptar: figuritas de B quedan RESERVADAS hasta que se haga el intercambio físico
+  // El usuario las actualiza manualmente en su álbum después
+
+  // Si se acepta, agregar fecha de vencimiento (7 días para completar el intercambio físico)
+  const updateData = { estado: accion, updated_at: new Date().toISOString() };
+  if (accion === 'aceptado') {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+    updateData.expires_at = expires.toISOString();
+  }
+
   const { error } = await supabase.from('intercambios')
-    .update({ estado: accion, updated_at: new Date().toISOString() })
+    .update(updateData)
     .eq('id', req.params.id);
   if (error) return res.status(500).json({ error: 'Error al actualizar' });
   res.json({ ok: true, estado: accion });
 });
+
+// ════════════════════════════════════════════
+// EXPIRY JOB — revierte intercambios vencidos
+// ════════════════════════════════════════════
+async function checkExpiredIntercambios() {
+  try {
+    const { data, error } = await supabase
+      .from('intercambios')
+      .select('*')
+      .eq('estado', 'aceptado')
+      .lt('expires_at', new Date().toISOString());
+    if (error || !data?.length) return;
+    console.log(`Expiry check: ${data.length} intercambio(s) vencido(s)`);
+    for (const interc of data) {
+      // Revertir figuritas de B de tengo → repetida
+      await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
+      await supabase.from('intercambios')
+        .update({ estado: 'vencido', updated_at: new Date().toISOString() })
+        .eq('id', interc.id);
+      console.log(`Intercambio ${interc.id} marcado como vencido`);
+    }
+  } catch(e) { console.error('Expiry job error:', e.message); }
+}
+
+// Revertir figuritas aceptadas → repetida (si venció)
+async function liberarFiguritasAceptadas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return;
+  const estado = data.estado || {};
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'tengo') {
+        estado[teamKey][codigo] = 'repetida';
+      }
+    } else if (estado[flatKey] === 'tengo') {
+      estado[flatKey] = 'repetida';
+    }
+  });
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
+// Correr el job cada hora
+setInterval(checkExpiredIntercambios, 60 * 60 * 1000);
+// También correr al iniciar
+checkExpiredIntercambios();
 
 // ════════════════════════════════════════════
 // HEALTH
