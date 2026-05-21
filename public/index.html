@@ -75,8 +75,8 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
 .gbody.hidden { display:none !important; }
 .modal-overlay.hidden { display:none !important; }
-#interc-modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
-#crear-usuario-overlay:not([style*="none"]) { opacity:1; pointer-events:all; }
+.modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
+.modal-overlay.open { opacity:1 !important; pointer-events:all !important; display:flex !important; }
 .auth-overlay.hidden  { display:none !important; }
 
 /* ── TEAM CARD ── */
@@ -504,7 +504,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 </header>
 
 <!-- MODAL PERFIL -->
-<div class="modal-overlay" id="modal-overlay">
+<div class="modal-overlay hidden" id="modal-overlay">
   <div class="modal modal-wrap">
     <button class="modal-close" id="modal-close">✕</button>
     <div class="modal-title">👤 Tu Álbum</div>
@@ -527,7 +527,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 </div>
 
 <!-- MODAL AYUDA -->
-<div class="modal-overlay" id="help-overlay">
+<div class="modal-overlay hidden" id="help-overlay">
   <div class="modal modal-wrap help-modal">
     <button class="modal-close" id="help-close">✕</button>
     <div class="modal-title">❓ Ayuda</div>
