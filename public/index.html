@@ -328,6 +328,19 @@ input[data-estado="repetida"].foil-input + .sbox,
 
 
 
+
+/* ── ESTADO RESERVADA ── */
+.fig.reservada {
+  background: linear-gradient(160deg,#2a0a0a,#3d1010);
+  border-color: rgba(200,50,50,.5);
+  cursor: not-allowed;
+  opacity: .75;
+}
+.fig.reservada .fnum { color: #ff6b6b; }
+.fig.reservada .ftype { color: rgba(200,50,50,.6); }
+.reservada-icon { position:absolute; top:2px; right:3px; font-size:8px; color:#ff6b6b; }
+.plist-st.reservada { background:#8b0000; }
+
 /* ── INTERCAMBIOS ── */
 .interc-user-card { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius); padding:14px; cursor:pointer; transition:all .18s; }
 .interc-user-card:hover { border-color:var(--gold); transform:translateY(-2px); box-shadow:0 4px 16px rgba(255,215,0,.15); }
@@ -448,7 +461,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
     <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
     <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
-    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔄 Intercambios</button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista" style="position:relative;">🔄 Intercambios<span id="interc-badge" style="display:none;position:absolute;top:2px;right:4px;background:#ef5350;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:1;"></span></button>
     <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
@@ -1007,7 +1020,7 @@ async function loadState(){
 // Flatten nested {GL__EQ: {codigo: val}} → {"GL__EQ||codigo": val} for compatibility
 function flattenState(raw){
   const flat = {};
-  const validVals = new Set(['tengo','repetida']);
+  const validVals = new Set(['tengo','repetida','reservada']);
   for(const [teamKey, codes] of Object.entries(raw)){
     if(codes && typeof codes === 'object' && !Array.isArray(codes)){
       // Formato anidado: {"A__M_xico": {"ESC": "tengo"}}
@@ -1049,6 +1062,11 @@ async function cycleEstado(gl,en,codigo){
   if(!_cachedState) _cachedState = await loadState();
   const k = teamKey(gl,en)+'||'+codigo;
   const cur = _cachedState[k] || "vacia";
+  // Figuritas reservadas no se pueden editar manualmente
+  if(cur === "reservada"){
+    showToast("🔒 Figurita reservada en un intercambio pendiente");
+    return "reservada";
+  }
   const next = cur==="vacia"?"tengo": cur==="tengo"?"repetida":"vacia";
   if(next === 'vacia') delete _cachedState[k];
   else _cachedState[k] = next;
@@ -1089,7 +1107,7 @@ async function _doSave(){
       // buildNestedState falló — guardar flat directamente como fallback
       console.warn('buildNestedState produjo vacío, usando flat como fallback');
       const flatSanitized = {};
-      const validVals = new Set(['tengo','repetida']);
+      const validVals = new Set(['tengo','repetida','reservada']);
       for(const [k, v] of Object.entries(_cachedState)){
         if(validVals.has(v)) flatSanitized[k] = v;
       }
@@ -1315,7 +1333,7 @@ function buildPlayerList(div,s,g,gi,eq,ei){
       <span class="plist-num">${num}</span>
       <span class="plist-pos pos-${tp.pos}">${tp.pos}</span>
       <span class="plist-name">${nombre}</span>
-      <div class="plist-st ${estado}"></div>`;
+      <div class="plist-st ${estado}" title="${estado==="reservada"?"Reservada - intercambio pendiente":""}"></div>`;
     div.appendChild(row);
   });
 }
@@ -1850,11 +1868,12 @@ window.addEventListener('load', ()=>{
 });
 
 // ══════════════════════════════════════════
-// INTERCAMBIOS — nuevo flujo
+// INTERCAMBIOS v2
 // ══════════════════════════════════════════
 let _itab = 'buscar';
 let _intercUsers = [];
 let _currentIntercUser = null;
+let _pollTimer = null;
 
 // ── Sub-tab switching ──
 document.querySelectorAll('[data-itab]').forEach(btn => {
@@ -1874,25 +1893,24 @@ document.getElementById('interc-refresh').addEventListener('click', () => {
   loadIntercNotif();
 });
 
-document.getElementById('iview-back').addEventListener('click', () => {
-  showIntercUsuarios();
-});
+document.getElementById('iview-back').addEventListener('click', () => showIntercUsuarios());
 
 function showIntercUsuarios(){
   document.getElementById('iview-usuarios').style.display = '';
   document.getElementById('iview-album').style.display    = 'none';
+  _currentIntercUser = null;
 }
 function showIntercAlbum(){
   document.getElementById('iview-usuarios').style.display = 'none';
   document.getElementById('iview-album').style.display    = '';
 }
 
-// ── Parse JWT ──
+// ── JWT decode ──
 function parseJwt(token){
   try { return JSON.parse(atob(token.split('.')[1])); } catch{ return null; }
 }
 
-// ── Decode key to readable description ──
+// ── Key → descripción legible ──
 function keyToDesc(key) {
   const parts = key.replace(/\|\|/g,'__').split('__');
   if(parts.length < 3) return key;
@@ -1905,21 +1923,34 @@ function keyToDesc(key) {
   return `Gr.${grupo} · ${equipo} · ${tipos[tipo]||tipo}`;
 }
 
-// ── Notificación ──
+// ── Badge polling (cada 180 seg) ──
 async function loadIntercNotif() {
   if(!_token) return;
   try {
-    const r = await fetch(API_BASE+'/api/intercambios', { headers: authHeaders() });
+    const r = await fetch(API_BASE+'/api/intercambios/pendientes-count', { headers: authHeaders() });
     if(!r.ok) return;
-    const data = await r.json();
-    const myId = parseJwt(_token)?.userId;
-    const pend = data.filter(i => i.receptor_id === myId && i.estado === 'pendiente');
-    const el   = document.getElementById('interc-notif');
-    if(!el) return;
-    el.innerHTML = pend.length > 0
-      ? `<div class="notif-banner">🔔 Tenés <b>${pend.length}</b> propuesta${pend.length>1?'s':''} pendiente${pend.length>1?'s':''}. <span style="cursor:pointer;text-decoration:underline;margin-left:6px;" onclick="document.querySelector('[data-itab=mis]').click()">Ver →</span></div>`
-      : '';
+    const { count } = await r.json();
+    const badge = document.getElementById('interc-badge');
+    if(badge){
+      badge.textContent = count > 0 ? count : '';
+      badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+    const notif = document.getElementById('interc-notif');
+    if(notif){
+      notif.innerHTML = count > 0
+        ? `<div class="notif-banner">🔔 Tenés <b>${count}</b> propuesta${count>1?'s':''} pendiente${count>1?'s':''}. <span style="cursor:pointer;text-decoration:underline;margin-left:6px;" onclick="document.querySelector('[data-itab=mis]').click()">Ver →</span></div>`
+        : '';
+    }
   } catch(e){}
+}
+
+function startPollNotif(){
+  stopPollNotif();
+  loadIntercNotif();
+  _pollTimer = setInterval(loadIntercNotif, 180000);
+}
+function stopPollNotif(){
+  if(_pollTimer){ clearInterval(_pollTimer); _pollTimer = null; }
 }
 
 // ── Lista de usuarios con repetidas ──
@@ -1930,21 +1961,19 @@ async function loadIntercUsuarios() {
     const r = await fetch(API_BASE+'/api/intercambios/usuarios', { headers: authHeaders() });
     if(!r.ok){ grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error al cargar</div>'; return; }
     _intercUsers = await r.json();
-    const conRep = _intercUsers.filter(u => u.totalRep > 0);
-
-    if(!conRep.length){
+    if(!_intercUsers.length){
       grid.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">Ningún usuario tiene figuritas repetidas disponibles aún.</div>';
       return;
     }
-
     grid.innerHTML = '';
-    conRep.forEach(u => {
+    _intercUsers.forEach(u => {
       const card = document.createElement('div');
       card.className = 'interc-user-card';
       card.innerHTML = `
         <div class="interc-user-name">👤 ${u.nombre}</div>
         <div class="interc-user-stats">
-          <span class="interc-rep-count">↺ ${u.totalRep} repetidas disponibles</span>
+          <span class="interc-rep-count">↺ ${u.totalRep} repetida${u.totalRep!==1?'s':''} disponible${u.totalRep!==1?'s':''}</span>
+          ${u.reservadas.length > 0 ? `<span style="color:#ff6b6b;font-size:11px;">· 🔒 ${u.reservadas.length} reservada${u.reservadas.length!==1?'s':''}</span>` : ''}
         </div>
         <div style="font-size:11px;color:var(--text3);margin-top:5px;">Tocá para ver su álbum de repetidas →</div>
       `;
@@ -1954,55 +1983,60 @@ async function loadIntercUsuarios() {
   } catch(e){ grid.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; }
 }
 
-// ── Ver álbum de repetidas de un usuario ──
+// ── Álbum de repetidas de un usuario ──
 function openIntercAlbum(u){
   _currentIntercUser = u;
-  document.getElementById('iview-title').textContent   = `Repetidas de ${u.nombre}`;
-  document.getElementById('iview-subtitle').textContent = `${u.totalRep} figuritas disponibles para intercambiar`;
+  document.getElementById('iview-title').textContent    = `Repetidas de ${u.nombre}`;
+  document.getElementById('iview-subtitle').textContent = `${u.totalRep} figuritas disponibles`;
   showIntercAlbum();
 
   const albumDiv = document.getElementById('iview-album-content');
   albumDiv.innerHTML = '';
 
-  // Agrupar repetidas por grupo y equipo
+  // Agrupar repetidas por grupo/equipo
   const grouped = {};
   u.repetidas.forEach(key => {
     const parts = key.replace(/\|\|/g,'__').split('__');
     const grupo  = parts[0] || '?';
     const equipo = parts.slice(1, parts.length-1).join('__').replace(/_/g,' ') || '?';
-    const gk     = `${grupo}__${equipo}`;
+    const gk = `${grupo}||${equipo}`;
     if(!grouped[gk]) grouped[gk] = { grupo, equipo, keys:[] };
     grouped[gk].keys.push(key);
   });
 
+  if(Object.keys(grouped).length === 0){
+    albumDiv.innerHTML = '<div style="color:var(--text3);padding:16px;">No hay repetidas disponibles.</div>';
+    return;
+  }
+
   Object.values(grouped).forEach(({ grupo, equipo, keys }) => {
     const section = document.createElement('div');
     section.style.cssText = 'margin-bottom:16px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;overflow:hidden;';
+    const safeId = (grupo+'_'+equipo).replace(/[^a-zA-Z0-9]/g,'_');
     section.innerHTML = `
       <div style="padding:8px 14px;background:var(--bg4);border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px;">
         <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);">G${grupo}</span>
         <span style="font-weight:700;color:var(--text);font-size:14px;">${equipo}</span>
-        <span style="font-size:11px;color:var(--yellow);margin-left:auto;">↺ ${keys.length} repetida${keys.length>1?'s':''}</span>
+        <span style="font-size:11px;color:var(--yellow);margin-left:auto;">↺ ${keys.length}</span>
       </div>
-      <div class="figrid" id="rep-figs-${grupo}-${equipo.replace(/[^a-zA-Z0-9]/g,'_')}"></div>
+      <div class="figrid" id="rfigs-${safeId}"></div>
     `;
     albumDiv.appendChild(section);
 
-    const figsDiv = section.querySelector(`#rep-figs-${grupo}-${equipo.replace(/[^a-zA-Z0-9]/g,'_')}`);
+    const figsDiv = section.querySelector(`#rfigs-${safeId}`);
     keys.forEach(key => {
       const parts = key.replace(/\|\|/g,'__').split('__');
       const tipo  = parts[parts.length-1];
       const tipos = { ESC:'Escudo',PT1:'POR',PT2:'DEF',PT3:'DEF',PT4:'DEF',PT5:'DEF',
         PT6:'MED',PT7:'MED',PT8:'MED',PT9:'MED',PT10:'DEL',PT11:'DEL',PT12:'DEL',
         PT13:'SUP',PT14:'SUP',PT15:'SUP',PT16:'SUP',PT17:'SUP',PT18:'CAP',PT19:'DT',PT20:'ESP' };
-
       const fig = document.createElement('div');
       fig.className = 'fig repetida';
       fig.style.cursor = 'pointer';
       fig.innerHTML = `
         <div class="fnum" style="font-size:11px;">↺</div>
         <div class="ftype">${tipos[tipo]||tipo}</div>
-        <div class="ftt"><b>${keyToDesc(key)}</b><small style="color:var(--gold);">Click para intercambiar</small></div>
+        <div class="ftt"><b>${keyToDesc(key)}</b><small style="color:var(--gold);">Tocá para intercambiar</small></div>
       `;
       fig.addEventListener('click', () => openIntercPropuesta(key));
       figsDiv.appendChild(fig);
@@ -2010,28 +2044,32 @@ function openIntercAlbum(u){
   });
 }
 
-// ── Popup de propuesta ──
+// ── Popup propuesta ──
+let _selectedPideKey = null;
+let _selectedOfreceKeys = new Set();
+
 function openIntercPropuesta(pideKey){
+  _selectedPideKey = pideKey;
+  _selectedOfreceKeys = new Set();
+
   const misRep = Object.keys(_cachedState||{}).filter(k => (_cachedState||{})[k]==='repetida');
   const modal  = document.getElementById('interc-modal-overlay');
   const cont   = document.getElementById('interc-modal-content');
 
   cont.innerHTML = `
-    <div style="margin-bottom:14px;padding:10px;background:var(--bg2);border-radius:8px;">
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;">Figurita que querés</div>
+    <div style="margin-bottom:14px;padding:10px 12px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--gold);">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;">Querés esta figurita de ${_currentIntercUser?.nombre}</div>
       <div style="font-weight:700;color:var(--gold);font-size:14px;">${keyToDesc(pideKey)}</div>
-      <div style="font-size:11px;color:var(--text2);">de <b>${_currentIntercUser?.nombre}</b></div>
     </div>
-    <div class="interc-section-label" style="margin-bottom:8px;">Elegí qué figurita ofrecés a cambio:</div>
+    <div class="interc-section-label" style="margin-bottom:6px;">Elegí qué figuritas ofrecés a cambio <span style="color:var(--text3);font-weight:400;">(podés elegir varias)</span></div>
     ${misRep.length === 0
       ? '<div style="color:#ef5350;font-size:13px;padding:12px;background:rgba(239,83,80,.08);border-radius:6px;margin-bottom:12px;">No tenés figuritas repetidas para ofrecer.</div>'
-      : `<div class="fig-select-grid" id="prop-ofrece-grid" style="max-height:220px;overflow-y:auto;margin-bottom:14px;"></div>`
+      : `<div class="fig-select-grid" id="prop-ofrece-grid" style="max-height:240px;overflow-y:auto;margin-bottom:14px;"></div>
+         <div style="font-size:11px;color:var(--text3);margin-bottom:10px;" id="prop-count">0 figuritas seleccionadas</div>`
     }
-    <button class="modal-btn primary" id="prop-submit" ${misRep.length===0?'disabled style="opacity:.5;"':''}>Enviar propuesta</button>
+    <button class="modal-btn primary" id="prop-submit" disabled style="opacity:.5;">Enviar propuesta</button>
     <div class="auth-error" id="prop-error" style="margin-top:8px;"></div>
   `;
-
-  let selectedOfreceKey = null;
 
   const grid = document.getElementById('prop-ofrece-grid');
   if(grid){
@@ -2039,42 +2077,53 @@ function openIntercPropuesta(pideKey){
       const div = document.createElement('div');
       div.className = 'fig-select-item';
       div.textContent = keyToDesc(key);
+      div.dataset.key = key;
       div.addEventListener('click', () => {
-        grid.querySelectorAll('.fig-select-item').forEach(d => d.classList.remove('selected'));
-        div.classList.add('selected');
-        selectedOfreceKey = key;
+        if(_selectedOfreceKeys.has(key)){
+          _selectedOfreceKeys.delete(key);
+          div.classList.remove('selected');
+        } else {
+          _selectedOfreceKeys.add(key);
+          div.classList.add('selected');
+        }
+        const cnt = document.getElementById('prop-count');
+        if(cnt) cnt.textContent = `${_selectedOfreceKeys.size} figurita${_selectedOfreceKeys.size!==1?'s':''} seleccionada${_selectedOfreceKeys.size!==1?'s':''}`;
         const btn = document.getElementById('prop-submit');
-        if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+        if(btn){ btn.disabled=_selectedOfreceKeys.size===0; btn.style.opacity=_selectedOfreceKeys.size>0?'1':'.5'; }
       });
       grid.appendChild(div);
     });
-    // disable submit until selection
-    const btn = document.getElementById('prop-submit');
-    if(btn){ btn.disabled=true; btn.style.opacity='.5'; }
   }
 
   document.getElementById('prop-submit').addEventListener('click', async () => {
-    if(!selectedOfreceKey && misRep.length > 0) return;
+    if(_selectedOfreceKeys.size === 0) return;
     const errEl = document.getElementById('prop-error');
     const btn   = document.getElementById('prop-submit');
     btn.disabled=true; btn.textContent='...';
     try {
+      const ofreceKeys  = Array.from(_selectedOfreceKeys);
+      const ofreceDescs = ofreceKeys.map(k => keyToDesc(k));
       const r = await fetch(API_BASE+'/api/intercambios', {
         method:'POST', headers: authHeaders(),
         body: JSON.stringify({
-          receptor_id: _currentIntercUser.id,
-          pide_key:    pideKey,
-          pide_desc:   keyToDesc(pideKey),
-          ofrece_key:  selectedOfreceKey,
-          ofrece_desc: keyToDesc(selectedOfreceKey)
+          receptor_id:  _currentIntercUser.id,
+          pide_key:     _selectedPideKey,
+          pide_desc:    keyToDesc(_selectedPideKey),
+          ofrece_keys:  ofreceKeys,
+          ofrece_descs: ofreceDescs
         })
       });
       const d = await r.json();
       if(r.ok){
         modal.classList.add('hidden');
-        showToast('✓ Propuesta enviada a '+_currentIntercUser.nombre);
+        showToast('✓ Propuesta enviada — tus figuritas quedan reservadas');
+        // Update local cache - mark offered figs as reservada
+        ofreceKeys.forEach(k => { if(_cachedState) _cachedState[k] = 'reservada'; });
+        updateHeader();
+        loadIntercUsuarios();
+        loadIntercNotif();
       } else {
-        errEl.textContent = d.error || 'Error al enviar';
+        errEl.textContent = d.error || 'Error al enviar propuesta';
         btn.disabled=false; btn.textContent='Enviar propuesta';
       }
     } catch(e){
@@ -2100,22 +2149,27 @@ async function loadMisPropuestas(){
       return;
     }
     tbody.innerHTML = data.map(i => {
-      const soy = i.solicitante_id === myId ? 'solicitante' : 'receptor';
-      const contraparte = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
+      const soy  = i.solicitante_id === myId ? 'solicitante' : 'receptor';
+      const otro = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
+      const dir  = soy === 'solicitante' ? '→' : '←';
       const fecha = new Date(i.created_at).toLocaleDateString('es-AR');
-      const dir   = soy === 'solicitante' ? '→' : '←';
+      const ofreceList = (i.ofrece_descs||[]).join('<br>') || i.ofrece_desc || '-';
+      const tieneContra = i.contraoferta_keys?.length > 0;
+
       let acc = '';
       if(i.estado === 'pendiente'){
-        acc = soy === 'receptor'
-          ? `<button class="abtn info" onclick="responderInterc('${i.id}','aceptado')">✓ Aceptar</button>
-             <button class="abtn danger" onclick="responderInterc('${i.id}','rechazado')">✗ Rechazar</button>`
-          : `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
+        if(soy === 'receptor'){
+          acc = `<button class="abtn info" onclick="abrirRespuesta('${i.id}')">✍ Responder</button>`;
+        } else {
+          acc = `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
+        }
       }
       return `<tr>
-        <td><span class="estado-badge ${i.estado}">${i.estado}</span></td>
-        <td style="font-weight:600;color:var(--text);">${dir} ${contraparte}</td>
-        <td style="font-size:12px;color:var(--text2);">${i.pide_desc}</td>
-        <td style="font-size:12px;color:var(--text2);">${i.ofrece_desc}</td>
+        <td><span class="estado-badge ${i.estado}">${i.estado}</span>
+            ${tieneContra && i.estado==='pendiente' ? '<br><span style="font-size:10px;color:#ffa500;">↺ contraoferta</span>' : ''}</td>
+        <td style="font-weight:600;color:var(--text);">${dir} ${otro}</td>
+        <td style="font-size:11px;color:var(--gold);">${i.pide_desc||'-'}</td>
+        <td style="font-size:11px;color:var(--text2);">${ofreceList}</td>
         <td style="font-size:11px;color:var(--text3);">${fecha}</td>
         <td><div class="admin-actions">${acc}</div></td>
       </tr>`;
@@ -2123,8 +2177,113 @@ async function loadMisPropuestas(){
   } catch(e){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error</td></tr>'; }
 }
 
+// ── Modal responder propuesta ──
+function abrirRespuesta(intercId){
+  const modal  = document.getElementById('interc-modal-overlay');
+  const cont   = document.getElementById('interc-modal-content');
+
+  // Fetch intercambio actual para mostrar detalles
+  fetch(API_BASE+'/api/intercambios', { headers: authHeaders() })
+    .then(r => r.json())
+    .then(data => {
+      const i = data.find(x => x.id === intercId);
+      if(!i){ showToast('Error al cargar propuesta'); return; }
+      const misRep = Object.keys(_cachedState||{}).filter(k => (_cachedState||{})[k]==='repetida');
+      const tieneContra = i.contraoferta_keys?.length > 0;
+
+      cont.innerHTML = `
+        <div style="margin-bottom:12px;padding:10px 12px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--gold);">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">
+            <b style="color:var(--text);">${i.solicitante_nom}</b> quiere tu figurita:
+          </div>
+          <div style="font-weight:700;color:var(--gold);">${i.pide_desc}</div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px 12px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--green);">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">A cambio te ofrece${tieneContra ? ' (con contraoferta)' : ''}:</div>
+          ${(tieneContra ? i.contraoferta_descs : i.ofrece_descs||[]).map(d =>
+            `<div style="font-size:13px;color:var(--text);margin-bottom:2px;">• ${d}</div>`
+          ).join('') || `<div style="font-size:13px;color:var(--text);">• ${i.ofrece_desc}</div>`}
+        </div>
+
+        <div class="interc-section-label" style="margin-bottom:8px;">¿Qué querés hacer?</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="modal-btn primary" onclick="responderInterc('${intercId}','aceptado');document.getElementById('interc-modal-overlay').classList.add('hidden')">
+            ✓ Aceptar la propuesta
+          </button>
+          <button class="modal-btn secondary" id="btn-show-contra" style="background:rgba(255,165,0,.1);color:#ffa500;border-color:rgba(255,165,0,.3);">
+            ↺ Hacer contraoferta
+          </button>
+          <button class="modal-btn danger" onclick="responderInterc('${intercId}','rechazado');document.getElementById('interc-modal-overlay').classList.add('hidden')">
+            ✗ Rechazar propuesta
+          </button>
+        </div>
+
+        <div id="contra-section" style="display:none;margin-top:14px;">
+          <div class="interc-section-label" style="margin-bottom:6px;">Elegí figuritas de tu colección para proponer:</div>
+          <div class="fig-select-grid" id="contra-grid" style="max-height:200px;overflow-y:auto;margin-bottom:10px;"></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;" id="contra-count">0 seleccionadas</div>
+          <button class="modal-btn primary" id="btn-enviar-contra" disabled style="opacity:.5;">Enviar contraoferta</button>
+        </div>
+        <div class="auth-error" id="resp-error" style="margin-top:8px;"></div>
+      `;
+
+      // Show contraoferta section
+      let contraSelected = new Set();
+      document.getElementById('btn-show-contra').addEventListener('click', () => {
+        const sec = document.getElementById('contra-section');
+        sec.style.display = sec.style.display === 'none' ? '' : 'none';
+        if(sec.style.display !== 'none'){
+          const grid = document.getElementById('contra-grid');
+          grid.innerHTML = '';
+          misRep.forEach(key => {
+            const div = document.createElement('div');
+            div.className = 'fig-select-item';
+            div.textContent = keyToDesc(key);
+            div.addEventListener('click', () => {
+              if(contraSelected.has(key)){ contraSelected.delete(key); div.classList.remove('selected'); }
+              else { contraSelected.add(key); div.classList.add('selected'); }
+              const cnt = document.getElementById('contra-count');
+              if(cnt) cnt.textContent = `${contraSelected.size} seleccionada${contraSelected.size!==1?'s':''}`;
+              const btn = document.getElementById('btn-enviar-contra');
+              if(btn){ btn.disabled=contraSelected.size===0; btn.style.opacity=contraSelected.size>0?'1':'.5'; }
+            });
+            grid.appendChild(div);
+          });
+        }
+      });
+
+      document.getElementById('btn-enviar-contra').addEventListener('click', async () => {
+        if(contraSelected.size === 0) return;
+        const btn = document.getElementById('btn-enviar-contra');
+        btn.disabled=true; btn.textContent='...';
+        try {
+          const keys  = Array.from(contraSelected);
+          const descs = keys.map(k => keyToDesc(k));
+          const r = await fetch(API_BASE+'/api/intercambios/'+intercId, {
+            method:'PATCH', headers: authHeaders(),
+            body: JSON.stringify({ accion:'contraoferta', contraoferta_keys:keys, contraoferta_descs:descs })
+          });
+          const d = await r.json();
+          if(r.ok){
+            modal.classList.add('hidden');
+            showToast('↺ Contraoferta enviada');
+            loadMisPropuestas();
+          } else {
+            document.getElementById('resp-error').textContent = d.error || 'Error';
+            btn.disabled=false; btn.textContent='Enviar contraoferta';
+          }
+        } catch(e){
+          document.getElementById('resp-error').textContent = 'Error de conexión';
+          btn.disabled=false; btn.textContent='Enviar contraoferta';
+        }
+      });
+
+      modal.classList.remove('hidden');
+    });
+}
+
 async function responderInterc(id, accion){
-  const msgs = { aceptado:'¿Aceptar este intercambio?', rechazado:'¿Rechazar esta propuesta?', cancelado:'¿Cancelar tu propuesta?' };
+  const msgs = { aceptado:'¿Aceptar este intercambio?', rechazado:'¿Rechazar esta propuesta?', cancelado:'¿Cancelar tu propuesta? Tus figuritas vuelven a repetida.' };
   if(!confirm(msgs[accion])) return;
   try {
     const r = await fetch(API_BASE+'/api/intercambios/'+id, {
@@ -2132,7 +2291,14 @@ async function responderInterc(id, accion){
     });
     const d = await r.json();
     if(r.ok){
-      showToast({ aceptado:'✓ Intercambio aceptado!', rechazado:'Propuesta rechazada', cancelado:'Propuesta cancelada' }[accion]);
+      const labels = { aceptado:'✓ Intercambio aceptado', rechazado:'Propuesta rechazada', cancelado:'↺ Propuesta cancelada — figuritas liberadas' };
+      showToast(labels[accion]);
+      // Si cancela o rechaza, actualizar _cachedState localmente
+      if(accion === 'cancelado' || accion === 'rechazado'){
+        // Recargar estado desde servidor para reflejar figuritas liberadas
+        const ra = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+        if(ra.ok){ const da = await ra.json(); _cachedState = flattenState(da.estado||{}); updateHeader(); }
+      }
       loadMisPropuestas();
       loadIntercNotif();
     } else { alert('Error: '+d.error); }
@@ -2213,7 +2379,7 @@ async function init(){
     updateHeader();
     updateProfileBadge();
     await renderRanking();
-    loadIntercNotif();
+    startPollNotif();
     startInactivityTimer();
   }
 }
@@ -2313,7 +2479,7 @@ async function handleAuth(){
     updateHeader();
     updateProfileBadge();
     await renderRanking();
-    loadIntercNotif();
+    startPollNotif();
     startInactivityTimer();
     showLoadingOverlay(false);
   } catch(e){
@@ -2352,6 +2518,7 @@ function doLogout(reason){
   // Show full-screen login
   showAuthModal();
   stopInactivityTimer();
+  stopPollNotif();
 }
 
 document.getElementById('btn-logout').addEventListener('click', ()=>{
@@ -2433,7 +2600,7 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
     if(btn.dataset.page==="estadisticas") renderStats();
     if(btn.dataset.page==="ranking") await renderRanking();
     if(btn.dataset.page==="admin"){ loadAdminStats(); loadAdminUsers(); }
-    if(btn.dataset.page==="intercambios"){ loadIntercUsuarios(); loadIntercNotif(); }
+    if(btn.dataset.page==="intercambios"){ loadIntercUsuarios(); loadIntercNotif(); showIntercUsuarios(); }
   });
 });
 
