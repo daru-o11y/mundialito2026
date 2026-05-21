@@ -437,6 +437,10 @@ input[data-estado="repetida"].foil-input + .sbox,
 </head>
 <body>
 
+<!-- DEV BANNER: shown when hostname contains "dev" or "main" -->
+<div id="dev-banner" style="display:none;background:#7c3aed;color:#fff;text-align:center;padding:4px;font-size:12px;font-weight:700;letter-spacing:1px;z-index:200;position:relative;">
+  ⚠️ AMBIENTE DE DESARROLLO — Los datos no son productivos
+</div>
 <header class="header">
   <div class="logo">FIFA WC <em>2026</em></div>
   <nav class="nav">
@@ -1691,7 +1695,7 @@ async function loadAdminUsers(){
         <td>
           <div class="admin-actions">
             <button class="abtn info" onclick="adminVerAlbum('${u.id}','${u.nombre}')">👁 Ver</button>
-            ${!isMe ? `<button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>` : ''}
+            <button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>
             ${!isMe ? `<button class="abtn danger" onclick="adminReset('${u.id}','${u.nombre}')">↺ Reset</button>` : ''}
             ${!isMe ? `<button class="abtn danger" onclick="adminEliminar('${u.id}','${u.nombre}')">🗑</button>` : ''}
           </div>
@@ -2132,6 +2136,16 @@ document.getElementById('interc-modal-overlay').addEventListener('click', e=>{
   if(e.target === e.currentTarget)
     document.getElementById('interc-modal-overlay').classList.add('hidden');
 });
+
+// ── DEV BANNER ──
+(function(){
+  const host = window.location.hostname;
+  const isdev = host.includes('dev') || host.includes('main') || host.includes('localhost');
+  if(isdev){
+    const b = document.getElementById('dev-banner');
+    if(b) b.style.display = 'block';
+  }
+})();
 
 // ── INIT ──
 async function init(){
