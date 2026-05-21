@@ -2073,6 +2073,10 @@ let _selectedPideKey = null;
 let _selectedOfreceKeys = new Set();
 
 function openIntercPropuesta(pideKey){
+  // Capture receptor at open time — don't rely on _currentIntercUser later
+  const receptor = _currentIntercUser ? { id: _currentIntercUser.id, nombre: _currentIntercUser.nombre } : null;
+  if(!receptor || !receptor.id){ showToast('Error: usuario no identificado'); return; }
+
   _selectedPideKey = pideKey;
   _selectedOfreceKeys = new Set();
 
@@ -2130,7 +2134,7 @@ function openIntercPropuesta(pideKey){
       const r = await fetch(API_BASE+'/api/intercambios', {
         method:'POST', headers: authHeaders(),
         body: JSON.stringify({
-          receptor_id:  _currentIntercUser.id,
+          receptor_id:  receptor.id,
           pide_key:     _selectedPideKey,
           pide_desc:    keyToDesc(_selectedPideKey),
           ofrece_keys:  ofreceKeys,
