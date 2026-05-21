@@ -609,14 +609,24 @@ input[data-estado="repetida"].foil-input + .sbox,
         <div class="help-icon">🔍</div>
         <div class="help-item-body">
           <div class="help-item-title">Buscar figuritas</div>
-          <div class="help-item-desc">Ves todos los usuarios que tienen figuritas repetidas disponibles. Hacés click en uno para ver su álbum de repetidas.</div>
+          <div class="help-item-desc">Ves todos los usuarios que tienen figuritas repetidas disponibles. Hacés click en uno para ver su álbum de repetidas y encontrar lo que necesitás.</div>
         </div>
       </div>
       <div class="help-item">
         <div class="help-icon">⚽</div>
         <div class="help-item-body">
           <div class="help-item-title">Proponer un intercambio</div>
-          <div class="help-item-desc">Al tocar una figurita repetida de otro usuario, podés elegir cuál de tus repetidas ofrecés a cambio y enviar la propuesta.</div>
+          <div class="help-item-desc">Tocás una figurita repetida de otro usuario → popup de confirmación → elegís cuál o cuáles de tus repetidas ofrecés a cambio → confirmás la propuesta.</div>
+        </div>
+      </div>
+      <div class="help-item">
+        <div class="help-icon">🔒</div>
+        <div class="help-item-body">
+          <div class="help-item-title">Figuritas reservadas</div>
+          <div class="help-item-desc">Cuando enviás una propuesta, las figuritas que ofrecés quedan en estado <span class="help-tag" style="background:rgba(200,50,50,.15);color:#ff6b6b;">Reservada</span> — bloqueadas hasta que la propuesta se resuelva.<br><br>
+          <b style="color:var(--text);">Si aceptan:</b> el intercambio queda registrado. Actualizá tus figuritas manualmente después del intercambio físico.<br>
+          <b style="color:var(--text);">Si rechazan o cancelás:</b> las figuritas vuelven automáticamente a <span class="help-tag" style="background:rgba(255,215,0,.15);color:var(--gold);">Repetida</span>.<br><br>
+          ⚠️ Una figurita reservada <b>no se puede editar</b> manualmente mientras la propuesta esté pendiente.</div>
         </div>
       </div>
       <div class="help-item">
@@ -624,12 +634,13 @@ input[data-estado="repetida"].foil-input + .sbox,
         <div class="help-item-body">
           <div class="help-item-title">Mis propuestas</div>
           <div class="help-item-desc">
-            Ves todas tus propuestas enviadas y recibidas con su estado:<br>
+            Ves todas tus propuestas con su estado:<br>
             <span class="help-tag" style="background:rgba(255,165,0,.15);color:#ffa500;">Pendiente</span>
             <span class="help-tag" style="background:rgba(0,200,83,.15);color:var(--green);">Aceptado</span>
             <span class="help-tag" style="background:rgba(239,83,80,.15);color:#ef5350;">Rechazado</span>
-            <span class="help-tag">Cancelado</span><br>
-            Como receptor podés aceptar o rechazar. Como solicitante podés cancelar.
+            <span class="help-tag">Cancelado</span><br><br>
+            Como <b>receptor</b>: podés aceptar, elegir cuáles aceptás o hacer una contraoferta.<br>
+            Como <b>solicitante</b>: podés cancelar la propuesta (libera tus figuritas reservadas).
           </div>
         </div>
       </div>
@@ -637,7 +648,7 @@ input[data-estado="repetida"].foil-input + .sbox,
         <div class="help-icon">🔔</div>
         <div class="help-item-body">
           <div class="help-item-title">Notificaciones</div>
-          <div class="help-item-desc">Si tenés propuestas pendientes recibidas, aparece un banner amarillo al entrar a la sección de intercambios.</div>
+          <div class="help-item-desc">El badge 🔔 en el header se actualiza automáticamente cada 3 minutos. Si tenés propuestas pendientes recibidas, aparece un banner al entrar a Intercambios.</div>
         </div>
       </div>
     </div>
