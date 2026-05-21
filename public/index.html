@@ -156,6 +156,40 @@ input[data-estado="repetida"] + .sbox { background:rgba(255,215,0,.18); border-c
 input[data-estado="repetida"] + .sbox::after { content:'↺'; color:var(--gold); font-weight:bold; font-size:11px; }
 .slabel:has(input[data-estado="repetida"]) .snum { color:var(--gold); font-weight:bold; }
 
+/* ESTADO: reservada — pulso rojo animado */
+@keyframes reservada-pulse {
+  0%   { box-shadow:0 0 4px 1px rgba(255,50,50,.3); border-color:rgba(255,80,80,.5); background:rgba(100,0,0,.4); }
+  50%  { box-shadow:0 0 10px 3px rgba(255,50,50,.7); border-color:#ff4444; background:rgba(139,0,0,.6); }
+  100% { box-shadow:0 0 4px 1px rgba(255,50,50,.3); border-color:rgba(255,80,80,.5); background:rgba(100,0,0,.4); }
+}
+@keyframes lock-shake {
+  0%,100% { transform:rotate(0deg); }
+  20%     { transform:rotate(-8deg); }
+  40%     { transform:rotate(8deg); }
+  60%     { transform:rotate(-4deg); }
+  80%     { transform:rotate(4deg); }
+}
+input[data-estado="reservada"] + .sbox {
+  animation: reservada-pulse 2s ease-in-out infinite;
+  cursor: not-allowed;
+}
+input[data-estado="reservada"] + .sbox::after {
+  content: '🔒';
+  font-size: 11px;
+  display: inline-block;
+  animation: lock-shake 3s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.slabel:has(input[data-estado="reservada"]) .snum {
+  color: #ff6b6b;
+  font-weight: bold;
+  animation: reservada-pulse 2s ease-in-out infinite;
+  background: none;
+  -webkit-background-clip: unset;
+}
+.slabel:has(input[data-estado="reservada"]) { cursor: not-allowed; }
+.slabel.foil:has(input[data-estado="reservada"]) + .sbox { animation: reservada-pulse 2s ease-in-out infinite; }
+
 /* ESTADO: foil (badge sticker #1) — animated sweep */
 @keyframes foil-sweep {
   0%   { background-position:220% center; }
@@ -376,6 +410,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 .estado-badge.aceptado   { background:rgba(0,200,83,.15);  color:var(--green); border:1px solid rgba(0,200,83,.3); }
 .estado-badge.rechazado  { background:rgba(239,83,80,.15); color:#ef5350; border:1px solid rgba(239,83,80,.3); }
 .estado-badge.cancelado  { background:rgba(100,100,100,.15); color:var(--text3); border:1px solid var(--border2); }
+.estado-badge.vencido   { background:rgba(100,100,100,.15); color:#888; border:1px solid var(--border2); }
 .notif-banner { background:rgba(255,165,0,.12); border:1px solid rgba(255,165,0,.3); border-radius:8px; padding:10px 16px; font-size:13px; color:#ffa500; display:flex; align-items:center; gap:8px; }
 .fig-select-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; margin:10px 0 16px; max-height:200px; overflow-y:auto; }
 .fig-select-item { background:var(--bg2); border:1px solid var(--border2); border-radius:6px; padding:8px 10px; cursor:pointer; font-size:12px; transition:all .15s; }
@@ -2031,12 +2066,16 @@ function openIntercAlbum(u){
       const tipos = { ESC:'Escudo',PT1:'POR',PT2:'DEF',PT3:'DEF',PT4:'DEF',PT5:'DEF',
         PT6:'MED',PT7:'MED',PT8:'MED',PT9:'MED',PT10:'DEL',PT11:'DEL',PT12:'DEL',
         PT13:'SUP',PT14:'SUP',PT15:'SUP',PT16:'SUP',PT17:'SUP',PT18:'CAP',PT19:'DT',PT20:'ESP' };
+      // Calculate fig number (1-21)
+      const tipoNum = { ESC:1,PT1:2,PT2:3,PT3:4,PT4:5,PT5:6,PT6:7,PT7:8,PT8:9,PT9:10,
+        PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
+      const figN = tipoNum[tipo] || 0;
       const fig = document.createElement('div');
       fig.className = 'fig repetida';
-      fig.style.cursor = 'pointer';
+      fig.style.cssText = 'cursor:pointer;position:relative;';
       fig.innerHTML = `
-        <div class="fnum" style="font-size:11px;">↺</div>
-        <div class="ftype">${tipos[tipo]||tipo}</div>
+        <div class="fnum">${figN}</div>
+        <div class="ftype" style="font-size:9px;color:var(--gold);">🔄</div>
         <div class="ftt"><b>${keyToDesc(key)}</b><small style="color:var(--gold);">Tocá para intercambiar</small></div>
       `;
       fig.addEventListener('click', () => openIntercPropuesta(key));
@@ -2166,6 +2205,15 @@ async function loadMisPropuestas(){
         acc = soy === 'receptor'
           ? `<button class="abtn info" onclick="abrirRespuesta('${i.id}')">✍ Responder</button>`
           : `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
+      }
+      if(i.estado === 'aceptado'){
+        // Cualquiera de los dos puede cancelar un intercambio aceptado antes del vencimiento
+        const dias = i.expires_at ? Math.ceil((new Date(i.expires_at)-new Date())/(1000*60*60*24)) : null;
+        const venceLabel = dias !== null ? `Vence en ${dias}d` : '';
+        acc = `<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+          ${venceLabel ? `<span style="font-size:10px;color:var(--text3);">⏱ ${venceLabel}</span>` : ''}
+          <button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar trato</button>
+        </div>`;
       }
       return `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
         <div style="flex:1;min-width:200px;">
@@ -2307,13 +2355,22 @@ async function responderInterc(id, accion){
     });
     const d = await r.json();
     if(r.ok){
-      const labels = { aceptado:'✓ Intercambio aceptado', rechazado:'Propuesta rechazada', cancelado:'↺ Propuesta cancelada — figuritas liberadas' };
+      const labels = {
+        aceptado:'✓ Aceptado — recordá actualizar tu álbum con las figuritas que recibís. Tenés 7 días.',
+        rechazado:'Propuesta rechazada — figuritas liberadas',
+        cancelado:'↺ Propuesta cancelada — figuritas vuelven a Repetida'
+      };
       showToast(labels[accion]);
-      // Si cancela o rechaza, actualizar _cachedState localmente
-      if(accion === 'cancelado' || accion === 'rechazado'){
-        // Recargar estado desde servidor para reflejar figuritas liberadas
-        const ra = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
-        if(ra.ok){ const da = await ra.json(); _cachedState = flattenState(da.estado||{}); updateHeader(); }
+      // Recargar estado desde servidor en todos los casos
+      const ra = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+      if(ra.ok){
+        const da = await ra.json();
+        _cachedState = flattenState(da.estado||{});
+        updateHeader();
+        // Si estamos viendo el álbum, re-renderizarlo
+        if(document.getElementById('page-album').classList.contains('active')){
+          await renderAlbum();
+        }
       }
       loadMisPropuestas();
       loadIntercNotif();
