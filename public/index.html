@@ -2126,9 +2126,8 @@ function openIntercAlbum(u){
       fig.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:var(--bg4);border:1px solid rgba(255,215,0,.25);border-radius:20px;padding:4px 10px 4px 8px;cursor:pointer;transition:border-color .18s;font-size:12px;color:var(--text);position:relative;';
       fig.innerHTML = `
         <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);line-height:1;">#${figN}</span>
-        <span style="color:var(--text2);">${equipo}</span>
+        <span style="color:var(--text2);font-size:12px;">${equipo} <span style="color:var(--text3);font-size:11px;">(G${grupo})</span></span>
         ${SWAP_SVG}
-        <div class="ftt"><b>${keyToDesc(key)}</b></div>
       `;
       fig.addEventListener('mouseenter', ()=>{ fig.style.borderColor='var(--gold)'; fig.style.background='rgba(255,215,0,.08)'; });
       fig.addEventListener('mouseleave', ()=>{ fig.style.borderColor='rgba(255,215,0,.25)'; fig.style.background='var(--bg4)'; });
@@ -2297,8 +2296,12 @@ async function loadMisPropuestas(){
         </div>
         <div style="display:flex;align-items:center;">${acc}</div>
       </div>`;
-    }).join('');
-  } catch(e){ listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; }
+    }).filter(Boolean).join('');
+    listDiv.innerHTML = rendered || '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">Sin propuestas activas</div>';
+  } catch(e){ 
+    console.error('loadMisPropuestas error:', e);
+    listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; 
+  }
 }
 
 // ── Modal responder propuesta ──
