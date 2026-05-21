@@ -484,7 +484,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
     <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
     <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
-    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista" style="position:relative;">🔄 Intercambios<span id="interc-badge" style="display:none;position:absolute;top:2px;right:4px;background:#ef5350;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:1;"></span></button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔄 Intercambios</button>
     <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
@@ -790,46 +790,31 @@ input[data-estado="repetida"].foil-input + .sbox,
 
 
   <div class="page" id="page-intercambios">
-    <div class="stitle">Intercambio de Figuritas</div>
-
-    <!-- Banner en construcción -->
-    <div style="background:rgba(255,165,0,.12);border:1px solid rgba(255,165,0,.3);border-radius:8px;padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;">
-      <span style="font-size:22px;">🚧</span>
-      <div>
-        <div style="font-weight:700;color:#ffa500;font-size:14px;">Sección en construcción</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px;">El sistema de intercambios está siendo mejorado. Podés explorar la funcionalidad pero puede haber cambios próximamente.</div>
-      </div>
-    </div>
 
     <!-- Notificación pendientes -->
-    <div id="interc-notif" style="margin-bottom:16px;"></div>
+    <div id="interc-notif" style="margin-bottom:12px;"></div>
 
-    <!-- Sub tabs -->
-    <div class="ctabs" style="margin-bottom:18px;">
-      <button class="ctab active" data-itab="buscar">🔍 Buscar figuritas</button>
-      <button class="ctab" data-itab="mis">📋 Mis propuestas</button>
-      <button class="fbtn" id="interc-refresh" style="margin-left:auto;font-size:11px;padding:4px 12px;">↺ Actualizar</button>
+    <!-- Tabs minimalistas -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;">
+      <button class="ctab active" data-itab="buscar">🔍 Buscar</button>
+      <button class="ctab" data-itab="mis">📋 Mis propuestas <span id="interc-badge" style="display:none;background:#ef5350;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:4px;"></span></button>
+      <button class="fbtn" id="interc-refresh" style="margin-left:auto;font-size:11px;padding:4px 10px;">↺</button>
     </div>
 
     <!-- Tab: Buscar -->
     <div id="itab-buscar">
-      <!-- Vista 1: Lista de usuarios con repetidas -->
       <div id="iview-usuarios">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">
-          Usuarios con figuritas repetidas disponibles para intercambiar:
-        </div>
-        <div class="tgrid" id="interc-usuarios-grid">
-          <div style="color:var(--text3);font-size:13px;padding:12px;">Cargando...</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Usuarios con repetidas disponibles:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;" id="interc-usuarios-grid">
+          <div style="color:var(--text3);font-size:13px;">Cargando...</div>
         </div>
       </div>
-
-      <!-- Vista 2: Album de repetidas de un usuario -->
       <div id="iview-album" style="display:none;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-          <button class="fbtn" id="iview-back" style="font-size:12px;padding:4px 12px;">← Volver</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <button class="fbtn" id="iview-back" style="font-size:11px;padding:3px 10px;">← Volver</button>
           <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);" id="iview-title">Album de repetidas</div>
-            <div style="font-size:12px;color:var(--text3);" id="iview-subtitle"></div>
+            <span style="font-weight:700;color:var(--text);font-size:15px;" id="iview-title"></span>
+            <span style="font-size:11px;color:var(--text3);margin-left:8px;" id="iview-subtitle"></span>
           </div>
         </div>
         <div id="iview-album-content"></div>
@@ -838,14 +823,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 
     <!-- Tab: Mis propuestas -->
     <div id="itab-mis" style="display:none;">
-      <div class="twrap">
-        <table class="gtbl">
-          <thead><tr><th>Estado</th><th>Con quién</th><th>Yo pido</th><th>Yo ofrezco</th><th>Fecha</th><th>Acción</th></tr></thead>
-          <tbody id="interc-mis-body">
-            <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="interc-mis-list"></div>
     </div>
   </div>
 
@@ -1940,10 +1918,10 @@ function keyToDesc(key) {
   const grupo  = parts[0];
   const equipo = parts.slice(1, parts.length-1).join(' ').replace(/_/g,' ');
   const tipo   = parts[parts.length-1];
-  const tipos  = { ESC:'Escudo',PT1:'Portero',PT2:'Def.1',PT3:'Def.2',PT4:'Def.3',PT5:'Def.4',
-    PT6:'Med.1',PT7:'Med.2',PT8:'Med.3',PT9:'Med.4',PT10:'Del.1',PT11:'Del.2',PT12:'Del.3',
-    PT13:'Sup.1',PT14:'Sup.2',PT15:'Sup.3',PT16:'Sup.4',PT17:'Sup.5',PT18:'Capitán',PT19:'DT',PT20:'Especial' };
-  return `Gr.${grupo} · ${equipo} · ${tipos[tipo]||tipo}`;
+  const tipoNum = { ESC:1,PT1:2,PT2:3,PT3:4,PT4:5,PT5:6,PT6:7,PT7:8,PT8:9,PT9:10,
+    PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
+  const num = tipoNum[tipo] || tipo;
+  return `${equipo} (G${grupo}) #${num}`;
 }
 
 // ── Badge polling (cada 180 seg) ──
@@ -1992,14 +1970,13 @@ async function loadIntercUsuarios() {
     _intercUsers.forEach(u => {
       const card = document.createElement('div');
       card.className = 'interc-user-card';
+      card.style.cssText = 'background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .18s;min-width:180px;max-width:240px;';
       card.innerHTML = `
-        <div class="interc-user-name">👤 ${u.nombre}</div>
-        <div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;">
-          <span style="background:rgba(0,200,83,.12);color:var(--green);border:1px solid rgba(0,200,83,.3);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;">✓ ${u.tengo.length} tengo</span>
-          <span style="background:rgba(255,215,0,.12);color:var(--gold);border:1px solid rgba(255,215,0,.3);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;">↺ ${u.totalRep} repetidas</span>
-          ${u.reservadas.length > 0 ? `<span style="background:rgba(200,50,50,.12);color:#ff6b6b;border:1px solid rgba(200,50,50,.3);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:700;">🔒 ${u.reservadas.length} reservadas</span>` : ''}
+        <div style="font-weight:700;color:var(--text);font-size:14px;margin-bottom:8px;">👤 ${u.nombre}</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:12px;color:var(--gold);font-weight:600;">↺ ${u.totalRep} repetida${u.totalRep!==1?'s':''}</span>
+          ${u.reservadas.length > 0 ? `<span style="font-size:11px;color:#ff6b6b;">🔒 ${u.reservadas.length} reservada${u.reservadas.length!==1?'s':''}</span>` : ''}
         </div>
-        <div style="font-size:11px;color:var(--text3);">Tocá para ver sus repetidas y proponer un intercambio →</div>
       `;
       card.addEventListener('click', () => openIntercAlbum(u));
       grid.appendChild(card);
@@ -2166,44 +2143,53 @@ function openIntercPropuesta(pideKey){
 
 // ── Mis propuestas ──
 async function loadMisPropuestas(){
-  const tbody = document.getElementById('interc-mis-body');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">Cargando...</td></tr>';
+  const listDiv = document.getElementById('interc-mis-list');
+  listDiv.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;">Cargando...</div>';
   try {
     const r = await fetch(API_BASE+'/api/intercambios', { headers: authHeaders() });
-    if(!r.ok){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error</td></tr>'; return; }
+    if(!r.ok){ listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error al cargar</div>'; return; }
     const data = await r.json();
     const myId = parseJwt(_token)?.userId;
     if(!data.length){
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:16px;">No tenés propuestas aún</td></tr>';
+      listDiv.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">No tenés propuestas aún</div>';
       return;
     }
-    tbody.innerHTML = data.map(i => {
+    listDiv.innerHTML = data.map(i => {
       const soy  = i.solicitante_id === myId ? 'solicitante' : 'receptor';
       const otro = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
       const dir  = soy === 'solicitante' ? '→' : '←';
       const fecha = new Date(i.created_at).toLocaleDateString('es-AR');
-      const ofreceList = (i.ofrece_descs||[]).join('<br>') || i.ofrece_desc || '-';
+      const ofreceList = (i.ofrece_descs||[i.ofrece_desc||'-']).join(', ');
       const tieneContra = i.contraoferta_keys?.length > 0;
-
       let acc = '';
       if(i.estado === 'pendiente'){
-        if(soy === 'receptor'){
-          acc = `<button class="abtn info" onclick="abrirRespuesta('${i.id}')">✍ Responder</button>`;
-        } else {
-          acc = `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
-        }
+        acc = soy === 'receptor'
+          ? `<button class="abtn info" onclick="abrirRespuesta('${i.id}')">✍ Responder</button>`
+          : `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
       }
-      return `<tr>
-        <td><span class="estado-badge ${i.estado}">${i.estado}</span>
-            ${tieneContra && i.estado==='pendiente' ? '<br><span style="font-size:10px;color:#ffa500;">↺ contraoferta</span>' : ''}</td>
-        <td style="font-weight:600;color:var(--text);">${dir} ${otro}</td>
-        <td style="font-size:11px;color:var(--gold);">${i.pide_desc||'-'}</td>
-        <td style="font-size:11px;color:var(--text2);">${ofreceList}</td>
-        <td style="font-size:11px;color:var(--text3);">${fecha}</td>
-        <td><div class="admin-actions">${acc}</div></td>
-      </tr>`;
+      return `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span class="estado-badge ${i.estado}">${i.estado}</span>
+            ${tieneContra && i.estado==='pendiente' ? '<span style="font-size:10px;color:#ffa500;background:rgba(255,165,0,.1);padding:2px 6px;border-radius:10px;">↺ contraoferta</span>' : ''}
+            <span style="font-size:12px;color:var(--text2);">${dir} <b style="color:var(--text);">${otro}</b></span>
+            <span style="font-size:11px;color:var(--text3);margin-left:auto;">${fecha}</span>
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Yo pido</div>
+              <div style="font-size:12px;color:var(--gold);font-weight:600;">${i.pide_desc||'-'}</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Yo ofrezco</div>
+              <div style="font-size:12px;color:var(--text2);">${ofreceList}</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;">${acc}</div>
+      </div>`;
     }).join('');
-  } catch(e){ tbody.innerHTML = '<tr><td colspan="6" style="color:#ef5350;padding:16px;">Error</td></tr>'; }
+  } catch(e){ listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; }
 }
 
 // ── Modal responder propuesta ──
