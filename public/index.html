@@ -75,7 +75,8 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
 .gbody.hidden { display:none !important; }
 .modal-overlay.hidden { display:none !important; }
-.modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
+#interc-modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
+#crear-usuario-overlay:not([style*="none"]) { opacity:1; pointer-events:all; }
 .auth-overlay.hidden  { display:none !important; }
 
 /* ── TEAM CARD ── */
