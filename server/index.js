@@ -344,79 +344,183 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
 
 
 // ════════════════════════════════════════════
-// INTERCAMBIOS
+// INTERCAMBIOS v2
 // ════════════════════════════════════════════
 
 function sanitizeFigKey(key) {
   if (typeof key !== 'string') return null;
   if (key.length > 150) return null;
-  // Solo letras, números, guiones bajos — formato del álbum
-  if (!/^[A-Za-z0-9_]+$/.test(key)) return null;
+  // Allow letters, numbers, underscores and || separator
+  if (!/^[A-Za-z0-9_|]+$/.test(key)) return null;
   return key;
 }
-
 function sanitizeText(text, maxLen = 120) {
   if (typeof text !== 'string') return '';
   return text.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
 }
+function sanitizeKeys(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map(k => sanitizeFigKey(k)).filter(Boolean).slice(0, 20);
+}
+function sanitizeDescs(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map(d => sanitizeText(d)).filter(Boolean).slice(0, 20);
+}
 
-// GET /api/intercambios — mis propuestas enviadas y recibidas
+// Reservar figuritas de un usuario
+async function reservarFiguritas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return false;
+  const estado = data.estado || {};
+  let changed = false;
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'repetida') {
+        estado[teamKey][codigo] = 'reservada';
+        changed = true;
+      } else if (estado[flatKey] === 'repetida') {
+        estado[flatKey] = 'reservada';
+        changed = true;
+      }
+    } else if (estado[flatKey] === 'repetida') {
+      estado[flatKey] = 'reservada';
+      changed = true;
+    }
+  });
+  if (!changed) return false;
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+  return true;
+}
+
+// Liberar figuritas reservadas de un usuario (vuelven a repetida)
+async function liberarFiguritas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return;
+  const estado = data.estado || {};
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
+        estado[teamKey][codigo] = 'repetida';
+      } else if (estado[flatKey] === 'reservada') {
+        estado[flatKey] = 'repetida';
+      }
+    } else if (estado[flatKey] === 'reservada') {
+      estado[flatKey] = 'repetida';
+    }
+  });
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
+// Confirmar figuritas: reservada → tengo (intercambio aceptado)
+async function confirmarFiguritas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return;
+  const estado = data.estado || {};
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
+        estado[teamKey][codigo] = 'tengo';
+      } else if (estado[flatKey] === 'reservada') {
+        estado[flatKey] = 'tengo';
+      }
+    } else if (estado[flatKey] === 'reservada') {
+      estado[flatKey] = 'tengo';
+    }
+  });
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
+// GET /api/intercambios — mis propuestas
 app.get('/api/intercambios', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
-    .from('intercambios')
-    .select('*')
+    .from('intercambios').select('*')
     .or(`solicitante_id.eq.${req.userId},receptor_id.eq.${req.userId}`)
-    .order('created_at', { ascending: false })
-    .limit(100);
+    .order('created_at', { ascending: false }).limit(100);
   if (error) return res.status(500).json({ error: 'Error al obtener intercambios' });
   res.json(data || []);
 });
 
-// GET /api/intercambios/usuarios — lista de usuarios con sus repetidas (para proponer)
+// GET /api/intercambios/pendientes-count — solo el count para el badge
+app.get('/api/intercambios/pendientes-count', authMiddleware, async (req, res) => {
+  const { data, error } = await supabase
+    .from('intercambios').select('id')
+    .eq('receptor_id', req.userId).eq('estado', 'pendiente');
+  if (error) return res.status(500).json({ count: 0 });
+  res.json({ count: (data || []).length });
+});
+
+// Flatten nested estado to flat keys
+function flattenEstado(estado) {
+  const flat = {};
+  for (const [teamKey, val] of Object.entries(estado || {})) {
+    if (val && typeof val === 'object') {
+      // Formato anidado: {"A__Sud_frica": {"PT14": "repetida"}}
+      for (const [codigo, v] of Object.entries(val)) {
+        flat[teamKey + '||' + codigo] = v;
+      }
+    } else if (typeof val === 'string') {
+      // Formato flat: {"A__Sud_frica||PT14": "repetida"}
+      flat[teamKey] = val;
+    }
+  }
+  return flat;
+}
+
+// GET /api/intercambios/usuarios — usuarios con repetidas disponibles
 app.get('/api/intercambios/usuarios', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
-    .from('usuarios')
-    .select('id, nombre, estado')
-    .neq('id', req.userId);
+    .from('usuarios').select('id, nombre, estado').neq('id', req.userId);
   if (error) return res.status(500).json({ error: 'Error' });
   const result = (data || []).map(u => {
-    const estado = u.estado || {};
-    const repetidas = Object.keys(estado).filter(k => estado[k] === 'repetida');
-    const tengo     = Object.keys(estado).filter(k => estado[k] === 'tengo');
-    return { id: u.id, nombre: u.nombre, repetidas, tengo, totalRep: repetidas.length };
-  });
+    const estado = flattenEstado(u.estado);
+    const repetidas  = Object.keys(estado).filter(k => estado[k] === 'repetida');
+    const reservadas = Object.keys(estado).filter(k => estado[k] === 'reservada');
+    const tengo      = Object.keys(estado).filter(k => estado[k] === 'tengo');
+    return { id: u.id, nombre: u.nombre, repetidas, reservadas, tengo,
+      totalRep: repetidas.length };
+  }).filter(u => u.totalRep > 0);
   res.json(result);
 });
 
-// POST /api/intercambios — crear propuesta de intercambio
+// POST /api/intercambios — crear propuesta
 app.post('/api/intercambios', authMiddleware, async (req, res) => {
-  const { receptor_id, pide_key, pide_desc, ofrece_key, ofrece_desc } = req.body;
+  const { receptor_id, pide_key, pide_desc, ofrece_keys, ofrece_descs } = req.body;
 
-  const cleanPideKey   = sanitizeFigKey(pide_key);
-  const cleanOfreceKey = sanitizeFigKey(ofrece_key);
-  const cleanPideDesc  = sanitizeText(pide_desc);
-  const cleanOfreceDesc = sanitizeText(ofrece_desc);
+  const cleanPideKey    = sanitizeFigKey(pide_key);
+  const cleanOfreceKeys = sanitizeKeys(ofrece_keys);
+  const cleanPideDesc   = sanitizeText(pide_desc);
+  const cleanOfreceDescs= sanitizeDescs(ofrece_descs);
 
-  if (!receptor_id || !cleanPideKey || !cleanOfreceKey)
+  if (!receptor_id || !cleanPideKey || cleanOfreceKeys.length === 0)
     return res.status(400).json({ error: 'Datos inválidos o incompletos' });
   if (receptor_id === req.userId)
     return res.status(400).json({ error: 'No podés intercambiar con vos mismo' });
 
-  // Verificar que el solicitante tiene la figurita que ofrece (repetida)
+  // Verificar que B tiene todas las figuritas que ofrece (como repetida)
   const { data: solData } = await supabase
     .from('usuarios').select('nombre, estado').eq('id', req.userId).single();
   if (!solData) return res.status(404).json({ error: 'Usuario no encontrado' });
-  if ((solData.estado || {})[cleanOfreceKey] !== 'repetida')
-    return res.status(400).json({ error: 'No tenés esa figurita como repetida' });
+  const solEstado = solData.estado || {};
+  const flatSol = flattenEstado(solEstado);
+  const noDisponibles = cleanOfreceKeys.filter(k => flatSol[k] !== 'repetida');
+  if (noDisponibles.length > 0)
+    return res.status(400).json({ error: 'Algunas figuritas que ofrecés ya no están disponibles' });
 
-  // Verificar que el receptor tiene la figurita pedida (repetida)
+  // Verificar que A tiene la figurita pedida como repetida
   const { data: recData } = await supabase
     .from('usuarios').select('nombre, estado').eq('id', receptor_id).single();
   if (!recData) return res.status(404).json({ error: 'Receptor no encontrado' });
-  if ((recData.estado || {})[cleanPideKey] !== 'repetida')
+  const flatRec = flattenEstado(recData.estado || {});
+  if (flatRec[cleanPideKey] !== 'repetida')
     return res.status(400).json({ error: 'Ese usuario ya no tiene esa figurita como repetida' });
 
-  // No duplicar propuestas pendientes
+  // No duplicar propuestas pendientes sobre la misma figurita
   const { data: existing } = await supabase
     .from('intercambios').select('id')
     .eq('solicitante_id', req.userId).eq('receptor_id', receptor_id)
@@ -424,49 +528,157 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
   if (existing)
     return res.status(409).json({ error: 'Ya tenés una propuesta pendiente para esa figurita' });
 
-  const { data, error } = await supabase
-    .from('intercambios')
-    .insert({
-      solicitante_id: req.userId, solicitante_nom: solData.nombre,
-      receptor_id,                receptor_nom: recData.nombre,
-      pide_key: cleanPideKey,     pide_desc: cleanPideDesc,
-      ofrece_key: cleanOfreceKey, ofrece_desc: cleanOfreceDesc,
-      estado: 'pendiente'
-    })
-    .select().single();
+  // Reservar figuritas de B
+  await reservarFiguritas(req.userId, cleanOfreceKeys);
 
-  if (error) return res.status(500).json({ error: 'Error al crear propuesta' });
+  const { data, error } = await supabase.from('intercambios').insert({
+    solicitante_id: req.userId, solicitante_nom: solData.nombre,
+    receptor_id,               receptor_nom: recData.nombre,
+    pide_key: cleanPideKey,    pide_desc: cleanPideDesc,
+    ofrece_keys: cleanOfreceKeys, ofrece_descs: cleanOfreceDescs,
+    estado: 'pendiente'
+  }).select().single();
+
+  if (error) {
+    console.error('Intercambios insert error:', JSON.stringify(error));
+    // Si falla el insert, liberar las figuritas
+    await liberarFiguritas(req.userId, cleanOfreceKeys);
+    return res.status(500).json({ error: 'Error al crear propuesta', detail: error.message });
+  }
   res.json({ ok: true, intercambio: data });
 });
 
-// PATCH /api/intercambios/:id — aceptar o rechazar
+// PATCH /api/intercambios/:id — aceptar, rechazar, cancelar, contraoferta
 app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
-  const { accion } = req.body; // 'aceptado' | 'rechazado' | 'cancelado'
-  if (!['aceptado','rechazado','cancelado'].includes(accion))
+  const { accion, contraoferta_keys, contraoferta_descs } = req.body;
+  const validAcciones = ['aceptado','rechazado','cancelado','contraoferta'];
+  if (!validAcciones.includes(accion))
     return res.status(400).json({ error: 'Acción inválida' });
 
   const { data: interc } = await supabase
     .from('intercambios').select('*').eq('id', req.params.id).single();
   if (!interc) return res.status(404).json({ error: 'Intercambio no encontrado' });
-
-  // Solo el receptor puede aceptar/rechazar; solo el solicitante puede cancelar
-  if (accion === 'cancelado' && interc.solicitante_id !== req.userId)
-    return res.status(403).json({ error: 'Solo el solicitante puede cancelar' });
-  if (['aceptado','rechazado'].includes(accion) && interc.receptor_id !== req.userId)
-    return res.status(403).json({ error: 'Solo el receptor puede aceptar o rechazar' });
   if (interc.estado !== 'pendiente')
     return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
 
-  const { error } = await supabase
-    .from('intercambios')
-    .update({ estado: accion, updated_at: new Date().toISOString() })
+  // Validar permisos
+  const isParticipante = interc.solicitante_id === req.userId || interc.receptor_id === req.userId;
+  if (!isParticipante)
+    return res.status(403).json({ error: 'No sos parte de este intercambio' });
+
+  // Intercambio aceptado: solo se puede cancelar por cualquiera de los dos
+  if (interc.estado === 'aceptado') {
+    if (accion !== 'cancelado')
+      return res.status(400).json({ error: 'Un intercambio aceptado solo se puede cancelar' });
+    await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
+    const { error: errCan } = await supabase.from('intercambios')
+      .update({ estado: 'cancelado', updated_at: new Date().toISOString() })
+      .eq('id', interc.id);
+    if (errCan) return res.status(500).json({ error: 'Error al cancelar' });
+    return res.json({ ok: true, estado: 'cancelado' });
+  }
+
+  if (interc.estado !== 'pendiente')
+    return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
+
+  if (accion === 'cancelado' && interc.solicitante_id !== req.userId)
+    return res.status(403).json({ error: 'Solo el solicitante puede cancelar' });
+  if (['aceptado','rechazado','contraoferta'].includes(accion) && interc.receptor_id !== req.userId)
+    return res.status(403).json({ error: 'Solo el receptor puede responder' });
+
+  if (accion === 'contraoferta') {
+    const cleanKeys  = sanitizeKeys(contraoferta_keys);
+    const cleanDescs = sanitizeDescs(contraoferta_descs);
+    if (cleanKeys.length === 0)
+      return res.status(400).json({ error: 'La contraoferta debe tener al menos una figurita' });
+    // Verificar que A tiene esas figuritas como repetida
+    const { data: recData } = await supabase
+      .from('usuarios').select('estado').eq('id', req.userId).single();
+    const recEstado = recData?.estado || {};
+    const noDisp = cleanKeys.filter(k => recEstado[k] !== 'repetida');
+    if (noDisp.length > 0)
+      return res.status(400).json({ error: 'Algunas figuritas de la contraoferta no están disponibles' });
+    // Guardar contraoferta — el estado sigue pendiente pero con datos de contraoferta
+    const { error } = await supabase.from('intercambios')
+      .update({ contraoferta_keys: cleanKeys, contraoferta_descs: cleanDescs,
+        updated_at: new Date().toISOString() })
+      .eq('id', req.params.id);
+    if (error) return res.status(500).json({ error: 'Error al guardar contraoferta' });
+    return res.json({ ok: true, estado: 'pendiente', contraoferta: true });
+  }
+
+  if (accion === 'rechazado' || accion === 'cancelado') {
+    // Liberar figuritas de B → vuelven a repetida
+    await liberarFiguritas(interc.solicitante_id, interc.ofrece_keys || []);
+  }
+
+  // Al aceptar: figuritas de B quedan RESERVADAS hasta que se haga el intercambio físico
+  // El usuario las actualiza manualmente en su álbum después
+
+  // Si se acepta, agregar fecha de vencimiento (7 días para completar el intercambio físico)
+  const updateData = { estado: accion, updated_at: new Date().toISOString() };
+  if (accion === 'aceptado') {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+    updateData.expires_at = expires.toISOString();
+  }
+
+  const { error } = await supabase.from('intercambios')
+    .update(updateData)
     .eq('id', req.params.id);
   if (error) return res.status(500).json({ error: 'Error al actualizar' });
   res.json({ ok: true, estado: accion });
 });
 
 // ════════════════════════════════════════════
-// HEALTHd
+// EXPIRY JOB — revierte intercambios vencidos
+// ════════════════════════════════════════════
+async function checkExpiredIntercambios() {
+  try {
+    const { data, error } = await supabase
+      .from('intercambios')
+      .select('*')
+      .eq('estado', 'aceptado')
+      .lt('expires_at', new Date().toISOString());
+    if (error || !data?.length) return;
+    console.log(`Expiry check: ${data.length} intercambio(s) vencido(s)`);
+    for (const interc of data) {
+      // Revertir figuritas de B de tengo → repetida
+      await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
+      await supabase.from('intercambios')
+        .update({ estado: 'vencido', updated_at: new Date().toISOString() })
+        .eq('id', interc.id);
+      console.log(`Intercambio ${interc.id} marcado como vencido`);
+    }
+  } catch(e) { console.error('Expiry job error:', e.message); }
+}
+
+// Revertir figuritas aceptadas → repetida (si venció)
+async function liberarFiguritasAceptadas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return;
+  const estado = data.estado || {};
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'tengo') {
+        estado[teamKey][codigo] = 'repetida';
+      }
+    } else if (estado[flatKey] === 'tengo') {
+      estado[flatKey] = 'repetida';
+    }
+  });
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
+// Correr el job cada hora
+setInterval(checkExpiredIntercambios, 60 * 60 * 1000);
+// También correr al iniciar
+checkExpiredIntercambios();
+
+// ════════════════════════════════════════════
+// HEALTH
 // ════════════════════════════════════════════
 
 app.get('/api/health', async (req, res) => {

@@ -18,3 +18,4 @@ CREATE INDEX IF NOT EXISTS idx_usuarios_nombre ON usuarios (LOWER(nombre));
 
 -- Deshabilitar Row Level Security para acceso desde service key
 ALTER TABLE usuarios DISABLE ROW LEVEL SECURITY;
+
