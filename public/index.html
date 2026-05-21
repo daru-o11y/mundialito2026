@@ -411,6 +411,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 .estado-badge.rechazado  { background:rgba(239,83,80,.15); color:#ef5350; border:1px solid rgba(239,83,80,.3); }
 .estado-badge.cancelado  { background:rgba(100,100,100,.15); color:var(--text3); border:1px solid var(--border2); }
 .estado-badge.vencido   { background:rgba(100,100,100,.15); color:#888; border:1px solid var(--border2); }
+.estado-badge.terminado { background:rgba(0,200,83,.1); color:#4ade80; border:1px solid rgba(0,200,83,.25); }
 .notif-banner { background:rgba(255,165,0,.12); border:1px solid rgba(255,165,0,.3); border-radius:8px; padding:10px 16px; font-size:13px; color:#ffa500; display:flex; align-items:center; gap:8px; }
 .fig-select-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; margin:10px 0 16px; max-height:200px; overflow-y:auto; }
 .fig-select-item { background:var(--bg2); border:1px solid var(--border2); border-radius:6px; padding:8px 10px; cursor:pointer; font-size:12px; transition:all .15s; }
@@ -1772,7 +1773,8 @@ async function loadAdminUsers(){
           </div>
         </td>
       </tr>`;
-    }).join('');
+    }).filter(Boolean).join('');
+    listDiv.innerHTML = rendered || '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">Sin propuestas activas</div>';
   } catch(e){ tbody.innerHTML = '<tr><td colspan="8" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
 }
 
@@ -2067,7 +2069,7 @@ function openIntercAlbum(u){
           ${keys.length}
         </span>
       </div>
-      <div class="figrid" id="rfigs-${safeId}"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 10px;" id="rfigs-${safeId}"></div>
     `;
     albumDiv.appendChild(section);
 
@@ -2083,16 +2085,15 @@ function openIntercAlbum(u){
         PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
       const figN = tipoNum[tipo] || 0;
       const fig = document.createElement('div');
-      fig.className = 'fig repetida';
-      fig.style.cssText = 'cursor:pointer;position:relative;';
+      fig.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:var(--bg4);border:1px solid rgba(255,215,0,.25);border-radius:20px;padding:4px 10px 4px 8px;cursor:pointer;transition:border-color .18s;font-size:12px;color:var(--text);position:relative;';
       fig.innerHTML = `
-        <div class="fnum">${figN}</div>
-        <svg viewBox="0 0 24 24" width="14" height="14" style="margin-top:2px;" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 8h14M19 8l-2.5-2.5M19 8l-2.5 2.5" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M19 16H5M5 16l2.5-2.5M5 16l2.5 2.5" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-        <div class="ftt"><b>${keyToDesc(key)}</b><small style="color:var(--gold);">Tocá para intercambiar</small></div>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);line-height:1;">#${figN}</span>
+        <span style="color:var(--text2);">${equipo}</span>
+        ${SWAP_SVG}
+        <div class="ftt"><b>${keyToDesc(key)}</b></div>
       `;
+      fig.addEventListener('mouseenter', ()=>{ fig.style.borderColor='var(--gold)'; fig.style.background='rgba(255,215,0,.08)'; });
+      fig.addEventListener('mouseleave', ()=>{ fig.style.borderColor='rgba(255,215,0,.25)'; fig.style.background='var(--bg4)'; });
       fig.addEventListener('click', () => openIntercPropuesta(key));
       figsDiv.appendChild(fig);
     });
@@ -2208,13 +2209,20 @@ async function loadMisPropuestas(){
       listDiv.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">No tenés propuestas aún</div>';
       return;
     }
-    listDiv.innerHTML = data.map(i => {
+    const rendered = data.map(i => {
       const soy  = i.solicitante_id === myId ? 'solicitante' : 'receptor';
       const otro = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
       const dir  = soy === 'solicitante' ? '→' : '←';
       const fecha = new Date(i.created_at).toLocaleDateString('es-AR');
       const ofreceList = (i.ofrece_descs||[i.ofrece_desc||'-']).join(', ');
       const tieneContra = i.contraoferta_keys?.length > 0;
+      // Filtrar finalizados con más de 2 días
+      const estadoFinal = ['cancelado','rechazado','vencido','terminado'];
+      if(estadoFinal.includes(i.estado)){
+        const diasDesde = (new Date() - new Date(i.updated_at)) / (1000*60*60*24);
+        if(diasDesde > 2) return '';
+      }
+
       let acc = '';
       if(i.estado === 'pendiente'){
         acc = soy === 'receptor'
@@ -2222,11 +2230,11 @@ async function loadMisPropuestas(){
           : `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
       }
       if(i.estado === 'aceptado'){
-        // Cualquiera de los dos puede cancelar un intercambio aceptado antes del vencimiento
         const dias = i.expires_at ? Math.ceil((new Date(i.expires_at)-new Date())/(1000*60*60*24)) : null;
-        const venceLabel = dias !== null ? `Vence en ${dias}d` : '';
+        const venceLabel = dias !== null && dias > 0 ? `Vence en ${dias}d` : 'Vence hoy';
         acc = `<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
-          ${venceLabel ? `<span style="font-size:10px;color:var(--text3);">⏱ ${venceLabel}</span>` : ''}
+          <span style="font-size:10px;color:var(--text3);">⏱ ${venceLabel}</span>
+          ${soy === 'solicitante' ? `<button class="abtn" style="color:#4ade80;border-color:rgba(0,200,83,.3);" onclick="responderInterc('${i.id}','terminado')">✓ Marcar terminado</button>` : ''}
           <button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar trato</button>
         </div>`;
       }
@@ -2240,11 +2248,11 @@ async function loadMisPropuestas(){
           </div>
           <div style="display:flex;gap:16px;flex-wrap:wrap;">
             <div>
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Yo pido</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">${soy==='solicitante'?'Yo pido a '+otro:''+otro+' me pide'}</div>
               <div style="font-size:12px;color:var(--gold);font-weight:600;">${i.pide_desc||'-'}</div>
             </div>
             <div>
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Yo ofrezco</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">${soy==='solicitante'?'Yo ofrezco a '+otro:''+otro+' ofrece'}</div>
               <div style="font-size:12px;color:var(--text2);">${ofreceList}</div>
             </div>
           </div>
@@ -2373,7 +2381,8 @@ async function responderInterc(id, accion){
       const labels = {
         aceptado:'✓ Aceptado — recordá actualizar tu álbum con las figuritas que recibís. Tenés 7 días.',
         rechazado:'Propuesta rechazada — figuritas liberadas',
-        cancelado:'↺ Propuesta cancelada — figuritas vuelven a Repetida'
+        cancelado:'↺ Propuesta cancelada — figuritas vuelven a Repetida',
+        terminado:'✓ Intercambio marcado como Terminado'
       };
       showToast(labels[accion]);
       // Recargar estado desde servidor en todos los casos
