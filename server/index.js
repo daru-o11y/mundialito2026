@@ -350,7 +350,8 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
 function sanitizeFigKey(key) {
   if (typeof key !== 'string') return null;
   if (key.length > 150) return null;
-  if (!/^[A-Za-z0-9_]+$/.test(key)) return null;
+  // Allow letters, numbers, underscores and || separator
+  if (!/^[A-Za-z0-9_|]+$/.test(key)) return null;
   return key;
 }
 function sanitizeText(text, maxLen = 120) {
