@@ -75,6 +75,7 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
 .gbody.hidden { display:none !important; }
 .modal-overlay.hidden { display:none !important; }
+.modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
 .auth-overlay.hidden  { display:none !important; }
 
 /* ── TEAM CARD ── */
@@ -294,7 +295,7 @@ input[data-estado="repetida"].foil-input + .sbox,
 .profile-name { font-size:12px; font-weight:600; color:var(--text2); max-width:90px; overflow:hidden; text-overflow:ellipsis; }
 
 /* ── MODAL ── */
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:flex; align-items:center; justify-content:center; transition:opacity .2s; }
 .modal-overlay.open { opacity:1; pointer-events:all; }
 .modal { background:var(--bg3); border:1px solid var(--border2); border-radius:14px; padding:24px; width:340px; max-width:90vw; box-shadow:0 20px 60px rgba(0,0,0,.5); transform:translateY(10px); transition:transform .2s; }
 .modal-overlay.open .modal { transform:translateY(0); }
@@ -2155,6 +2156,7 @@ function openIntercPropuesta(pideKey){
   });
 
   modal.classList.remove('hidden');
+  modal.style.display='flex';
 }
 
 // ── Mis propuestas ──
@@ -2301,6 +2303,7 @@ function abrirRespuesta(intercId){
       });
 
       modal.classList.remove('hidden');
+      modal.style.display='flex';
     });
 }
 
@@ -2330,10 +2333,13 @@ async function responderInterc(id, accion){
 // Modal close
 document.getElementById('interc-modal-close').addEventListener('click', ()=>{
   document.getElementById('interc-modal-overlay').classList.add('hidden');
+  document.getElementById('interc-modal-overlay').style.display='none';
 });
 document.getElementById('interc-modal-overlay').addEventListener('click', e=>{
-  if(e.target === e.currentTarget)
+  if(e.target === e.currentTarget){
     document.getElementById('interc-modal-overlay').classList.add('hidden');
+    document.getElementById('interc-modal-overlay').style.display='none';
+  }
 });
 
 // ── DEV BANNER ──
