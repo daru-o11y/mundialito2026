@@ -372,8 +372,21 @@ async function reservarFiguritas(userId, keys) {
   if (!data) return false;
   const estado = data.estado || {};
   let changed = false;
-  keys.forEach(k => {
-    if (estado[k] === 'repetida') { estado[k] = 'reservada'; changed = true; }
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'repetida') {
+        estado[teamKey][codigo] = 'reservada';
+        changed = true;
+      } else if (estado[flatKey] === 'repetida') {
+        estado[flatKey] = 'reservada';
+        changed = true;
+      }
+    } else if (estado[flatKey] === 'repetida') {
+      estado[flatKey] = 'reservada';
+      changed = true;
+    }
   });
   if (!changed) return false;
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
@@ -385,7 +398,19 @@ async function liberarFiguritas(userId, keys) {
   const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
   if (!data) return;
   const estado = data.estado || {};
-  keys.forEach(k => { if (estado[k] === 'reservada') estado[k] = 'repetida'; });
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
+        estado[teamKey][codigo] = 'repetida';
+      } else if (estado[flatKey] === 'reservada') {
+        estado[flatKey] = 'repetida';
+      }
+    } else if (estado[flatKey] === 'reservada') {
+      estado[flatKey] = 'repetida';
+    }
+  });
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
 }
 
@@ -408,13 +433,30 @@ app.get('/api/intercambios/pendientes-count', authMiddleware, async (req, res) =
   res.json({ count: (data || []).length });
 });
 
+// Flatten nested estado to flat keys
+function flattenEstado(estado) {
+  const flat = {};
+  for (const [teamKey, val] of Object.entries(estado || {})) {
+    if (val && typeof val === 'object') {
+      // Formato anidado: {"A__Sud_frica": {"PT14": "repetida"}}
+      for (const [codigo, v] of Object.entries(val)) {
+        flat[teamKey + '||' + codigo] = v;
+      }
+    } else if (typeof val === 'string') {
+      // Formato flat: {"A__Sud_frica||PT14": "repetida"}
+      flat[teamKey] = val;
+    }
+  }
+  return flat;
+}
+
 // GET /api/intercambios/usuarios — usuarios con repetidas disponibles
 app.get('/api/intercambios/usuarios', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios').select('id, nombre, estado').neq('id', req.userId);
   if (error) return res.status(500).json({ error: 'Error' });
   const result = (data || []).map(u => {
-    const estado = u.estado || {};
+    const estado = flattenEstado(u.estado);
     const repetidas  = Object.keys(estado).filter(k => estado[k] === 'repetida');
     const reservadas = Object.keys(estado).filter(k => estado[k] === 'reservada');
     const tengo      = Object.keys(estado).filter(k => estado[k] === 'tengo');
@@ -443,7 +485,8 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
     .from('usuarios').select('nombre, estado').eq('id', req.userId).single();
   if (!solData) return res.status(404).json({ error: 'Usuario no encontrado' });
   const solEstado = solData.estado || {};
-  const noDisponibles = cleanOfreceKeys.filter(k => solEstado[k] !== 'repetida');
+  const flatSol = flattenEstado(solEstado);
+  const noDisponibles = cleanOfreceKeys.filter(k => flatSol[k] !== 'repetida');
   if (noDisponibles.length > 0)
     return res.status(400).json({ error: 'Algunas figuritas que ofrecés ya no están disponibles' });
 
@@ -451,7 +494,8 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
   const { data: recData } = await supabase
     .from('usuarios').select('nombre, estado').eq('id', receptor_id).single();
   if (!recData) return res.status(404).json({ error: 'Receptor no encontrado' });
-  if ((recData.estado || {})[cleanPideKey] !== 'repetida')
+  const flatRec = flattenEstado(recData.estado || {});
+  if (flatRec[cleanPideKey] !== 'repetida')
     return res.status(400).json({ error: 'Ese usuario ya no tiene esa figurita como repetida' });
 
   // No duplicar propuestas pendientes sobre la misma figurita
