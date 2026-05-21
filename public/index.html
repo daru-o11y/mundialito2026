@@ -1695,7 +1695,7 @@ async function loadAdminUsers(){
         <td>
           <div class="admin-actions">
             <button class="abtn info" onclick="adminVerAlbum('${u.id}','${u.nombre}')">👁 Ver</button>
-            ${!isMe ? `<button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>` : ''}
+            <button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>
             ${!isMe ? `<button class="abtn danger" onclick="adminReset('${u.id}','${u.nombre}')">↺ Reset</button>` : ''}
             ${!isMe ? `<button class="abtn danger" onclick="adminEliminar('${u.id}','${u.nombre}')">🗑</button>` : ''}
           </div>

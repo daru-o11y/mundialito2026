@@ -466,7 +466,7 @@ app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
 });
 
 // ════════════════════════════════════════════
-// HEALTH
+// HEALTHd
 // ════════════════════════════════════════════
 
 app.get('/api/health', async (req, res) => {
