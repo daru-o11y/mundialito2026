@@ -519,9 +519,10 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
   }).select().single();
 
   if (error) {
+    console.error('Intercambios insert error:', JSON.stringify(error));
     // Si falla el insert, liberar las figuritas
     await liberarFiguritas(req.userId, cleanOfreceKeys);
-    return res.status(500).json({ error: 'Error al crear propuesta' });
+    return res.status(500).json({ error: 'Error al crear propuesta', detail: error.message });
   }
   res.json({ ok: true, intercambio: data });
 });
