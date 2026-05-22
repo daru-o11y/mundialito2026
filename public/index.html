@@ -27,17 +27,31 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 }
 .logo-panel {
   display:flex; flex-direction:column; align-items:flex-start;
-  border-right:1px solid rgba(255,215,0,.15); padding-right:14px; flex-shrink:0; cursor:default;
+  border-right:1px solid rgba(255,215,0,.1); padding-right:12px; flex-shrink:0; cursor:default;
+  transition:opacity .2s;
 }
-.logo-top { display:flex; align-items:baseline; gap:6px; }
-.logo-title { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--gold); letter-spacing:3px; line-height:1; text-shadow:0 0 20px rgba(255,215,0,.4); }
-.logo-year { font-family:'Bebas Neue',sans-serif; font-size:13px; color:#60a5fa; letter-spacing:2px; background:rgba(96,165,250,.12); border:1px solid rgba(96,165,250,.3); padding:1px 6px; border-radius:4px; }
-.logo-sub { font-size:8px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; margin-top:1px; white-space:nowrap; }
-.logo-countdown { display:flex; gap:5px; align-items:center; margin-top:2px; }
+.logo-panel:hover { opacity:.85; }
+.logo-top { display:flex; align-items:center; gap:5px; }
+.logo-title {
+  font-family:'Bebas Neue',sans-serif; font-size:19px; color:transparent;
+  letter-spacing:2.5px; line-height:1;
+  background:linear-gradient(135deg, #ffd700 0%, #ffe566 50%, #f59e0b 100%);
+  -webkit-background-clip:text; background-clip:text;
+}
+.logo-year {
+  font-family:'Bebas Neue',sans-serif; font-size:11px; color:#93c5fd;
+  letter-spacing:1.5px; background:rgba(96,165,250,.1);
+  padding:1px 5px; border-radius:3px;
+}
+.logo-countdown { display:flex; gap:4px; align-items:center; margin-top:3px; }
 .lcd-unit { display:flex; flex-direction:column; align-items:center; }
-.lcd-val { font-family:'Bebas Neue',sans-serif; font-size:14px; color:var(--gold); line-height:1; }
-.lcd-lbl { font-size:6px; color:var(--text3); letter-spacing:.5px; text-transform:uppercase; }
-.lcd-sep { font-family:'Bebas Neue',sans-serif; font-size:13px; color:rgba(255,215,0,.35); margin-bottom:2px; }
+.lcd-val {
+  font-family:'Bebas Neue',sans-serif; font-size:13px; line-height:1;
+  background:linear-gradient(180deg,#ffd700,#f59e0b);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.lcd-lbl { font-size:5.5px; color:var(--text3); letter-spacing:.4px; text-transform:uppercase; margin-top:1px; }
+.lcd-sep { font-family:'Bebas Neue',sans-serif; font-size:11px; color:rgba(255,215,0,.25); margin-bottom:3px; }
 .nav { display:flex; gap:3px; flex:1; align-items:center; }
 .nav-sep { width:1px; height:22px; background:rgba(255,255,255,.1); margin:0 4px; flex-shrink:0; }
 .nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; font-weight:500; padding:5px 11px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
@@ -49,10 +63,22 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .nbtn[data-page="intercambios"].active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
 .nbtn[data-page="estadisticas"].active { background:#10b981; color:#fff; border-color:#10b981; }
 .hstats { display:flex; gap:6px; align-items:center; }
-.chip { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid; }
-.chip.t { color:var(--green); border-color:rgba(0,200,83,.3); background:rgba(0,200,83,.07); }
-.chip.f { color:#ef5350; border-color:rgba(239,83,80,.3); background:rgba(239,83,80,.07); }
-.chip.r { color:var(--gold); border-color:rgba(255,215,0,.3); background:rgba(255,215,0,.07); }
+.chip {
+  font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700;
+  padding:3px 11px; border-radius:8px; border:none;
+}
+.chip.t {
+  color:#fff;
+  background:linear-gradient(135deg, rgba(0,180,70,.7) 0%, rgba(0,140,50,.5) 100%);
+}
+.chip.f {
+  color:#fff;
+  background:linear-gradient(135deg, rgba(220,60,55,.7) 0%, rgba(180,40,38,.5) 100%);
+}
+.chip.r {
+  color:#fff;
+  background:linear-gradient(135deg, rgba(200,155,0,.7) 0%, rgba(160,110,0,.5) 100%);
+}
 .hpbar { flex:1; max-width:120px; height:4px; background:var(--bg3); border-radius:3px; overflow:hidden; }
 .hpfill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); transition:width .4s; }
 
@@ -543,7 +569,6 @@ input[data-estado="repetida"].foil-input + .sbox,
       <span class="logo-title">MUNDIAL</span>
       <span class="logo-year">2026</span>
     </div>
-    <div class="logo-sub">Copa del Mundo FIFA · USA · MEX · CAN</div>
     <div class="logo-countdown" id="header-countdown">
       <div class="lcd-unit"><span class="lcd-val" id="cd-d">--</span><span class="lcd-lbl">días</span></div>
       <span class="lcd-sep">:</span>
