@@ -338,13 +338,19 @@ input[data-estado="repetida"].foil-input + .sbox,
 
 /* ── HELP BUTTON ── */
 .help-btn {
-  width:28px; height:28px; border-radius:50%;
-  background:var(--bg3); border:1px solid var(--border2);
-  color:var(--text3); font-size:14px; font-weight:700;
+  width:26px; height:26px; border-radius:50%;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  color:var(--text3); font-size:12px; font-weight:700;
   cursor:pointer; transition:all .18s; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
 }
-.help-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(255,215,0,.08); }
+.help-btn:hover {
+  background:rgba(255,215,0,.12);
+  border-color:rgba(255,215,0,.4);
+  color:var(--gold);
+  transform:scale(1.1);
+}
 
 /* ── HELP MODAL ── */
 .help-modal { width:480px; max-height:80vh; overflow-y:auto; }
@@ -373,15 +379,35 @@ input[data-estado="repetida"].foil-input + .sbox,
 .hsd-label { font-size:11px; color:var(--text3); }
 
 /* ── PROFILE BADGE ── */
-.profile-badge {
-  display:flex; align-items:center; gap:7px;
-  background:var(--bg3); border:1px solid var(--border2);
-  border-radius:20px; padding:3px 12px 3px 8px;
-  cursor:pointer; transition:all .18s; white-space:nowrap;
+@keyframes avatar-glow {
+  0%,100% { box-shadow:0 0 5px 1px rgba(255,215,0,.35); }
+  50%      { box-shadow:0 0 11px 3px rgba(255,215,0,.65); }
 }
-.profile-badge:hover { border-color:var(--gold); }
-.profile-avatar { width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,var(--gold-dark),var(--gold)); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--bg); flex-shrink:0; }
-.profile-name { font-size:12px; font-weight:600; color:var(--text2); max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+.profile-badge {
+  display:flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,rgba(26,45,78,.9),rgba(15,30,54,.95));
+  border:1px solid rgba(255,215,0,.2);
+  border-radius:24px; padding:4px 14px 4px 5px;
+  cursor:pointer; transition:all .22s; white-space:nowrap;
+  box-shadow:0 2px 10px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.profile-badge:hover {
+  border-color:rgba(255,215,0,.5);
+  box-shadow:0 4px 16px rgba(255,215,0,.15), inset 0 1px 0 rgba(255,255,255,.08);
+  transform:translateY(-1px);
+}
+.profile-avatar {
+  width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg,#b8860b,#ffd700,#f59e0b);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:#0a1628; flex-shrink:0;
+  animation:avatar-glow 3s ease-in-out infinite;
+  border:1.5px solid rgba(255,215,0,.5);
+}
+.profile-name {
+  font-size:12px; font-weight:600; color:var(--text);
+  max-width:90px; overflow:hidden; text-overflow:ellipsis; letter-spacing:.3px;
+}
 
 /* ── MODAL ── */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:flex; align-items:center; justify-content:center; transition:opacity .2s; }
@@ -540,8 +566,19 @@ input[data-estado="repetida"].foil-input + .sbox,
 .loading-text { font-family:'Barlow Condensed',sans-serif; font-size:14px; color:var(--text3); letter-spacing:1px; }
 
 /* ── LOGOUT BTN ── */
-.logout-btn { background:none; border:1px solid var(--border2); color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; padding:3px 10px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
-.logout-btn:hover { border-color:#ef5350; color:#ef5350; }
+.logout-btn {
+  background:rgba(239,83,80,.08);
+  border:1px solid rgba(239,83,80,.2);
+  color:rgba(239,83,80,.7);
+  font-family:'Barlow',sans-serif; font-size:10px; font-weight:600;
+  padding:3px 10px; border-radius:20px; cursor:pointer; transition:all .18s;
+  white-space:nowrap; letter-spacing:.3px;
+}
+.logout-btn:hover {
+  background:rgba(239,83,80,.18);
+  border-color:#ef5350; color:#ef5350;
+  box-shadow:0 0 8px rgba(239,83,80,.2);
+}
 
 /* ── ADMIN EXPAND ROW ── */
 .admin-expand-row td { padding:0 !important; border-bottom:1px solid var(--border2); }
@@ -670,9 +707,8 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
         <div class="eq-bar-track"><div class="eq-bar-fill res" id="eq-res" style="height:0%"></div></div>
         <span class="eq-lbl">Res</span>
       </div>
-      <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding-bottom:14px;">
-        <div class="hpbar"><div class="hpfill" id="hpf" style="width:0%"></div></div>
-      </div>
+      <!-- hpf oculto, solo para updateHeader -->
+      <div style="display:none;"><div id="hpf"></div></div>
     </div>
 
     <!-- Perfil -->
@@ -682,9 +718,9 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     </div>
 
     <!-- Help + Logout apilados -->
-    <div style="display:flex;flex-direction:column;gap:3px;align-items:center;">
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
       <button class="help-btn" id="btn-help" title="Ayuda">?</button>
-      <button class="logout-btn" id="btn-logout" style="font-size:10px;padding:2px 8px;">Salir</button>
+      <button class="logout-btn" id="btn-logout">Salir</button>
     </div>
   </div>
 </header>
