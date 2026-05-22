@@ -1273,22 +1273,29 @@ function flattenState(raw){
   return flat;
 }
 
-// Dado un teamKey del frontend, busca el teamKey real en el flat state
-// Maneja casos como "A__Rep__Checa" cuando los datos están en "A__Rep"
+// Dado gl+nombre, devuelve el teamKey real que existe en el flatState
+// Construye todas las variantes del nombre y busca cuál existe en el estado
 function resolveTeamKey(flatState, gl, nombre){
-  const canonical = teamKey(gl, nombre); // ej: "A__Rep__Checa"
+  const canonical = teamKey(gl, nombre);
   // 1. Exacto
-  const test = canonical + '||PT1';
   if(Object.keys(flatState).some(k => k.startsWith(canonical+'||'))) return canonical;
-  // 2. Buscar en el estado alguna key del mismo grupo que sea prefijo del canonical
-  const prefix = gl + '__';
-  const suffix = canonical.split('__').slice(1).join('__'); // "Rep__Checa"
-  for(const k of Object.keys(flatState)){
-    if(!k.startsWith(prefix)) continue;
-    const kSuffix = k.split('||')[0].split('__').slice(1).join('__'); // ej: "Rep"
-    if(suffix.startsWith(kSuffix+'_') || suffix === kSuffix){
-      return k.split('||')[0]; // devuelve el teamKey real ej: "A__Rep"
-    }
+  // 2. Generar variantes y buscar
+  const _ac = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ñ':'n','ü':'u',
+                'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+  const strip = s => s.split('').map(c=>_ac[c]||c).join('');
+  const clean = s => s.replace(/[^a-zA-Z0-9]/g,'_');
+  const variants = new Set([
+    gl+'__'+clean(nombre),
+    gl+'__'+clean(strip(nombre)),
+    gl+'__'+clean(nombre.replace(/\./g,'')),
+    gl+'__'+clean(strip(nombre.replace(/\./g,''))),
+  ]);
+  // Prefijos
+  const parts = clean(strip(nombre)).split('_').filter(Boolean);
+  for(let i=1;i<parts.length;i++) variants.add(gl+'__'+parts.slice(0,i).join('_'));
+  
+  for(const v of variants){
+    if(Object.keys(flatState).some(k => k.startsWith(v+'||'))) return v;
   }
   return canonical;
 }
@@ -1914,61 +1921,75 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       const importedFlat = flattenState(data.estado);
       if(Object.keys(importedFlat).length === 0) throw new Error("El archivo no tiene figuritas");
 
-      // Remap keys al formato actual
-      // Traduce tanto el nombre del equipo como el código de figurita
-      // Ej: "A__M_xico||ESC" → "A__M_xico||PT1"
-      //     "A__M_xico||PT5" → "A__M_xico||PT5" (sin cambio si ya es formato nuevo)
-      
-      // Mapa de códigos: solo renombrar ESC → PT1, el resto queda igual
-      // El JSON viejo tiene ESC (escudo) como código separado, ahora es PT1
-      const codigoMap = { 'ESC': 'PT1' };
+      // Remap: traduce keys del JSON (cualquier formato viejo) al formato actual
+      // Estrategia: construir un mapa de TODAS las variantes posibles → nombre canónico
+      // Esto resuelve: acentos, puntos, keys truncadas, duplicados, ESC→PT1
 
-      // Detectar si el JSON es formato viejo (tiene ESC como código)
+      // Mapa de variantes: "A__M_xico" → "A__México", "A__Rep" → "A__Rep. Checa", etc.
+      const _variantMap = {};
+      const _acentos = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ñ':'n','ü':'u',
+                        'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+      function _stripAccents(s){ return s.split('').map(c=>_acentos[c]||c).join(''); }
+      function _mkKey(gl, nombre){
+        const clean = s => s.replace(/[^a-zA-Z0-9]/g,'_');
+        const variants = new Set();
+        variants.add(clean(nombre));
+        variants.add(clean(_stripAccents(nombre)));
+        variants.add(clean(nombre.replace(/\./g,'')));
+        variants.add(clean(_stripAccents(nombre.replace(/\./g,''))));
+        // Prefijos: "Rep. Checa" → "Rep", "Rep_Checa", "Rep__Checa"
+        const parts = clean(_stripAccents(nombre)).split('_').filter(Boolean);
+        for(let i=1;i<=parts.length;i++) variants.add(parts.slice(0,i).join('_'));
+        return variants;
+      }
+      DB_GRUPOS.forEach(g => {
+        g.equipos.forEach(eq => {
+          const canonical = teamKey(g.letra, eq.nombre); // key actual del sistema
+          _mkKey(g.letra, eq.nombre).forEach(v => {
+            const fullKey = g.letra+'__'+v;
+            // En conflicto: el nombre más largo gana (más específico)
+            if(!_variantMap[fullKey] || eq.nombre.length > _variantMap[fullKey].length){
+              _variantMap[fullKey] = canonical;
+            }
+          });
+        });
+      });
+
+      // ESC → PT1 si el JSON usa el código viejo
       const isOldFormat = Object.keys(importedFlat).some(k => k.includes('||ESC'));
+      const codigoMap = isOldFormat ? {'ESC':'PT1'} : {};
 
       const remapped = {};
       for(const [key, val] of Object.entries(importedFlat)){
         const parts = key.split('||');
-        if(parts.length !== 2){ remapped[key] = val; continue; }
+        if(parts.length !== 2){ continue; } // ignorar keys raras
         const [teamPart, codigo] = parts;
-
-        // 1. Traducir código de figurita si es formato viejo
-        const newCodigo = isOldFormat ? (codigoMap[codigo] || codigo) : codigo;
-
-        // 2. Remap del nombre de equipo — buscar el equipo real en DB_GRUPOS
-        const grupoLetra = teamPart.split('__')[0];
-        const teamSuffix = teamPart.split('__').slice(1).join('__'); // parte después del grupo
-        const g = DB_GRUPOS.find(g => g.letra === grupoLetra);
-        let newTeamPart = teamSuffix;
-        if(g){
-          const eq = g.equipos.find(e => {
-            // Generar todas las variantes posibles de la key del equipo
-            const nombre = e.nombre;
-            const v1 = nombre.replace(/[^a-zA-Z0-9]/g,'_');                                          // simple
-            const v2 = nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_'); // normalize
-            const v3 = teamKey(grupoLetra, nombre).split('__')[1];                                    // teamKey actual
-            
-            // Match exacto
-            if(v1 === teamSuffix || v2 === teamSuffix || v3 === teamSuffix) return true;
-            
-            // Match parcial: el nombre real empieza con el teamSuffix del JSON
-            // Ej: teamSuffix="Rep" matchea nombre real "Rep__Checa" o "Rep__D__Congo"
-            if(v1.startsWith(teamSuffix+'_') || v1.startsWith(teamSuffix+'.')
-              || v3.startsWith(teamSuffix+'_') || v3 === teamSuffix) return true;
-            // También: teamSuffix empieza con el nombre (para el caso inverso)
-            if(teamSuffix.startsWith(v3+'_') || teamSuffix.startsWith(v1+'_')) return true;
-            
-            return false;
-          });
-          if(eq) newTeamPart = teamKey(grupoLetra, eq.nombre).split('__')[1];
-        }
-
-        const newKey = grupoLetra + '__' + newTeamPart + '||' + newCodigo;
-        // Si ya existe la key (por duplicado), no pisar con un valor peor
+        const newCodigo = codigoMap[codigo] || codigo;
+        // Traducir el teamKey usando el mapa de variantes
+        const newTeamKey = _variantMap[teamPart] || teamPart;
+        const newKey = newTeamKey + '||' + newCodigo;
+        // Merge: no pisar un valor existente con uno peor
         if(!remapped[newKey] || remapped[newKey] === 'vacia'){
           remapped[newKey] = val;
         }
       }
+
+      // DEBUG: log del remap para diagnóstico
+      const _debugGrupos = {};
+      for(const [key, val] of Object.entries(remapped)){
+        const g = key.split('__')[0];
+        const eq = key.split('__')[1]?.split('||')[0];
+        const gk = g+'__'+eq;
+        if(!_debugGrupos[gk]) _debugGrupos[gk] = {t:0,r:0,total:0};
+        _debugGrupos[gk].total++;
+        if(val==='tengo') _debugGrupos[gk].t++;
+        if(val==='repetida') _debugGrupos[gk].r++;
+      }
+      console.log('🗺️ IMPORT REMAP — equipos detectados:', Object.keys(_debugGrupos).length);
+      Object.entries(_debugGrupos).forEach(([k,v])=>{
+        if(v.t===20) console.log(`  ✅ COMPLETO: ${k} (${v.t} tengo)`);
+        else if(v.t>0) console.log(`  ⚡ INCOMPLETO: ${k} (${v.t} tengo / ${v.total} total)`);
+      });
 
       // Merge: solo aplicar figuritas que en el estado actual están vacías
       // No tocar las que ya tienen un estado (tengo/repetida/reservada)
@@ -1981,6 +2002,20 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
         }
       }
       _cachedState = current;
+      console.log('✅ IMPORT DONE — figuritas mergeadas:', added);
+      console.log('📊 ESTADO FINAL — total keys:', Object.keys(_cachedState).length);
+      // Verificar completos en estado final
+      const _finalGrupos = {};
+      for(const [key] of Object.entries(_cachedState)){
+        const g = key.split('__')[0];
+        const eq = key.split('__')[1]?.split('||')[0];
+        const gk = g+'__'+eq;
+        if(!_finalGrupos[gk]) _finalGrupos[gk] = 0;
+        if(_cachedState[key]==='tengo') _finalGrupos[gk]++;
+      }
+      Object.entries(_finalGrupos).forEach(([k,v])=>{
+        if(v===20) console.log(`  🏆 COMPLETO FINAL: ${k}`);
+      });
 
       // Guardar en el servidor
       if(_token){
