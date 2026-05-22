@@ -175,12 +175,11 @@ app.get('/api/usuarios', async (req, res) => {
     .order('updated_at', { ascending: false });
   if (error) return res.status(500).json({ error: 'Error al obtener usuarios' });
   const usuarios = (data || []).map(u => {
-    const flat = flattenEstado(u.estado || {});
-    const tengo     = Object.values(flat).filter(v => v === 'tengo').length;
-    const repetidas = Object.values(flat).filter(v => v === 'repetida').length;
-    const reservadas = Object.values(flat).filter(v => v === 'reservada').length;
+    const estado = u.estado || {};
+    const tengo = Object.values(estado).filter(v => v === 'tengo').length;
+    const repetidas = Object.values(estado).filter(v => v === 'repetida').length;
     return { id: u.id, nombre: u.nombre, rol: u.rol || 'coleccionista',
-      tengo, repetidas, reservadas, total: 1008,
+      tengo, repetidas, total: 1008,
       pct: Math.round(tengo / 1008 * 100), updated_at: u.updated_at };
   });
   res.json(usuarios);
@@ -214,9 +213,9 @@ app.get('/api/admin/usuarios', authMiddleware, adminMiddleware, async (req, res)
     .order('created_at', { ascending: true });
   if (error) return res.status(500).json({ error: 'Error al obtener usuarios' });
   const result = (data || []).map(u => {
-    const flat = flattenEstado(u.estado || {});
-    const tengo     = Object.values(flat).filter(v => v === 'tengo').length;
-    const repetidas = Object.values(flat).filter(v => v === 'repetida').length;
+    const estado = u.estado || {};
+    const tengo = Object.values(estado).filter(v => v === 'tengo').length;
+    const repetidas = Object.values(estado).filter(v => v === 'repetida').length;
     return { id: u.id, nombre: u.nombre, rol: u.rol || 'coleccionista',
       tengo, repetidas, total: 1008,
       pct: Math.round(tengo / 1008 * 100),
@@ -274,9 +273,9 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
   const admins = data.filter(u => u.rol === 'admin').length;
   let total_tengo = 0, total_repetidas = 0, mas_completo = null, maxPct = -1;
   data.forEach(u => {
-    const flat = flattenEstado(u.estado || {});
-    const t = Object.values(flat).filter(v => v === 'tengo').length;
-    const r = Object.values(flat).filter(v => v === 'repetida').length;
+    const estado = u.estado || {};
+    const t = Object.values(estado).filter(v => v === 'tengo').length;
+    const r = Object.values(estado).filter(v => v === 'repetida').length;
     total_tengo += t;
     total_repetidas += r;
     const pct = Math.round(t / 1008 * 100);
@@ -368,6 +367,36 @@ function sanitizeDescs(arr) {
   return arr.map(d => sanitizeText(d)).filter(Boolean).slice(0, 20);
 }
 
+// Busca el teamKey real en el estado dado una key que puede venir en formato nuevo o viejo
+function findRealKey(estado, flatKey) {
+  const parts = flatKey.split('||');
+  if (parts.length !== 2) return null;
+  const [tkFrontend, codigo] = parts;
+
+  // 1. Busca directamente
+  if (estado[tkFrontend] && estado[tkFrontend][codigo] !== undefined) {
+    return { teamKey: tkFrontend, codigo };
+  }
+
+  // 2. Normalizar el teamKey del frontend y buscar coincidencia en el estado
+  const normFrontend = normalizeTeamKey(tkFrontend);
+  for (const tkEstado of Object.keys(estado)) {
+    const normEstado = normalizeTeamKey(tkEstado);
+    if (normEstado === normFrontend || normEstado === tkFrontend || normFrontend === normalizeTeamKey(tkEstado)) {
+      // Encontró el teamKey real — ahora buscar el código
+      // El frontend usa PT1 para ESC, PT2 para PT1, etc. (si viene de versión vieja)
+      if (estado[tkEstado][codigo] !== undefined) {
+        return { teamKey: tkEstado, codigo };
+      }
+      // Si el código es PT1 del frontend, puede ser ESC en la BD
+      if (codigo === 'PT1' && estado[tkEstado]['ESC'] !== undefined) {
+        return { teamKey: tkEstado, codigo: 'ESC' };
+      }
+    }
+  }
+  return null;
+}
+
 // Reservar figuritas de un usuario
 async function reservarFiguritas(userId, keys) {
   const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
@@ -375,18 +404,9 @@ async function reservarFiguritas(userId, keys) {
   const estado = data.estado || {};
   let changed = false;
   keys.forEach(flatKey => {
-    const parts = flatKey.split('||');
-    if (parts.length === 2) {
-      const [teamKey, codigo] = parts;
-      if (estado[teamKey] && estado[teamKey][codigo] === 'repetida') {
-        estado[teamKey][codigo] = 'reservada';
-        changed = true;
-      } else if (estado[flatKey] === 'repetida') {
-        estado[flatKey] = 'reservada';
-        changed = true;
-      }
-    } else if (estado[flatKey] === 'repetida') {
-      estado[flatKey] = 'reservada';
+    const found = findRealKey(estado, flatKey);
+    if (found && estado[found.teamKey][found.codigo] === 'repetida') {
+      estado[found.teamKey][found.codigo] = 'reservada';
       changed = true;
     }
   });
@@ -401,16 +421,9 @@ async function liberarFiguritas(userId, keys) {
   if (!data) return;
   const estado = data.estado || {};
   keys.forEach(flatKey => {
-    const parts = flatKey.split('||');
-    if (parts.length === 2) {
-      const [teamKey, codigo] = parts;
-      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
-        estado[teamKey][codigo] = 'repetida';
-      } else if (estado[flatKey] === 'reservada') {
-        estado[flatKey] = 'repetida';
-      }
-    } else if (estado[flatKey] === 'reservada') {
-      estado[flatKey] = 'repetida';
+    const found = findRealKey(estado, flatKey);
+    if (found && estado[found.teamKey][found.codigo] === 'reservada') {
+      estado[found.teamKey][found.codigo] = 'repetida';
     }
   });
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
@@ -422,16 +435,9 @@ async function confirmarFiguritas(userId, keys) {
   if (!data) return;
   const estado = data.estado || {};
   keys.forEach(flatKey => {
-    const parts = flatKey.split('||');
-    if (parts.length === 2) {
-      const [teamKey, codigo] = parts;
-      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
-        estado[teamKey][codigo] = 'tengo';
-      } else if (estado[flatKey] === 'reservada') {
-        estado[flatKey] = 'tengo';
-      }
-    } else if (estado[flatKey] === 'reservada') {
-      estado[flatKey] = 'tengo';
+    const found = findRealKey(estado, flatKey);
+    if (found && estado[found.teamKey][found.codigo] === 'reservada') {
+      estado[found.teamKey][found.codigo] = 'tengo';
     }
   });
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
@@ -457,17 +463,43 @@ app.get('/api/intercambios/pendientes-count', authMiddleware, async (req, res) =
 });
 
 // Flatten nested estado to flat keys
+// Normaliza un teamKey al mismo formato que usa el frontend actual
+// "A__M_xico" → "A__M_xico" (ya está bien para lookups directos)
+// También genera el alias sin acento para keys nuevas: "A__Mexico" → busca "A__M_xico"
+function normalizeTeamKey(tk) {
+  // Quitar acentos y reemplazar no-alfanuméricos por _
+  return tk.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9_]/g, '_');
+}
+
 function flattenEstado(estado) {
   const flat = {};
   for (const [teamKey, val] of Object.entries(estado || {})) {
     if (val && typeof val === 'object') {
-      // Formato anidado: {"A__Sud_frica": {"PT14": "repetida"}}
+      // Formato anidado: {"A__Sud_frica": {"ESC": "tengo", "PT14": "repetida"}}
       for (const [codigo, v] of Object.entries(val)) {
+        // Guardar con key original
         flat[teamKey + '||' + codigo] = v;
+        // También guardar con key normalizada (por si el frontend manda la versión nueva)
+        const normTk = normalizeTeamKey(teamKey);
+        if (normTk !== teamKey) {
+          flat[normTk + '||' + codigo] = v;
+        }
+        // ESC → PT1 alias (el frontend nuevo usa PT1 para el escudo)
+        if (codigo === 'ESC') {
+          flat[teamKey + '||PT1'] = v;
+          if (normTk !== teamKey) flat[normTk + '||PT1'] = v;
+        }
+        // PT1-PT20 alias para el frontend viejo que mandaba ESC
+        // No hace falta, el viejo mandaba ESC y ya lo manejamos arriba
       }
     } else if (typeof val === 'string') {
-      // Formato flat: {"A__Sud_frica||PT14": "repetida"}
+      // Formato flat directo
       flat[teamKey] = val;
+      const normTk = teamKey.split('||')[0];
+      const norm = normalizeTeamKey(normTk);
+      if (norm !== normTk) {
+        flat[norm + '||' + teamKey.split('||')[1]] = val;
+      }
     }
   }
   return flat;
