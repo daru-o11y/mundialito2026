@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+}<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1183,8 +1183,7 @@ const DB_TIPOS = [
   {codigo:"PT4",pos:"DEF"},{codigo:"PT5",pos:"DEF"},{codigo:"PT6",pos:"MED"},{codigo:"PT7",pos:"MED"},
   {codigo:"PT8",pos:"MED"},{codigo:"PT9",pos:"MED"},{codigo:"PT10",pos:"DEL"},{codigo:"PT11",pos:"DEL"},
   {codigo:"PT12",pos:"DEL"},{codigo:"PT13",pos:"SUP"},{codigo:"PT14",pos:"SUP"},{codigo:"PT15",pos:"SUP"},
-  {codigo:"PT16",pos:"SUP"},{codigo:"PT17",pos:"SUP"},{codigo:"PT18",pos:"CAP"},{codigo:"PT19",pos:"DT"},
-  {codigo:"PT20",pos:"ESP"}
+  {codigo:"PT16",pos:"SUP"},{codigo:"PT17",pos:"SUP"},{codigo:"PT18",pos:"CAP"},{codigo:"PT19",pos:"DT"}
 ];
 
 const DB_ESTADIOS = [
@@ -1216,7 +1215,7 @@ const DB_CALENDARIO = [
   {fecha:"19 Jul 2026",evento:"Gran Final 🏆",detalle:"MetLife Stadium, New York/NJ"}
 ];
 
-const TPP = DB_TIPOS.length; // 21 por equipo
+const TPP = DB_TIPOS.length; // 20 por equipo
 const STORAGE_KEY = "wc2026_album_v3";
 
 // ── STATE (API + localStorage fallback) ──
@@ -2115,8 +2114,8 @@ async function adminToggleExpand(id){
     const tengo   = Object.values(estado).filter(v=>v==='tengo').length;
     const rep     = Object.values(estado).filter(v=>v==='repetida').length;
     const reserv  = Object.values(estado).filter(v=>v==='reservada').length;
-    const falta   = 1008 - tengo - rep - reserv;
-    const pct     = Math.round(tengo/1008*100);
+    const falta   = 960 - tengo - rep - reserv;
+    const pct     = Math.round(tengo/960*100);
 
     const gruposHtml = DB_GRUPOS.map(g => {
       let gt=0;
@@ -2332,7 +2331,7 @@ function keyToDesc(key) {
   const equipo = parts.slice(1, parts.length-1).join(' ').replace(/_/g,' ');
   const tipo   = parts[parts.length-1];
   const tipoNum = { ESC:1,PT1:2,PT2:3,PT3:4,PT4:5,PT5:6,PT6:7,PT7:8,PT8:9,PT9:10,
-    PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
+    PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20 };
   const num = tipoNum[tipo] || tipo;
   return `${equipo} (G${grupo}) #${num}`;
 }
@@ -2449,10 +2448,10 @@ function openIntercAlbum(u){
       const tipo  = parts[parts.length-1];
       const tipos = { ESC:'Escudo',PT1:'POR',PT2:'DEF',PT3:'DEF',PT4:'DEF',PT5:'DEF',
         PT6:'MED',PT7:'MED',PT8:'MED',PT9:'MED',PT10:'DEL',PT11:'DEL',PT12:'DEL',
-        PT13:'SUP',PT14:'SUP',PT15:'SUP',PT16:'SUP',PT17:'SUP',PT18:'CAP',PT19:'DT',PT20:'ESP' };
+        PT13:'SUP',PT14:'SUP',PT15:'SUP',PT16:'SUP',PT17:'SUP',PT18:'CAP',PT19:'DT' };
       // Calculate fig number (1-21)
       const tipoNum = { ESC:1,PT1:2,PT2:3,PT3:4,PT4:5,PT5:6,PT6:7,PT7:8,PT8:9,PT9:10,
-        PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
+        PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20 };
       const figN = tipoNum[tipo] || 0;
       const fig = document.createElement('div');
       fig.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:var(--bg4);border:1px solid rgba(255,215,0,.25);border-radius:20px;padding:4px 10px 4px 8px;cursor:pointer;transition:border-color .18s;font-size:12px;color:var(--text);position:relative;';
