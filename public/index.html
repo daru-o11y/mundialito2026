@@ -92,6 +92,19 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 /* chips ocultos — mantenemos IDs pero no se muestran */
 .chip { display:none; }
 
+/* ── MODO VISOR ── */
+.modo-visor .slabel { cursor:not-allowed; pointer-events:none; }
+.modo-visor #btn-export, .modo-visor #btn-import-trigger,
+.modo-visor #btn-reset-modal, .modo-visor #btn-csv-faltantes,
+.modo-visor #btn-csv-repetidas { display:none !important; }
+.visor-banner {
+  background:linear-gradient(135deg,rgba(96,165,250,.15),rgba(37,99,235,.1));
+  border:1px solid rgba(96,165,250,.3); border-radius:8px;
+  padding:8px 16px; margin-bottom:14px;
+  font-size:12px; color:#60a5fa;
+  display:flex; align-items:center; gap:8px;
+}
+
 /* ── PAGES ── */
 .main { max-width:1400px; margin:0 auto; padding:18px 16px; }
 .page { display:none; }
@@ -1230,7 +1243,8 @@ async function loadState(){
   if(_cachedState) return _cachedState;
   if(!_token) return {};
   try {
-    const r = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+    const endpoint = _userRol === 'visor' ? '/api/visor/album' : '/api/album';
+    const r = await fetch(API_BASE+endpoint, { headers: authHeaders() });
     if(!r.ok) return {};
     const d = await r.json();
     _cachedState = flattenState(d.estado || {});
@@ -1280,6 +1294,10 @@ function getEstado(s,gl,en,codigo){
 }
 
 async function cycleEstado(gl,en,codigo){
+  if(_userRol === 'visor'){
+    showToast("👁 Modo lectura — no podés editar este álbum");
+    return getEstado(getCS(),gl,en,codigo);
+  }
   if(!_cachedState) _cachedState = await loadState();
   const k = teamKey(gl,en)+'||'+codigo;
   const cur = _cachedState[k] || "vacia";
@@ -1979,13 +1997,21 @@ let _userRol = 'coleccionista';
 
 function setRol(rol){
   _userRol = rol;
-  // Show/hide nav buttons based on role
   document.querySelectorAll('.nbtn[data-roles]').forEach(btn => {
-    const roles = btn.dataset.roles.split(',');
-    btn.style.display = roles.includes(rol) ? '' : 'none';
+    if(rol === 'visor'){
+      // Visor solo ve: album, estadisticas, info, estadios
+      const visibles = ['album','estadisticas','info','estadios'];
+      btn.style.display = visibles.includes(btn.dataset.page) ? '' : 'none';
+    } else {
+      const roles = btn.dataset.roles.split(',');
+      btn.style.display = roles.includes(rol) ? '' : 'none';
+    }
   });
-  // Header chips: show for all
-  // Stats page: coleccionista sees own, admin sees all
+  if(rol === 'visor'){
+    document.body.classList.add('modo-visor');
+  } else {
+    document.body.classList.remove('modo-visor');
+  }
 }
 
 // ══════════════════════════════════════════
@@ -2216,20 +2242,42 @@ function closeCrearUsuario(){
   const el = document.getElementById('crear-usuario-overlay');
   if(el) el.style.display = 'none';
 }
+function onCuRolChange(){
+  const rol = document.getElementById('cu-rol').value;
+  const sec = document.getElementById('cu-visor-section');
+  if(rol === 'visor'){
+    sec.style.display = '';
+    // Cargar admins disponibles
+    fetch(API_BASE+'/api/admin/usuarios', { headers: authHeaders() })
+      .then(r => r.json())
+      .then(users => {
+        const admins = users.filter(u => u.rol === 'admin');
+        const sel = document.getElementById('cu-visor-admin');
+        sel.innerHTML = admins.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('');
+      }).catch(()=>{
+        document.getElementById('cu-visor-admin').innerHTML = '<option value="">Error al cargar</option>';
+      });
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
 async function submitCrearUsuario(){
   const nombre   = document.getElementById('cu-nombre').value.trim();
   const password = document.getElementById('cu-pass').value;
   const rol      = document.getElementById('cu-rol').value;
+  const visorDeId = rol === 'visor' ? document.getElementById('cu-visor-admin')?.value : null;
   const errEl    = document.getElementById('cu-error');
   const btn      = document.getElementById('cu-submit');
   errEl.textContent = '';
   if(!nombre || !password){ errEl.textContent = 'Completá todos los campos'; return; }
   if(password.length < 4){ errEl.textContent = 'Mínimo 4 caracteres'; return; }
+  if(rol === 'visor' && !visorDeId){ errEl.textContent = 'Elegí qué admin puede ver'; return; }
   btn.disabled = true; btn.textContent = '...';
   try {
     const r = await fetch(API_BASE+'/api/admin/crear-usuario', {
       method:'POST', headers: authHeaders(),
-      body: JSON.stringify({ nombre, password, rol })
+      body: JSON.stringify({ nombre, password, rol, visor_de_id: visorDeId })
     });
     const d = await r.json();
     if(!r.ok){
@@ -2853,8 +2901,14 @@ async function init(){
     showAuthModal();
   } else {
     const rol = _sessionData.rol || 'coleccionista';
-    document.getElementById('profile-name').textContent = _sessionData.nombre;
-    document.getElementById('save-indicator').style.display = '';
+    if(rol === 'visor' && _sessionData.visorDe){
+      const b = document.createElement('div');
+      b.className='visor-banner'; b.id='visor-banner';
+      b.innerHTML='👁 Modo lectura — viendo álbum de <b style="margin-left:4px;">'+_sessionData.visorDe+'</b>';
+      document.querySelector('.main').prepend(b);
+    }
+    document.getElementById('profile-name').textContent = rol === 'visor' ? '👁 Visor' : _sessionData.nombre;
+    document.getElementById('save-indicator').style.display = rol === 'visor' ? 'none' : '';
     setRol(rol);
     await renderAlbum();
     buildCountryTabs();
@@ -2863,7 +2917,7 @@ async function init(){
     updateHeader();
     updateProfileBadge();
     if(rol==="admin") await renderRanking();
-    startPollNotif();
+    if(rol !== 'visor') startPollNotif();
     startInactivityTimer();
   }
 }
@@ -2951,10 +3005,21 @@ async function handleAuth(){
     showLoadingOverlay(true);
 
     // auth-nombre-display removed
-    document.getElementById('profile-name').textContent = d.nombre;
-    document.getElementById('profile-avatar').textContent = d.nombre.charAt(0).toUpperCase();
-    setRol(d.rol || 'coleccionista');
-    document.getElementById('save-indicator').style.display='';
+    const rolLogin = d.rol || 'coleccionista';
+    if(rolLogin === 'visor' && d.visorDe){
+      setTimeout(()=>{
+        if(!document.getElementById('visor-banner')){
+          const b = document.createElement('div');
+          b.className='visor-banner'; b.id='visor-banner';
+          b.innerHTML='👁 Modo lectura — viendo álbum de <b style="margin-left:4px;">'+d.visorDe+'</b>';
+          document.querySelector('.main').prepend(b);
+        }
+      },100);
+    }
+    document.getElementById('profile-name').textContent = rolLogin === 'visor' ? '👁 Visor' : d.nombre;
+    document.getElementById('profile-avatar').textContent = rolLogin === 'visor' ? '👁' : d.nombre.charAt(0).toUpperCase();
+    setRol(rolLogin);
+    document.getElementById('save-indicator').style.display = rolLogin === 'visor' ? 'none' : '';
 
     await renderAlbum();
     buildCountryTabs();
@@ -2963,7 +3028,7 @@ async function handleAuth(){
     updateHeader();
     updateProfileBadge();
     if((d.rol||"coleccionista")==="admin") await renderRanking();
-    startPollNotif();
+    if((d.rol||"coleccionista") !== 'visor') startPollNotif();
     startInactivityTimer();
     showLoadingOverlay(false);
   } catch(e){
@@ -3131,10 +3196,17 @@ document.addEventListener("DOMContentLoaded", ()=>{ init(); });
     <div class="modal-label">Contraseña</div>
     <input class="modal-input" type="password" id="cu-pass" placeholder="Mínimo 4 caracteres" maxlength="50">
     <div class="modal-label">Rol</div>
-    <select class="modal-input" id="cu-rol" style="cursor:pointer;">
+    <select class="modal-input" id="cu-rol" style="cursor:pointer;" onchange="onCuRolChange()">
       <option value="coleccionista">Coleccionista</option>
       <option value="admin">Admin</option>
+      <option value="visor">Visor (solo lectura)</option>
     </select>
+    <div id="cu-visor-section" style="display:none;">
+      <div class="modal-label" style="margin-top:8px;">¿Qué álbum puede ver?</div>
+      <select class="modal-input" id="cu-visor-admin" style="cursor:pointer;">
+        <option value="">Cargando admins...</option>
+      </select>
+    </div>
     <div class="modal-actions" style="margin-top:4px;">
       <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>
     </div>
