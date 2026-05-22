@@ -19,23 +19,41 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 
 /* ── HEADER ── */
 .header {
-  background:linear-gradient(135deg,#090f1e 0%,#0e1b30 50%,#090f1e 100%);
-  border-bottom:1px solid var(--border2);
-  padding:0 20px; position:sticky; top:0; z-index:100;
-  display:flex; align-items:center; gap:14px; height:56px;
+  background:linear-gradient(135deg,#060d1a 0%,#0a1628 60%,#060d1a 100%);
+  border-bottom:1px solid rgba(255,215,0,.12);
+  padding:0 18px; position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; gap:12px; height:64px;
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
 }
-.logo { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); letter-spacing:2px; white-space:nowrap; text-shadow:0 0 16px rgba(255,215,0,.3); }
-.logo em { color:var(--text3); font-style:normal; font-size:13px; letter-spacing:1px; margin-left:4px; }
-.nav { display:flex; gap:3px; flex:1; }
-.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:13px; font-weight:500; padding:5px 14px; border-radius:20px; cursor:pointer; transition:all .18s; }
+.logo-panel {
+  display:flex; flex-direction:column; align-items:flex-start;
+  border-right:1px solid rgba(255,215,0,.15); padding-right:14px; flex-shrink:0; cursor:default;
+}
+.logo-top { display:flex; align-items:baseline; gap:6px; }
+.logo-title { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--gold); letter-spacing:3px; line-height:1; text-shadow:0 0 20px rgba(255,215,0,.4); }
+.logo-year { font-family:'Bebas Neue',sans-serif; font-size:13px; color:#60a5fa; letter-spacing:2px; background:rgba(96,165,250,.12); border:1px solid rgba(96,165,250,.3); padding:1px 6px; border-radius:4px; }
+.logo-sub { font-size:8px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; margin-top:1px; white-space:nowrap; }
+.logo-countdown { display:flex; gap:5px; align-items:center; margin-top:2px; }
+.lcd-unit { display:flex; flex-direction:column; align-items:center; }
+.lcd-val { font-family:'Bebas Neue',sans-serif; font-size:14px; color:var(--gold); line-height:1; }
+.lcd-lbl { font-size:6px; color:var(--text3); letter-spacing:.5px; text-transform:uppercase; }
+.lcd-sep { font-family:'Bebas Neue',sans-serif; font-size:13px; color:rgba(255,215,0,.35); margin-bottom:2px; }
+.nav { display:flex; gap:3px; flex:1; align-items:center; }
+.nav-sep { width:1px; height:22px; background:rgba(255,255,255,.1); margin:0 4px; flex-shrink:0; }
+.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; font-weight:500; padding:5px 11px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .nbtn:hover { background:var(--surface); color:var(--text); border-color:var(--border2); }
 .nbtn.active { background:var(--gold); color:var(--bg); font-weight:700; border-color:var(--gold); }
-.hstats { display:flex; gap:7px; }
+.nbtn[data-page="album"],.nbtn[data-page="intercambios"],.nbtn[data-page="estadisticas"] { font-size:13px; font-weight:600; padding:6px 13px; border:1.5px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:var(--text); }
+.nbtn[data-page="album"]:hover,.nbtn[data-page="intercambios"]:hover,.nbtn[data-page="estadisticas"]:hover { background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.2); }
+.nbtn[data-page="album"].active { background:var(--gold); color:var(--bg); border-color:var(--gold); }
+.nbtn[data-page="intercambios"].active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+.nbtn[data-page="estadisticas"].active { background:#10b981; color:#fff; border-color:#10b981; }
+.hstats { display:flex; gap:6px; align-items:center; }
 .chip { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid; }
 .chip.t { color:var(--green); border-color:rgba(0,200,83,.3); background:rgba(0,200,83,.07); }
 .chip.f { color:#ef5350; border-color:rgba(239,83,80,.3); background:rgba(239,83,80,.07); }
 .chip.r { color:var(--gold); border-color:rgba(255,215,0,.3); background:rgba(255,215,0,.07); }
-.hpbar { flex:1; max-width:160px; height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.hpbar { flex:1; max-width:120px; height:4px; background:var(--bg3); border-radius:3px; overflow:hidden; }
 .hpfill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); transition:width .4s; }
 
 /* ── PAGES ── */
@@ -520,13 +538,29 @@ input[data-estado="repetida"].foil-input + .sbox,
   <path d="M17 16H7M7 16l2-2M7 16l2 2" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>
 <header class="header">
-  <div class="logo">FIFA WC <em>2026</em></div>
+  <div class="logo-panel">
+    <div class="logo-top">
+      <span class="logo-title">MUNDIAL</span>
+      <span class="logo-year">2026</span>
+    </div>
+    <div class="logo-sub">Copa del Mundo FIFA · USA · MEX · CAN</div>
+    <div class="logo-countdown" id="header-countdown">
+      <div class="lcd-unit"><span class="lcd-val" id="cd-d">--</span><span class="lcd-lbl">días</span></div>
+      <span class="lcd-sep">:</span>
+      <div class="lcd-unit"><span class="lcd-val" id="cd-h">--</span><span class="lcd-lbl">hs</span></div>
+      <span class="lcd-sep">:</span>
+      <div class="lcd-unit"><span class="lcd-val" id="cd-m">--</span><span class="lcd-lbl">min</span></div>
+      <span class="lcd-sep">:</span>
+      <div class="lcd-unit"><span class="lcd-val" id="cd-s">--</span><span class="lcd-lbl">seg</span></div>
+    </div>
+  </div>
   <nav class="nav">
-    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">📒 Álbum</button>
-    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
-    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
-    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
-    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔄 Intercambios</button>
+    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">📋 Álbum</button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔀 Intercambios</button>
+    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📈 Progreso</button>
+    <div class="nav-sep"></div>
+    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">🌍 Info</button>
+    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟 Estadios</button>
     <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
@@ -910,7 +944,7 @@ input[data-estado="repetida"].foil-input + .sbox,
     <div class="stitle">Ranking de Coleccionistas</div>
     <div class="twrap">
       <table class="rank-table">
-        <thead><tr><th>#</th><th>Coleccionista</th><th>Tengo</th><th>Repetidas</th><th>Reservadas</th><th>Progreso</th></tr></thead>
+        <thead><tr><th>#</th><th>Coleccionista</th><th>Tengo</th><th>Repetidas</th><th>Progreso</th></tr></thead>
         <tbody id="rank-body"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:13px;">Cargando...</td></tr></tbody>
       </table>
     </div>
@@ -1094,7 +1128,7 @@ function buildNestedState(flat){
   return nested;
 }
 
-function teamKey(gl,en){ return gl+"__"+en.replace(/[^a-zA-Z0-9]/g,"_"); }
+function teamKey(gl,en){ return gl+"__"+en.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"_"); }
 
 function getEstado(s,gl,en,codigo){
   const k = teamKey(gl,en)+'||'+codigo;
@@ -1996,12 +2030,19 @@ function keyToDesc(key) {
   const parts = key.replace(/\|\|/g,'__').split('__');
   if(parts.length < 3) return key;
   const grupo  = parts[0];
-  const equipo = parts.slice(1, parts.length-1).join(' ').replace(/_/g,' ');
+  const equipoKey = parts.slice(1, parts.length-1).join('_');
   const tipo   = parts[parts.length-1];
   const tipoNum = { ESC:1,PT1:2,PT2:3,PT3:4,PT4:5,PT5:6,PT6:7,PT7:8,PT8:9,PT9:10,
     PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
   const num = tipoNum[tipo] || tipo;
-  return `${equipo} (G${grupo}) #${num}`;
+  // Buscar nombre real del equipo en DB_GRUPOS
+  let equipoNombre = equipoKey.replace(/_/g,' ');
+  const grupo_data = DB_GRUPOS.find(g => g.letra === grupo);
+  if(grupo_data){
+    const eq = grupo_data.equipos.find(e => teamKey(grupo, e.nombre) === grupo+'__'+equipoKey);
+    if(eq) equipoNombre = eq.nombre;
+  }
+  return `${equipoNombre} (G${grupo}) #${num}`;
 }
 
 // ── Badge polling (cada 180 seg) ──
@@ -2517,7 +2558,7 @@ async function init(){
     renderInfo();
     updateHeader();
     updateProfileBadge();
-    if(rol === 'admin') await renderRanking();
+    await renderRanking();
     startPollNotif();
     startInactivityTimer();
   }
@@ -2617,7 +2658,7 @@ async function handleAuth(){
     renderInfo();
     updateHeader();
     updateProfileBadge();
-    if((d.rol || 'coleccionista') === 'admin') await renderRanking();
+    await renderRanking();
     startPollNotif();
     startInactivityTimer();
     showLoadingOverlay(false);
@@ -2704,7 +2745,7 @@ async function renderRanking(){
     const tbody = document.getElementById('rank-body');
     if(!tbody) return;
     if(!usuarios.length){
-      tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px;">Aún no hay coleccionistas registrados</td></tr>';
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;">Aún no hay coleccionistas registrados</td></tr>';
       return;
     }
     // Sort by tengo desc
@@ -2718,7 +2759,6 @@ async function renderRanking(){
         <td><div class="rank-name">${u.nombre}${isMe?' <span style="color:var(--gold);font-size:11px;">(vos)</span>':''}</div><div style="font-size:11px;color:var(--text3);">Actualizado: ${date}</div></td>
         <td style="color:var(--green);font-weight:700;">${u.tengo}</td>
         <td style="color:var(--gold);">${u.repetidas}</td>
-        <td style="color:#ff6b6b;">${u.reservadas || 0}</td>
         <td>
           <div class="rank-bar-wrap">
             <span style="font-size:12px;color:var(--text2);">${u.pct}%</span>
@@ -2744,6 +2784,29 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
   });
 });
 
+
+// ── COUNTDOWN ──
+(function(){
+  // Inauguración: 11 junio 2026, 20:00 Ciudad de México (UTC-6) = 11 jun 2026 02:00 UTC
+  const TARGET = new Date('2026-06-12T02:00:00Z').getTime();
+  function update(){
+    const now = Date.now();
+    const diff = TARGET - now;
+    if(diff <= 0){
+      ['cd-d','cd-h','cd-m','cd-s'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='00'; });
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const fmt = n => String(n).padStart(2,'0');
+    const el = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=fmt(v); };
+    el('cd-d',d); el('cd-h',h); el('cd-m',m); el('cd-s',s);
+  }
+  update();
+  setInterval(update, 1000);
+})();
 
 // ── START ──
 document.addEventListener("DOMContentLoaded", ()=>{ init(); });
