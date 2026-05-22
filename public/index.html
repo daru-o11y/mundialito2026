@@ -2362,6 +2362,7 @@ async function loadMisPropuestas(){
         <div style="display:flex;align-items:center;">${acc}</div>
       </div>`;
     }).filter(Boolean).join('');
+    listDiv.innerHTML = rendered || '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">Sin propuestas activas</div>';
   } catch(e){ 
     console.error('loadMisPropuestas error:', e);
     listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; 
