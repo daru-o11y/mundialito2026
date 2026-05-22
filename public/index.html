@@ -1256,20 +1256,41 @@ async function loadState(){
 function flattenState(raw){
   const flat = {};
   const validVals = new Set(['tengo','repetida','reservada']);
-  for(const [teamKey, codes] of Object.entries(raw)){
+  for(const [tk, codes] of Object.entries(raw)){
+    // Ignorar keys de metadata (_visor_de_id, etc.)
+    if(tk.startsWith('_')) continue;
     if(codes && typeof codes === 'object' && !Array.isArray(codes)){
-      // Formato anidado: {"A__M_xico": {"ESC": "tengo"}}
       for(const [codigo, val] of Object.entries(codes)){
-        if(validVals.has(val)){
-          flat[teamKey+'||'+codigo] = val;
-        }
+        if(!validVals.has(val)) continue;
+        flat[tk+'||'+codigo] = val;
+        // ESC alias: guardar también como PT1
+        if(codigo === 'ESC') flat[tk+'||PT1'] = val;
       }
     } else if(typeof codes === 'string' && validVals.has(codes)){
-      // Formato flat directo: {"A__M_xico||ESC": "tengo"}
-      flat[teamKey] = codes;
+      flat[tk] = codes;
     }
   }
   return flat;
+}
+
+// Dado un teamKey del frontend, busca el teamKey real en el flat state
+// Maneja casos como "A__Rep__Checa" cuando los datos están en "A__Rep"
+function resolveTeamKey(flatState, gl, nombre){
+  const canonical = teamKey(gl, nombre); // ej: "A__Rep__Checa"
+  // 1. Exacto
+  const test = canonical + '||PT1';
+  if(Object.keys(flatState).some(k => k.startsWith(canonical+'||'))) return canonical;
+  // 2. Buscar en el estado alguna key del mismo grupo que sea prefijo del canonical
+  const prefix = gl + '__';
+  const suffix = canonical.split('__').slice(1).join('__'); // "Rep__Checa"
+  for(const k of Object.keys(flatState)){
+    if(!k.startsWith(prefix)) continue;
+    const kSuffix = k.split('||')[0].split('__').slice(1).join('__'); // ej: "Rep"
+    if(suffix.startsWith(kSuffix+'_') || suffix === kSuffix){
+      return k.split('||')[0]; // devuelve el teamKey real ej: "A__Rep"
+    }
+  }
+  return canonical;
 }
 
 // Build nested state from flat for API
@@ -1289,8 +1310,12 @@ function buildNestedState(flat){
 function teamKey(gl,en){ return gl+"__"+en.replace(/[^a-zA-Z0-9]/g,"_"); }
 
 function getEstado(s,gl,en,codigo){
-  const k = teamKey(gl,en)+'||'+codigo;
-  return s[k] || "vacia";
+  const canonical = teamKey(gl,en);
+  // Buscar directo primero
+  if(s[canonical+'||'+codigo] !== undefined) return s[canonical+'||'+codigo];
+  // Buscar con resolución de alias (para JSONs viejos con keys truncadas)
+  const real = resolveTeamKey(s, gl, en);
+  return s[real+'||'+codigo] || "vacia";
 }
 
 async function cycleEstado(gl,en,codigo){
@@ -1926,9 +1951,12 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
             // Match exacto
             if(v1 === teamSuffix || v2 === teamSuffix || v3 === teamSuffix) return true;
             
-            // Match parcial: el teamSuffix del JSON es prefijo del nombre real
-            // Ej: "Rep" matchea "Rep__Checa" o "Rep__D__Congo"
-            if(v1.startsWith(teamSuffix) || v2.startsWith(teamSuffix) || v3.startsWith(teamSuffix)) return true;
+            // Match parcial: el nombre real empieza con el teamSuffix del JSON
+            // Ej: teamSuffix="Rep" matchea nombre real "Rep__Checa" o "Rep__D__Congo"
+            if(v1.startsWith(teamSuffix+'_') || v1.startsWith(teamSuffix+'.')
+              || v3.startsWith(teamSuffix+'_') || v3 === teamSuffix) return true;
+            // También: teamSuffix empieza con el nombre (para el caso inverso)
+            if(teamSuffix.startsWith(v3+'_') || teamSuffix.startsWith(v1+'_')) return true;
             
             return false;
           });
