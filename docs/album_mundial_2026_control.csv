@@ -1,0 +1,961 @@
+Codigo,Nombre del Ítem / Jugador,Posicion / Tipo
+FWC 1,Portada del album / Logo Oficial FIFA World Cup 2026,Especial
+FWC 2,Trofeo Copa del Mundo FIFA,Especial
+FWC 3,Logo del torneo,Especial
+FWC 4,Estadio MetLife (New York/New Jersey),Estadio Sede
+FWC 5,Estadio AT&T (Dallas),Estadio Sede
+FWC 6,Estadio Rose Bowl (Los angeles),Estadio Sede
+FWC 7,Estadio Levi s (San Francisco),Estadio Sede
+FWC 8,Estadio Lincoln Financial (Philadelphia),Estadio Sede
+FWC 9,Estadio Arrowhead (Kansas City),Estadio Sede
+FWC 10,Estadio Empower Field (Denver),Estadio Sede
+FWC 11,Estadio Seahawks (Seattle),Estadio Sede
+FWC 12,Estadio Mercedes-Benz (Atlanta),Estadio Sede
+FWC 13,Estadio Hard Rock (Miami),Estadio Sede
+FWC 14,Estadio Azteca (Ciudad de México),Estadio Sede
+FWC 15,Estadio Guadalajara (Guadalajara),Estadio Sede
+FWC 16,Estadio Monterrey (Monterrey),Estadio Sede
+FWC 17,Estadio BC Place (Vancouver),Estadio Sede
+FWC 18,Estadio BMO Field (Toronto),Estadio Sede
+FWC 19,Mascota Oficial del Mundial 2026,Especial
+FWC 20,Mapa de Sedes / Presentacion General,Especial
+MEX 1,Escudo del equipo,Escudo
+MEX 2,Guillermo Ochoa,Arquero
+MEX 3,César Montes,Defensor
+MEX 4,Edson alvarez,Defensor
+MEX 5,Jesús Gallardo,Defensor
+MEX 6,Jorge Sanchez,Defensor
+MEX 7,Héctor Herrera,Mediocampista
+MEX 8,Carlos Rodríguez,Mediocampista
+MEX 9,Orbelín Pineda,Mediocampista
+MEX 10,Chucky Lozano,Mediocampista
+MEX 11,Raúl Jiménez,Delantero
+MEX 12,Henry Martín,Delantero
+MEX 13,Santiago Giménez,Delantero
+MEX 14,Uriel Antuna,Suplente
+MEX 15,Roberto Alvarado,Suplente
+MEX 16,Diego Lainez,Suplente
+MEX 17,Alexis Vega,Suplente
+MEX 18,Kevin alvarez,Suplente
+MEX 19,Edson alvarez,Capitan
+MEX 20,Javier Aguirre,Director Técnico
+USA 1,Escudo del equipo,Escudo
+USA 2,Matt Turner,Arquero
+USA 3,Miles Robinson,Defensor
+USA 4,Chris Richards,Defensor
+USA 5,Antonee Robinson,Defensor
+USA 6,Sergiño Dest,Defensor
+USA 7,Tyler Adams,Mediocampista
+USA 8,Weston McKennie,Mediocampista
+USA 9,Yunus Musah,Mediocampista
+USA 10,Christian Pulisic,Mediocampista
+USA 11,Ricardo Pepi,Delantero
+USA 12,Josh Sargent,Delantero
+USA 13,Folarin Balogun,Delantero
+USA 14,Gio Reyna,Suplente
+USA 15,Brenden Aaronson,Suplente
+USA 16,Jordan Morris,Suplente
+USA 17,Luca de la Torre,Suplente
+USA 18,DeJuan Jones,Suplente
+USA 19,Christian Pulisic,Capitan
+USA 20,Mauricio Pochettino,Director Técnico
+CAN 1,Escudo del equipo,Escudo
+CAN 2,Maxime Crépeau,Arquero
+CAN 3,Kamal Miller,Defensor
+CAN 4,Alistair Johnston,Defensor
+CAN 5,Sam Adekugbe,Defensor
+CAN 6,Richie Laryea,Defensor
+CAN 7,Stephen Eustaquio,Mediocampista
+CAN 8,Jonathan Osorio,Mediocampista
+CAN 9,Ismaël Koné,Mediocampista
+CAN 10,Mark-Anthony Kaye,Mediocampista
+CAN 11,Alphonso Davies,Delantero
+CAN 12,Jonathan David,Delantero
+CAN 13,Cyle Larin,Delantero
+CAN 14,Tajon Buchanan,Suplente
+CAN 15,Charles-Andreas Brym,Suplente
+CAN 16,Liam Millar,Suplente
+CAN 17,Derek Cornelius,Suplente
+CAN 18,Jacob Shaffelburg,Suplente
+CAN 19,Atiba Hutchinson,Capitan
+CAN 20,Jesse Marsch,Director Técnico
+SUI 1,Escudo del equipo,Escudo
+SUI 2,Yann Sommer,Arquero
+SUI 3,Manuel Akanji,Defensor
+SUI 4,Nico Elvedi,Defensor
+SUI 5,Ricardo Rodríguez,Defensor
+SUI 6,Silvan Widmer,Defensor
+SUI 7,Granit Xhaka,Mediocampista
+SUI 8,Remo Freuler,Mediocampista
+SUI 9,Denis Zakaria,Mediocampista
+SUI 10,Ruben Vargas,Mediocampista
+SUI 11,Breel Embolo,Delantero
+SUI 12,Noah Okafor,Delantero
+SUI 13,Zeki Amdouni,Delantero
+SUI 14,Xherdan Shaqiri,Suplente
+SUI 15,Dan Ndoye,Suplente
+SUI 16,Michel Aebischer,Suplente
+SUI 17,Fabian Frei,Suplente
+SUI 18,Cedric Itten,Suplente
+SUI 19,Granit Xhaka,Capitan
+SUI 20,Murat Yakin,Director Técnico
+QAT 1,Escudo del equipo,Escudo
+QAT 2,Meshaal Barsham,Arquero
+QAT 3,Pedro Miguel,Defensor
+QAT 4,Bassam Al-Rawi,Defensor
+QAT 5,Homam Al-Amin,Defensor
+QAT 6,Salem Al-Hajri,Defensor
+QAT 7,Karim Boudiaf,Mediocampista
+QAT 8,Abdel Aziz Hatem,Mediocampista
+QAT 9,Assim Madibo,Mediocampista
+QAT 10,Ismail Mohamad,Mediocampista
+QAT 11,Akram Afif,Delantero
+QAT 12,Almoez Ali,Delantero
+QAT 13,Mohammed Muntari,Delantero
+QAT 14,Hassan Al-Haydos,Suplente
+QAT 15,Yusuf Abdurisag,Suplente
+QAT 16,Ahmed Alaaeldin,Suplente
+QAT 17,Khalid Muneer,Suplente
+QAT 18,Jassem Gaber,Suplente
+QAT 19,Hassan Al-Haydos,Capitan
+QAT 20,Carlos Queiroz,Director Técnico
+BIH 1,Escudo del equipo,Escudo
+BIH 2,Nikola Vasilj,Arquero
+BIH 3,Ermin Bicakcic,Defensor
+BIH 4,Ognjen Kvrzic,Defensor
+BIH 5,Sead Kolašinac,Defensor
+BIH 6,Neven Ðurasek,Defensor
+BIH 7,Miralem Pjanic,Mediocampista
+BIH 8,Amer Gojak,Mediocampista
+BIH 9,Muhamed Bešic,Mediocampista
+BIH 10,Seko Fofana,Mediocampista
+BIH 11,Edin D zeko,Delantero
+BIH 12,Ermedin Demirovic,Delantero
+BIH 13,Anel Ahmedhod zic,Delantero
+BIH 14,Haris Duljevic,Suplente
+BIH 15,Dario Špoljaric,Suplente
+BIH 16,Nemanja Bilbija,Suplente
+BIH 17,Ilija Nestorovski,Suplente
+BIH 18,Denis Huseinbašic,Suplente
+BIH 19,Edin D zeko,Capitan
+BIH 20,Sergej Barbarez,Director Técnico
+BRA 1,Escudo del equipo,Escudo
+BRA 2,Alisson Becker,Arquero
+BRA 3,Marquinhos,Defensor
+BRA 4,Éder Militão,Defensor
+BRA 5,Alex Sandro,Defensor
+BRA 6,Danilo,Defensor
+BRA 7,Casemiro,Mediocampista
+BRA 8,Bruno Guimarães,Mediocampista
+BRA 9,Lucas Paqueta,Mediocampista
+BRA 10,Rodrygo,Mediocampista
+BRA 11,Vinícius Jr.,Delantero
+BRA 12,Endrick,Delantero
+BRA 13,Gabriel Martinelli,Delantero
+BRA 14,Richarlison,Suplente
+BRA 15,Gabriel Jesus,Suplente
+BRA 16,Savinho,Suplente
+BRA 17,Andreas Pereira,Suplente
+BRA 18,Guilherme Arana,Suplente
+BRA 19,Marquinhos,Capitan
+BRA 20,Dorival Jr.,Director Técnico
+MAR 1,Escudo del equipo,Escudo
+MAR 2,Yassine Bounou,Arquero
+MAR 3,Romain Saiss,Defensor
+MAR 4,Achraf Hakimi,Defensor
+MAR 5,Noussair Mazraoui,Defensor
+MAR 6,Jawad El Yamiq,Defensor
+MAR 7,Sofyan Amrabat,Mediocampista
+MAR 8,Azzedine Ounahi,Mediocampista
+MAR 9,Bilal El Khannouss,Mediocampista
+MAR 10,Selim Amallah,Mediocampista
+MAR 11,Youssef En-Nesyri,Delantero
+MAR 12,Hakim Ziyech,Delantero
+MAR 13,Soufiane Rahimi,Delantero
+MAR 14,Abdessamad Ezzalzouli,Suplente
+MAR 15,Anass Zaroury,Suplente
+MAR 16,Ilias Chair,Suplente
+MAR 17,Zakaria Aboukhlal,Suplente
+MAR 18,Louay Amghar,Suplente
+MAR 19,Romain Saiss,Capitan
+MAR 20,Walid Regragui,Director Técnico
+HAI 1,Escudo del equipo,Escudo
+HAI 2,Josué Duverger,Arquero
+HAI 3,Zachary Herivaux,Defensor
+HAI 4,Neyder Lora,Defensor
+HAI 5,Steeven Saba,Defensor
+HAI 6,Derrick Etienne,Defensor
+HAI 7,Frantzdy Pierrot,Mediocampista
+HAI 8,Duckens Nazon,Mediocampista
+HAI 9,Wilde-Donald Guerrier,Mediocampista
+HAI 10,Kevin Lafrance,Mediocampista
+HAI 11,Carnejy Antoine,Delantero
+HAI 12,Ronaldo Damus,Delantero
+HAI 13,Jeffrey Octave,Delantero
+HAI 14,Mechack Jérôme,Suplente
+HAI 15,Kervens Belfort,Suplente
+HAI 16,Renold Désir,Suplente
+HAI 17,Frederic Ederle,Suplente
+HAI 18,Richardo Thomas,Suplente
+HAI 19,Wilde-Donald Guerrier,Capitan
+HAI 20,Marc Collat,Director Técnico
+CIV 1,Escudo del equipo,Escudo
+CIV 2,Yahia Fofana,Arquero
+CIV 3,Serge Aurier,Defensor
+CIV 4,Eric Bailly,Defensor
+CIV 5,Wilfried Singo,Defensor
+CIV 6,Simon Deli,Defensor
+CIV 7,Franck Kessié,Mediocampista
+CIV 8,Ibrahim Sangaré,Mediocampista
+CIV 9,Seko Fofana,Mediocampista
+CIV 10,Jean Michaël Seri,Mediocampista
+CIV 11,Wilfried Zaha,Delantero
+CIV 12,Sébastien Haller,Delantero
+CIV 13,Sofiane Diop,Delantero
+CIV 14,Amad Diallo,Suplente
+CIV 15,Nicolas Pépé,Suplente
+CIV 16,Oumar Diakité,Suplente
+CIV 17,Jonathan Kodjia,Suplente
+CIV 18,Max-Alain Gradel,Suplente
+CIV 19,Franck Kessié,Capitan
+CIV 20,Emerse Faé,Director Técnico
+SCO 1,Escudo del equipo,Escudo
+SCO 2,Angus Gunn,Arquero
+SCO 3,Grant Hanley,Defensor
+SCO 4,Scott McKenna,Defensor
+SCO 5,Andy Robertson,Defensor
+SCO 6,Aaron Hickey,Defensor
+SCO 7,Callum McGregor,Mediocampista
+SCO 8,John McGinn,Mediocampista
+SCO 9,Scott McTominay,Mediocampista
+SCO 10,Billy Gilmour,Mediocampista
+SCO 11,Lyndon Dykes,Delantero
+SCO 12,Lawrence Shankland,Delantero
+SCO 13,Che Adams,Delantero
+SCO 14,Ryan Christie,Suplente
+SCO 15,Stuart Armstrong,Suplente
+SCO 16,Ryan Fraser,Suplente
+SCO 17,Ross Stewart,Suplente
+SCO 18,Kenny McLean,Suplente
+SCO 19,Andy Robertson,Capitan
+SCO 20,Steve Clarke,Director Técnico
+PAR 1,Escudo del equipo,Escudo
+PAR 2,Antony Silva,Arquero
+PAR 3,Gustavo Gomez,Defensor
+PAR 4,Omar Alderete,Defensor
+PAR 5,Fabian Balbuena,Defensor
+PAR 6,Mathias Olivera,Defensor
+PAR 7,Miguel Almiron,Mediocampista
+PAR 8,Mathías Villasanti,Mediocampista
+PAR 9,Andrés Cubas,Mediocampista
+PAR 10,Alan Benítez,Mediocampista
+PAR 11,Antonio Sanabria,Delantero
+PAR 12,Ramon Sosa,Delantero
+PAR 13,Julio Enciso,Delantero
+PAR 14,Oscar Romero,Suplente
+PAR 15,Alejandro Romero,Suplente
+PAR 16,Gabriel avalos,Suplente
+PAR 17,Robert Morales,Suplente
+PAR 18,Jorge Morel,Suplente
+PAR 19,Gustavo Gomez,Capitan
+PAR 20,Gustavo Alfaro,Director Técnico
+AUS 1,Escudo del equipo,Escudo
+AUS 2,Mathew Ryan,Arquero
+AUS 3,Harry Souttar,Defensor
+AUS 4,Miloš Degenek,Defensor
+AUS 5,Aziz Behich,Defensor
+AUS 6,Nathaniel Atkinson,Defensor
+AUS 7,Jackson Irvine,Mediocampista
+AUS 8,Riley McGree,Mediocampista
+AUS 9,Aaron Mooy,Mediocampista
+AUS 10,Ajdin Hrustic,Mediocampista
+AUS 11,Mathew Leckie,Delantero
+AUS 12,Mitchell Duke,Delantero
+AUS 13,Jamie Maclaren,Delantero
+AUS 14,Craig Goodwin,Suplente
+AUS 15,Nestory Irankunda,Suplente
+AUS 16,Marco Tilio,Suplente
+AUS 17,Keanu Baccus,Suplente
+AUS 18,Cameron Devlin,Suplente
+AUS 19,Mathew Leckie,Capitan
+AUS 20,Tony Popovic,Director Técnico
+TUR 1,Escudo del equipo,Escudo
+TUR 2,Mert Günok,Arquero
+TUR 3,Merih Demiral,Defensor
+TUR 4,Samet Akaydin,Defensor
+TUR 5,Ferdi Kadioglu,Defensor
+TUR 6,Zeki Çelik,Defensor
+TUR 7,Hakan Çalhanoglu,Mediocampista
+TUR 8,Okay Yokuslu,Mediocampista
+TUR 9,Salih Özcan,Mediocampista
+TUR 10,Kaan Ayhan,Mediocampista
+TUR 11,Kerem Aktürkoglu,Delantero
+TUR 12,Arda Güler,Delantero
+TUR 13,Baris Alper Yilmaz,Delantero
+TUR 14,Yusuf Yazici,Suplente
+TUR 15,Cenk Tosun,Suplente
+TUR 16,Orkun Kökçü,Suplente
+TUR 17,Umut Nayir,Suplente
+TUR 18,Çaglar Söyüncü,Suplente
+TUR 19,Hakan Çalhanoglu,Capitan
+TUR 20,Vincenzo Montella,Director Técnico
+GER 1,Escudo del equipo,Escudo
+GER 2,Manuel Neuer,Arquero
+GER 3,Antonio Rüdiger,Defensor
+GER 4,Jonathan Tah,Defensor
+GER 5,David Raum,Defensor
+GER 6,Joshua Kimmich,Defensor
+GER 7,Toni Kroos,Mediocampista
+GER 8,Leon Goretzka,Mediocampista
+GER 9,Jamal Musiala,Mediocampista
+GER 10,Florian Wirtz,Mediocampista
+GER 11,Kai Havertz,Delantero
+GER 12,Niclas Füllkrug,Delantero
+GER 13,Leroy Sané,Delantero
+GER 14,Serge Gnabry,Suplente
+GER 15,Thomas Müller,Suplente
+GER 16,Ilkay Gündogan,Suplente
+GER 17,Aleksandar Pavlovic,Suplente
+GER 18,Deniz Undav,Suplente
+GER 19,Joshua Kimmich,Capitan
+GER 20,Julian Nagelsmann,Director Técnico
+CUW 1,Escudo del equipo,Escudo
+CUW 2,Eloy Room,Arquero
+CUW 3,Cuco Martina,Defensor
+CUW 4,Jurickson Profar,Defensor
+CUW 5,Richonell Margaret,Defensor
+CUW 6,Gimenez Lontro,Defensor
+CUW 7,Leandro Bacuna,Mediocampista
+CUW 8,Rubio Rubin,Mediocampista
+CUW 9,Giliano Wijnaldum,Mediocampista
+CUW 10,Jarchinio Antonia,Mediocampista
+CUW 11,Quensley Pinas,Delantero
+CUW 12,Cyriel Dessers,Delantero
+CUW 13,Myron Boadu,Delantero
+CUW 14,Chederick van den Berg,Suplente
+CUW 15,Ryan Tjin-A-Lim,Suplente
+CUW 16,Brandley Kuwas,Suplente
+CUW 17,Gevaro Nepomuceno,Suplente
+CUW 18,Rangelo Janga,Suplente
+CUW 19,Leandro Bacuna,Capitan
+CUW 20,Remko Bicentini,Director Técnico
+JOR 1,Escudo del equipo,Escudo
+JOR 2,Yazeed Abulaila,Arquero
+JOR 3,Abdallah Nasib,Defensor
+JOR 4,Yazan Al-Naimat,Defensor
+JOR 5,Omar Al-Dardour,Defensor
+JOR 6,Ahmad Qatato,Defensor
+JOR 7,Nour Al-Rawabdeh,Mediocampista
+JOR 8,Baha Faisal,Mediocampista
+JOR 9,Musa Al-Taamari,Mediocampista
+JOR 10,Ehsan Haddad,Mediocampista
+JOR 11,Mousa Al-Taamari,Delantero
+JOR 12,Zaid Al-Rashdan,Delantero
+JOR 13,Hamza Al-Dardour,Delantero
+JOR 14,Baha Hamdan,Suplente
+JOR 15,Naser Dardour,Suplente
+JOR 16,Ahmad Haif,Suplente
+JOR 17,Oday Dabbagh,Suplente
+JOR 18,Abdelatif Bahdari,Suplente
+JOR 19,Baha Faisal,Capitan
+JOR 20,Hussein Ammouta,Director Técnico
+ECU 1,Escudo del equipo,Escudo
+ECU 2,Hernan Galíndez,Arquero
+ECU 3,Piero Hincapié,Defensor
+ECU 4,William Pacho,Defensor
+ECU 5,Pervis Estupiñan,Defensor
+ECU 6,angelo Preciado,Defensor
+ECU 7,Moisés Caicedo,Mediocampista
+ECU 8,Carlos Gruezo,Mediocampista
+ECU 9,Jhegson Méndez,Mediocampista
+ECU 10,angel Mena,Mediocampista
+ECU 11,Enner Valencia,Delantero
+ECU 12,Gonzalo Plata,Delantero
+ECU 13,Michael Estrada,Delantero
+ECU 14,Jeremy Sarmiento,Suplente
+ECU 15,Jordy Caicedo,Suplente
+ECU 16,Alan Minda,Suplente
+ECU 17,Jhon Cifuentes,Suplente
+ECU 18,Kevin Rodríguez,Suplente
+ECU 19,Enner Valencia,Capitan
+ECU 20,Sebastian Beccacece,Director Técnico
+NED 1,Escudo del equipo,Escudo
+NED 2,Bart Verbruggen,Arquero
+NED 3,Virgil van Dijk,Defensor
+NED 4,Matthijs de Ligt,Defensor
+NED 5,Denzel Dumfries,Defensor
+NED 6,Nathan Aké,Defensor
+NED 7,Frenkie de Jong,Mediocampista
+NED 8,Tijjani Reijnders,Mediocampista
+NED 9,Xavi Simons,Mediocampista
+NED 10,Teun Koopmeiners,Mediocampista
+NED 11,Cody Gakpo,Delantero
+NED 12,Memphis Depay,Delantero
+NED 13,Donyell Malen,Delantero
+NED 14,Wout Weghorst,Suplente
+NED 15,Steven Bergwijn,Suplente
+NED 16,Jeremie Frimpong,Suplente
+NED 17,Ian Maatsen,Suplente
+NED 18,Ryan Gravenberch,Suplente
+NED 19,Virgil van Dijk,Capitan
+NED 20,Ronald Koeman,Director Técnico
+JPN 1,Escudo del equipo,Escudo
+JPN 2,Shuichi Gonda,Arquero
+JPN 3,Maya Yoshida,Defensor
+JPN 4,Ko Itakura,Defensor
+JPN 5,Yuto Nagatomo,Defensor
+JPN 6,Hiroki Sakai,Defensor
+JPN 7,Wataru Endo,Mediocampista
+JPN 8,Hidemasa Morita,Mediocampista
+JPN 9,Ao Tanaka,Mediocampista
+JPN 10,Kaoru Mitoma,Mediocampista
+JPN 11,Takumi Minamino,Delantero
+JPN 12,Ayase Ueda,Delantero
+JPN 13,Takefusa Kubo,Delantero
+JPN 14,Ritsu Doan,Suplente
+JPN 15,Daichi Kamada,Suplente
+JPN 16,Reo Yamane,Suplente
+JPN 17,Yukinari Sugawara,Suplente
+JPN 18,Junya Ito,Suplente
+JPN 19,Maya Yoshida,Capitan
+JPN 20,Hajime Moriyasu,Director Técnico
+SWE 1,Escudo del equipo,Escudo
+SWE 2,Robin Olsen,Arquero
+SWE 3,Victor Lindelöf,Defensor
+SWE 4,Isak Hien,Defensor
+SWE 5,Ludwig Augustinsson,Defensor
+SWE 6,Emil Krafth,Defensor
+SWE 7,Albin Ekdal,Mediocampista
+SWE 8,Mattias Svanberg,Mediocampista
+SWE 9,Dejan Kulusevski,Mediocampista
+SWE 10,Viktor Claesson,Mediocampista
+SWE 11,Alexander Isak,Delantero
+SWE 12,Viktor Gyökeres,Delantero
+SWE 13,Robin Quaison,Delantero
+SWE 14,Sebastian Larsson,Suplente
+SWE 15,Jordan Larsson,Suplente
+SWE 16,Isaac Kiese Thelin,Suplente
+SWE 17,Jesper Karlsson,Suplente
+SWE 18,Pontus Almqvist,Suplente
+SWE 19,Victor Lindelöf,Capitan
+SWE 20,Jon Dahl Tomasson,Director Técnico
+TUN 1,Escudo del equipo,Escudo
+TUN 2,Aymen Dahmen,Arquero
+TUN 3,Montassar Talbi,Defensor
+TUN 4,Yassine Meriah,Defensor
+TUN 5,Ali Maaloul,Defensor
+TUN 6,Dylan Bronn,Defensor
+TUN 7,Ellyes Skhiri,Mediocampista
+TUN 8,Anis Ben Slimane,Mediocampista
+TUN 9,Hannibal Mejbri,Mediocampista
+TUN 10,Mohamed Ali Ben Romdhane,Mediocampista
+TUN 11,Seifeddine Jaziri,Delantero
+TUN 12,Naim Sliti,Delantero
+TUN 13,Issam Jebali,Delantero
+TUN 14,Taha Yassine Khenissi,Suplente
+TUN 15,Youssef Msakni,Suplente
+TUN 16,Mohamed Drager,Suplente
+TUN 17,Wajdi Kechrida,Suplente
+TUN 18,Hamza Rafia,Suplente
+TUN 19,Ellyes Skhiri,Capitan
+TUN 20,Jalel Kadri,Director Técnico
+BEL 1,Escudo del equipo,Escudo
+BEL 2,Thibaut Courtois,Arquero
+BEL 3,Toby Alderweireld,Defensor
+BEL 4,Jan Vertonghen,Defensor
+BEL 5,Timothy Castagne,Defensor
+BEL 6,Arthur Theate,Defensor
+BEL 7,Kevin De Bruyne,Mediocampista
+BEL 8,Youri Tielemans,Mediocampista
+BEL 9,Hans Vanaken,Mediocampista
+BEL 10,Axel Witsel,Mediocampista
+BEL 11,Romelu Lukaku,Delantero
+BEL 12,Lois Openda,Delantero
+BEL 13,Leandro Trossard,Delantero
+BEL 14,Charles De Ketelaere,Suplente
+BEL 15,Johan Bakayoko,Suplente
+BEL 16,Alexis Saelemaekers,Suplente
+BEL 17,Orel Mangala,Suplente
+BEL 18,Dodi Lukebakio,Suplente
+BEL 19,Kevin De Bruyne,Capitan
+BEL 20,Domenico Tedesco,Director Técnico
+EGY 1,Escudo del equipo,Escudo
+EGY 2,Mohamed El-Shenawy,Arquero
+EGY 3,Ahmed Hegazi,Defensor
+EGY 4,Omar Kamal,Defensor
+EGY 5,Mohamed Hany,Defensor
+EGY 6,Ahmed Fatouh,Defensor
+EGY 7,Tarek Hamed,Mediocampista
+EGY 8,Mohamed Elneny,Mediocampista
+EGY 9,Emam Ashour,Mediocampista
+EGY 10,Amr El-Sulaya,Mediocampista
+EGY 11,Mohamed Salah,Delantero
+EGY 12,Omar Marmoush,Delantero
+EGY 13,Mostafa Mohamed,Delantero
+EGY 14,Kahraba,Suplente
+EGY 15,Ramadan Sobhi,Suplente
+EGY 16,Zizo,Suplente
+EGY 17,Salah Mohsen,Suplente
+EGY 18,Akram Tawfik,Suplente
+EGY 19,Mohamed Salah,Capitan
+EGY 20,Hossam Hassan,Director Técnico
+IRN 1,Escudo del equipo,Escudo
+IRN 2,Alireza Beiranvand,Arquero
+IRN 3,Majid Hosseini,Defensor
+IRN 4,Ehsan Hajsafi,Defensor
+IRN 5,Sadegh Moharrami,Defensor
+IRN 6,Mohammad Mohebi,Defensor
+IRN 7,Ahmad Noorollahi,Mediocampista
+IRN 8,Saeid Ezatolahi,Mediocampista
+IRN 9,Ali Gholizadeh,Mediocampista
+IRN 10,Mehdi Torabi,Mediocampista
+IRN 11,Sardar Azmoun,Delantero
+IRN 12,Mehdi Taremi,Delantero
+IRN 13,Allahyar Sayyadmanesh,Delantero
+IRN 14,Ali Karimi,Suplente
+IRN 15,Ramin Rezaeian,Suplente
+IRN 16,Karim Ansarifard,Suplente
+IRN 17,Morteza Pouraliganji,Suplente
+IRN 18,Voria Ghafouri,Suplente
+IRN 19,Ehsan Hajsafi,Capitan
+IRN 20,Amir Ghalenoei,Director Técnico
+NZL 1,Escudo del equipo,Escudo
+NZL 2,Stefan Marinovic,Arquero
+NZL 3,Michael Boxall,Defensor
+NZL 4,Liberato Cacace,Defensor
+NZL 5,Nando Pijnaker,Defensor
+NZL 6,Tim Payne,Defensor
+NZL 7,Joe Bell,Mediocampista
+NZL 8,Ryan Thomas,Mediocampista
+NZL 9,Marko Stamenic,Mediocampista
+NZL 10,Callum McCowatt,Mediocampista
+NZL 11,Chris Wood,Delantero
+NZL 12,Matthew Garbett,Delantero
+NZL 13,Elijah Just,Delantero
+NZL 14,Ben Old,Suplente
+NZL 15,Sarpreet Singh,Suplente
+NZL 16,Tyler Boyd,Suplente
+NZL 17,Finn Surman,Suplente
+NZL 18,Kosta Barbarouses,Suplente
+NZL 19,Chris Wood,Capitan
+NZL 20,Darren Bazeley,Director Técnico
+ESP 1,Escudo del equipo,Escudo
+ESP 2,Unai Simon,Arquero
+ESP 3,Aymeric Laporte,Defensor
+ESP 4,Robin Le Normand,Defensor
+ESP 5,Alejandro Balde,Defensor
+ESP 6,Dani Carvajal,Defensor
+ESP 7,Rodri,Mediocampista
+ESP 8,Pedri,Mediocampista
+ESP 9,Fabian Ruiz,Mediocampista
+ESP 10,Mikel Merino,Mediocampista
+ESP 11,alvaro Morata,Delantero
+ESP 12,Nico Williams,Delantero
+ESP 13,Lamine Yamal,Delantero
+ESP 14,Ferran Torres,Suplente
+ESP 15,Dani Olmo,Suplente
+ESP 16,Yeremy Pino,Suplente
+ESP 17,Marcos Llorente,Suplente
+ESP 18,Gavi,Suplente
+ESP 19,alvaro Morata,Capitan
+ESP 20,Luis de la Fuente,Director Técnico
+CPV 1,Escudo del equipo,Escudo
+CPV 2,Vozinha,Arquero
+CPV 3,Roberto Lopes,Defensor
+CPV 4,Dylan Tavares,Defensor
+CPV 5,Stopira,Defensor
+CPV 6,Sandro,Defensor
+CPV 7,Kenny Rocha,Mediocampista
+CPV 8,Jamiro Monteiro,Mediocampista
+CPV 9,Garry Rodrigues,Mediocampista
+CPV 10,Ryan Mendes,Mediocampista
+CPV 11,Djaniny,Delantero
+CPV 12,Bebé,Delantero
+CPV 13,Lúcio Antunes,Delantero
+CPV 14,Willy Semedo,Suplente
+CPV 15,Marcos Nascimento,Suplente
+CPV 16,Diogo Tavares,Suplente
+CPV 17,Deroy Duarte,Suplente
+CPV 18,David da Graça,Suplente
+CPV 19,Stopira,Capitan
+CPV 20,Pedro Brito,Director Técnico
+KSA 1,Escudo del equipo,Escudo
+KSA 2,Mohammed Al-Owais,Arquero
+KSA 3,Ali Al-Bulayhi,Defensor
+KSA 4,Hassan Tambakti,Defensor
+KSA 5,Saud Abdulhamid,Defensor
+KSA 6,Abdullah Madu,Defensor
+KSA 7,Salman Al-Faraj,Mediocampista
+KSA 8,Mohamed Kanno,Mediocampista
+KSA 9,Ali Al-Hassan,Mediocampista
+KSA 10,Abdulellah Al-Malki,Mediocampista
+KSA 11,Salem Al-Dawsari,Delantero
+KSA 12,Firas Al-Buraikan,Delantero
+KSA 13,Abdullah Al-Hamdan,Delantero
+KSA 14,Nasser Al-Dawsari,Suplente
+KSA 15,Hattan Bahebri,Suplente
+KSA 16,Ali Al-Ghamdi,Suplente
+KSA 17,Nawaf Al-Aqidi,Suplente
+KSA 18,Sami Al-Najei,Suplente
+KSA 19,Salman Al-Faraj,Capitan
+KSA 20,Roberto Mancini,Director Técnico
+URU 1,Escudo del equipo,Escudo
+URU 2,Sergio Rochet,Arquero
+URU 3,José María Giménez,Defensor
+URU 4,Mathías Olivera,Defensor
+URU 5,Nahitan Nandez,Defensor
+URU 6,Matías Viña,Defensor
+URU 7,Lucas Torreira,Mediocampista
+URU 8,Rodrigo Bentancur,Mediocampista
+URU 9,Federico Valverde,Mediocampista
+URU 10,Giorgian De Arrascaeta,Mediocampista
+URU 11,Darwin Núñez,Delantero
+URU 12,Facundo Torres,Delantero
+URU 13,Maximiliano Araújo,Delantero
+URU 14,Luis Suarez,Suplente
+URU 15,Nicolas De La Cruz,Suplente
+URU 16,Brian Rodríguez,Suplente
+URU 17,Agustín Canobbio,Suplente
+URU 18,Matías Vecino,Suplente
+URU 19,José María Giménez,Capitan
+URU 20,Marcelo Bielsa,Director Técnico
+FRA 1,Escudo del equipo,Escudo
+FRA 2,Mike Maignan,Arquero
+FRA 3,Dayot Upamecano,Defensor
+FRA 4,Jules Koundé,Defensor
+FRA 5,Théo Hernandez,Defensor
+FRA 6,Jonathan Clauss,Defensor
+FRA 7,Aurélien Tchouaméni,Mediocampista
+FRA 8,Adrien Rabiot,Mediocampista
+FRA 9,Eduardo Camavinga,Mediocampista
+FRA 10,Antoine Griezmann,Mediocampista
+FRA 11,Kylian Mbappé,Delantero
+FRA 12,Marcus Thuram,Delantero
+FRA 13,Ousmane Dembélé,Delantero
+FRA 14,Christopher Nkunku,Suplente
+FRA 15,Randal Kolo Muani,Suplente
+FRA 16,Kingsley Coman,Suplente
+FRA 17,Youssouf Fofana,Suplente
+FRA 18,Bradley Barcola,Suplente
+FRA 19,Kylian Mbappé,Capitan
+FRA 20,Didier Deschamps,Director Técnico
+SEN 1,Escudo del equipo,Escudo
+SEN 2,Édouard Mendy,Arquero
+SEN 3,Kalidou Koulibaly,Defensor
+SEN 4,Abdou Diallo,Defensor
+SEN 5,Youssouf Sabaly,Defensor
+SEN 6,Formose Mendy,Defensor
+SEN 7,Idrissa Gueye,Mediocampista
+SEN 8,Cheikhou Kouyaté,Mediocampista
+SEN 9,Pape Gueye,Mediocampista
+SEN 10,Nampalys Mendy,Mediocampista
+SEN 11,Sadio Mané,Delantero
+SEN 12,Ismaila Sarr,Delantero
+SEN 13,Nicolas Jackson,Delantero
+SEN 14,Boulaye Dia,Suplente
+SEN 15,Iliman Ndiaye,Suplente
+SEN 16,Famara Diédhiou,Suplente
+SEN 17,Krepin Diatta,Suplente
+SEN 18,Lamine Camara,Suplente
+SEN 19,Sadio Mané,Capitan
+SEN 20,Aliou Cissé,Director Técnico
+NOR 1,Escudo del equipo,Escudo
+NOR 2,Ørjan Nyland,Arquero
+NOR 3,Leo Ostigard,Defensor
+NOR 4,Andreas Hanche-Olsen,Defensor
+NOR 5,Birger Meling,Defensor
+NOR 6,Kristoffer Ajer,Defensor
+NOR 7,Martin Ødegaard,Mediocampista
+NOR 8,Sander Berge,Mediocampista
+NOR 9,Mathias Normann,Mediocampista
+NOR 10,Fredrik Aursnes,Mediocampista
+NOR 11,Erling Haaland,Delantero
+NOR 12,Alexander Sørloth,Delantero
+NOR 13,Antonio Nusa,Delantero
+NOR 14,Mohamed Elyounoussi,Suplente
+NOR 15,Ola Solbakken,Suplente
+NOR 16,Jens Petter Hauge,Suplente
+NOR 17,Kristian Thorstvedt,Suplente
+NOR 18,Patrick Berg,Suplente
+NOR 19,Martin Ødegaard,Capitan
+NOR 20,Ståle Solbakken,Director Técnico
+IRQ 1,Escudo del equipo,Escudo
+IRQ 2,Jalal Hassan,Arquero
+IRQ 3,Ali Adnan,Defensor
+IRQ 4,Rebin Sulaka,Defensor
+IRQ 5,Saad Abdul-Amir,Defensor
+IRQ 6,Hussein Ali,Defensor
+IRQ 7,Amjed Attwan,Mediocampista
+IRQ 8,Safaa Hadi,Mediocampista
+IRQ 9,Bashar Resan,Mediocampista
+IRQ 10,Hussein Jabbar,Mediocampista
+IRQ 11,Mohanad Ali,Delantero
+IRQ 12,Ayman Hussein,Delantero
+IRQ 13,Alaa Abbas,Delantero
+IRQ 14,Amir Al-Ammari,Suplente
+IRQ 15,Firas Shaker,Suplente
+IRQ 16,Hamza Hameed,Suplente
+IRQ 17,Wisam Ali,Suplente
+IRQ 18,Mohammed Qasim,Suplente
+IRQ 19,Ali Adnan,Capitan
+IRQ 20,Jesús Casas,Director Técnico
+ARG 1,Escudo del equipo,Escudo
+ARG 2,Emiliano Martínez,Arquero
+ARG 3,Cristian Romero,Defensor
+ARG 4,Nicolas Otamendi,Defensor
+ARG 5,Nicolas Tagliafico,Defensor
+ARG 6,Nahuel Molina,Defensor
+ARG 7,Rodrigo De Paul,Mediocampista
+ARG 8,Leandro Paredes,Mediocampista
+ARG 9,Alexis Mac Allister,Mediocampista
+ARG 10,Enzo Fernandez,Mediocampista
+ARG 11,Lionel Messi,Delantero
+ARG 12,Lautaro Martínez,Delantero
+ARG 13,Julian alvarez,Delantero
+ARG 14,Paulo Dybala,Suplente
+ARG 15,Thiago Almada,Suplente
+ARG 16,Nicolas Gonzalez,Suplente
+ARG 17,Giovanni Simeone,Suplente
+ARG 18,Valentín Carboni,Suplente
+ARG 19,Lionel Messi,Capitan
+ARG 20,Lionel Scaloni,Director Técnico
+ALG 1,Escudo del equipo,Escudo
+ALG 2,Raïs M Bolhi,Arquero
+ALG 3,Djamel Benlamri,Defensor
+ALG 4,Aïssa Mandi,Defensor
+ALG 5,Youcef Atal,Defensor
+ALG 6,Mehdi Zeffane,Defensor
+ALG 7,Ismaël Bennacer,Mediocampista
+ALG 8,Houssem Aouar,Mediocampista
+ALG 9,Sofiane Feghouli,Mediocampista
+ALG 10,Said Benrahma,Mediocampista
+ALG 11,Riyad Mahrez,Delantero
+ALG 12,Baghdad Bounedjah,Delantero
+ALG 13,Youcef Belaïli,Delantero
+ALG 14,Andy Delort,Suplente
+ALG 15,Billal Brahimi,Suplente
+ALG 16,Adam Ounas,Suplente
+ALG 17,Zinedine Ferhat,Suplente
+ALG 18,Abdelkader Bedrane,Suplente
+ALG 19,Riyad Mahrez,Capitan
+ALG 20,Vladimir Petkovic,Director Técnico
+AUT 1,Escudo del equipo,Escudo
+AUT 2,Patrick Pentz,Arquero
+AUT 3,Philipp Lienhart,Defensor
+AUT 4,Kevin Danso,Defensor
+AUT 5,Philipp Mwene,Defensor
+AUT 6,Stefan Posch,Defensor
+AUT 7,David Alaba,Mediocampista
+AUT 8,Florian Grillitsch,Mediocampista
+AUT 9,Konrad Laimer,Mediocampista
+AUT 10,Christoph Baumgartner,Mediocampista
+AUT 11,Marko Arnautovic,Delantero
+AUT 12,Michael Gregoritsch,Delantero
+AUT 13,Sasa Kalajdzic,Delantero
+AUT 14,Marcel Sabitzer,Suplente
+AUT 15,Nicolas Seiwald,Suplente
+AUT 16,Andreas Weimann,Suplente
+AUT 17,Maximilian Wöber,Suplente
+AUT 18,Guido Burgstaller,Suplente
+AUT 19,David Alaba,Capitan
+AUT 20,Ralf Rangnick,Director Técnico
+POR 1,Escudo del equipo,Escudo
+POR 2,Diogo Costa,Arquero
+POR 3,Rúben Dias,Defensor
+POR 4,Pepe,Defensor
+POR 5,Nuno Mendes,Defensor
+POR 6,João Cancelo,Defensor
+POR 7,Rúben Neves,Mediocampista
+POR 8,Bernardo Silva,Mediocampista
+POR 9,Bruno Fernandes,Mediocampista
+POR 10,Vitinha,Mediocampista
+POR 11,Cristiano Ronaldo,Delantero
+POR 12,Rafael Leão,Delantero
+POR 13,Gonçalo Ramos,Delantero
+POR 14,João Félix,Suplente
+POR 15,Pedro Neto,Suplente
+POR 16,Diogo Jota,Suplente
+POR 17,Otavio,Suplente
+POR 18,Francisco Conceição,Suplente
+POR 19,Cristiano Ronaldo,Capitan
+POR 20,Roberto Martínez,Director Técnico
+COD 1,Escudo del equipo,Escudo
+COD 2,Joël Kiassumbua,Arquero
+COD 3,Chancel Mbemba,Defensor
+COD 4,Glody Ngonda,Defensor
+COD 5,Marcel Tisserand,Defensor
+COD 6,Arthur Masuaku,Defensor
+COD 7,Yannick Bolasie,Mediocampista
+COD 8,Samuel Moutoussamy,Mediocampista
+COD 9,Cédric Bakambu,Mediocampista
+COD 10,Jordan Ikoko,Mediocampista
+COD 11,Dodi Lukebakio,Delantero
+COD 12,Silas Wissa,Delantero
+COD 13,Ben Malango,Delantero
+COD 14,Paul-José Mpoku,Suplente
+COD 15,Jonathan Bolingi,Suplente
+COD 16,Neeskens Kebano,Suplente
+COD 17,Théo Bongonda,Suplente
+COD 18,Fiston Mayele,Suplente
+COD 19,Chancel Mbemba,Capitan
+COD 20,Sébastien Desabre,Director Técnico
+UZB 1,Escudo del equipo,Escudo
+UZB 2,Eldorbek Suyunov,Arquero
+UZB 3,Sarvarbek Ruziev,Defensor
+UZB 4,Khurshid Beknazarov,Defensor
+UZB 5,Shamsiddin Tursunov,Defensor
+UZB 6,Islom Tukhtahujaev,Defensor
+UZB 7,Otabek Shukurov,Mediocampista
+UZB 8,Jasur Yakhshiboev,Mediocampista
+UZB 9,Bobur Abdukholiqov,Mediocampista
+UZB 10,Dostonbek Khamdamov,Mediocampista
+UZB 11,Jaloliddin Masharipov,Delantero
+UZB 12,Eldor Shomurodov,Delantero
+UZB 13,Abbosbek Fayzullaev,Delantero
+UZB 14,Sherzod Nasrullayev,Suplente
+UZB 15,Umid Achilbayev,Suplente
+UZB 16,Nodir Sultonov,Suplente
+UZB 17,Sanjar Tursunov,Suplente
+UZB 18,Ruslan Nishonov,Suplente
+UZB 19,Eldor Shomurodov,Capitan
+UZB 20,Srecko Katanec,Director Técnico
+COL 1,Escudo del equipo,Escudo
+COL 2,David Ospina,Arquero
+COL 3,Davinson Sanchez,Defensor
+COL 4,Yerry Mina,Defensor
+COL 5,Johan Mojica,Defensor
+COL 6,Daniel Muñoz,Defensor
+COL 7,Wilmar Barrios,Mediocampista
+COL 8,Matheus Uribe,Mediocampista
+COL 9,James Rodríguez,Mediocampista
+COL 10,Richard Ríos,Mediocampista
+COL 11,Luis Díaz,Delantero
+COL 12,Rafael Santos Borré,Delantero
+COL 13,Cucho Hernandez,Delantero
+COL 14,Jhon Cordoba,Suplente
+COL 15,Duvan Zapata,Suplente
+COL 16,Jorge Carrascal,Suplente
+COL 17,Jhon Arias,Suplente
+COL 18,Gustavo Puerta,Suplente
+COL 19,James Rodríguez,Capitan
+COL 20,Néstor Lorenzo,Director Técnico
+RSA 1,Escudo del equipo,Escudo
+RSA 2,Ronwen Williams,Arquero
+RSA 3,Rushine De Reuck,Defensor
+RSA 4,Thulani Hlatshwayo,Defensor
+RSA 5,Reeve Frosler,Defensor
+RSA 6,Sifiso Hlanti,Defensor
+RSA 7,Bongani Zungu,Mediocampista
+RSA 8,Mothobi Mvala,Mediocampista
+RSA 9,Themba Zwane,Mediocampista
+RSA 10,Teboho Mokoena,Mediocampista
+RSA 11,Percy Tau,Delantero
+RSA 12,Lyle Foster,Delantero
+RSA 13,Evidence Makgopa,Delantero
+RSA 14,Keagan Dolly,Suplente
+RSA 15,Lebo Mothiba,Suplente
+RSA 16,Thembinkosi Lorch,Suplente
+RSA 17,Phakamani Mahlambi,Suplente
+RSA 18,Bradley Cross,Suplente
+RSA 19,Ronwen Williams,Capitan
+RSA 20,Hugo Broos,Director Técnico
+KOR 1,Escudo del equipo,Escudo
+KOR 2,Kim Seung-gyu,Arquero
+KOR 3,Kim Min-jae,Defensor
+KOR 4,Kim Young-gwon,Defensor
+KOR 5,Kim Jin-su,Defensor
+KOR 6,Kim Moon-hwan,Defensor
+KOR 7,Jung Woo-young,Mediocampista
+KOR 8,Lee Jae-sung,Mediocampista
+KOR 9,Hwang In-beom,Mediocampista
+KOR 10,Lee Kang-in,Mediocampista
+KOR 11,Son Heung-min,Delantero
+KOR 12,Hwang Hee-chan,Delantero
+KOR 13,Cho Gue-sung,Delantero
+KOR 14,Oh Hyeon-gyu,Suplente
+KOR 15,Jeong Sang-bin,Suplente
+KOR 16,Na Sang-ho,Suplente
+KOR 17,Kwon Chang-hoon,Suplente
+KOR 18,Seol Young-woo,Suplente
+KOR 19,Son Heung-min,Capitan
+KOR 20,Hong Myung-bo,Director Técnico
+CZE 1,Escudo del equipo,Escudo
+CZE 2,Jirí Stanek,Arquero
+CZE 3,Tomaš Kalas,Defensor
+CZE 4,Ladislav Krejcí,Defensor
+CZE 5,David Zima,Defensor
+CZE 6,Pavel Kaderabek,Defensor
+CZE 7,Tomaš Soucek,Mediocampista
+CZE 8,Lukaš Provod,Mediocampista
+CZE 9,Alex Kral,Mediocampista
+CZE 10,Vladimír Coufal,Mediocampista
+CZE 11,Patrik Schick,Delantero
+CZE 12,Adam Hlo zek,Delantero
+CZE 13,Jan Kuchta,Delantero
+CZE 14,Antonín Barak,Suplente
+CZE 15,Ondrej Lingr,Suplente
+CZE 16,Lukaš Masopust,Suplente
+CZE 17,David Jurasek,Suplente
+CZE 18,Matej Jurasek,Suplente
+CZE 19,Tomaš Soucek,Capitan
+CZE 20,Ivan Hašek,Director Técnico
+ENG 1,Escudo del equipo,Escudo
+ENG 2,Jordan Pickford,Arquero
+ENG 3,John Stones,Defensor
+ENG 4,Harry Maguire,Defensor
+ENG 5,Luke Shaw,Defensor
+ENG 6,Trent Alexander-Arnold,Defensor
+ENG 7,Declan Rice,Mediocampista
+ENG 8,Jude Bellingham,Mediocampista
+ENG 9,Phil Foden,Mediocampista
+ENG 10,Bukayo Saka,Mediocampista
+ENG 11,Harry Kane,Delantero
+ENG 12,Marcus Rashford,Delantero
+ENG 13,Ollie Watkins,Delantero
+ENG 14,Raheem Sterling,Suplente
+ENG 15,Anthony Gordon,Suplente
+ENG 16,Cole Palmer,Suplente
+ENG 17,Jarrod Bowen,Suplente
+ENG 18,Conor Gallagher,Suplente
+ENG 19,Harry Kane,Capitan
+ENG 20,Gareth Southgate,Director Técnico
+CRO 1,Escudo del equipo,Escudo
+CRO 2,Dominik Livakovic,Arquero
+CRO 3,Joško Gvardiol,Defensor
+CRO 4,Josip Juranovic,Defensor
+CRO 5,Borna Barišic,Defensor
+CRO 6,Martin Erlic,Defensor
+CRO 7,Luka Modric,Mediocampista
+CRO 8,Mateo Kovacic,Mediocampista
+CRO 9,Marcelo Brozovic,Mediocampista
+CRO 10,Mario Pašalic,Mediocampista
+CRO 11,Andrej Kramaric,Delantero
+CRO 12,Bruno Petkovic,Delantero
+CRO 13,Marko Livaja,Delantero
+CRO 14,Ivan Perišic,Suplente
+CRO 15,Nikola Vlašic,Suplente
+CRO 16,Lovro Majer,Suplente
+CRO 17,Luka Ivanušec,Suplente
+CRO 18,Mislav Oršic,Suplente
+CRO 19,Luka Modric,Capitan
+CRO 20,Zlatko Dalic,Director Técnico
+GHA 1,Escudo del equipo,Escudo
+GHA 2,Lawrence Ati-Zigi,Arquero
+GHA 3,Daniel Amartey,Defensor
+GHA 4,Alexander Djiku,Defensor
+GHA 5,Abdul Rahman Baba,Defensor
+GHA 6,Tariq Lamptey,Defensor
+GHA 7,Thomas Partey,Mediocampista
+GHA 8,Mohammed Kudus,Mediocampista
+GHA 9,Mubarak Wakaso,Mediocampista
+GHA 10,Iddrisu Baba,Mediocampista
+GHA 11,Jordan Ayew,Delantero
+GHA 12,Inaki Williams,Delantero
+GHA 13,Antoine Semenyo,Delantero
+GHA 14,André Ayew,Suplente
+GHA 15,Osman Bukari,Suplente
+GHA 16,Felix Afena-Gyan,Suplente
+GHA 17,Abedi Ayew Jr.,Suplente
+GHA 18,Ernest Nuamah,Suplente
+GHA 19,André Ayew,Capitan
+GHA 20,Otto Addo,Director Técnico
