@@ -552,6 +552,37 @@ input[data-estado="repetida"].foil-input + .sbox,
 .logout-btn { background:none; border:1px solid var(--border2); color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; padding:3px 10px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .logout-btn:hover { border-color:#ef5350; color:#ef5350; }
 
+/* ── ADMIN EXPAND ROW ── */
+.admin-expand-row td { padding:0 !important; border-bottom:1px solid var(--border2); }
+.admin-expand-inner {
+  overflow:hidden; max-height:0; transition:max-height .35s ease, padding .35s ease;
+  padding:0 16px;
+}
+.admin-expand-inner.open { max-height:400px; padding:14px 16px; }
+.aexp-header {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.aexp-chips { display:flex; gap:8px; flex-wrap:wrap; }
+.aexp-chip {
+  font-size:12px; font-weight:700; padding:3px 10px; border-radius:6px;
+  display:flex; align-items:center; gap:4px;
+}
+.aexp-chip.t { background:rgba(0,180,70,.15); color:#4ade80; }
+.aexp-chip.f { background:rgba(220,60,55,.15); color:#f87171; }
+.aexp-chip.r { background:rgba(200,155,0,.15); color:#fbbf24; }
+.aexp-chip.res { background:rgba(148,163,184,.15); color:#94a3b8; }
+.aexp-groups { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.aexp-group {
+  background:var(--bg2); border-radius:6px; padding:6px 10px; min-width:90px;
+}
+.aexp-group-name { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+.aexp-group-bar { height:3px; background:var(--bg3); border-radius:2px; overflow:hidden; margin-bottom:3px; }
+.aexp-group-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--green),var(--green2)); transition:width .4s; }
+.aexp-group-nums { font-size:10px; color:var(--text2); }
+tr.admin-user-row { cursor:pointer; }
+tr.admin-user-row:hover td { background:rgba(255,255,255,.02); }
+tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
+
 /* ── RANKING PAGE ── */
 .rank-table { width:100%; border-collapse:collapse; }
 .rank-table th { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; padding:7px 12px; text-align:left; border-bottom:1px solid var(--border2); }
@@ -1826,8 +1857,10 @@ async function loadAdminUsers(){
       const isMe = u.nombre.toLowerCase() === myNombre.toLowerCase();
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('es-AR') : '-';
       const updated = u.updated_at ? new Date(u.updated_at).toLocaleDateString('es-AR') : '-';
-      return `<tr ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
+      const rowId = 'exp-' + u.id.replace(/-/g,'');
+      return `<tr class="admin-user-row" onclick="adminToggleExpand('${u.id}')" ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
         <td>
+          <span style="font-size:10px;color:var(--text3);margin-right:4px;" id="exp-arrow-${u.id}">▶</span>
           <b style="color:var(--text);">${u.nombre}</b>
           ${isMe ? '<span style="color:var(--gold);font-size:10px;margin-left:5px;">(vos)</span>' : ''}
         </td>
@@ -1842,12 +1875,18 @@ async function loadAdminUsers(){
         </td>
         <td style="font-size:11px;color:var(--text3);">${created}</td>
         <td style="font-size:11px;color:var(--text3);">${updated}</td>
-        <td>
+        <td onclick="event.stopPropagation()">
           <div class="admin-actions">
-            <button class="abtn info" onclick="adminVerAlbum('${u.id}','${u.nombre}')">👁 Ver</button>
             <button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>
             ${!isMe ? `<button class="abtn danger" onclick="adminReset('${u.id}','${u.nombre}')">↺ Reset</button>` : ''}
             ${!isMe ? `<button class="abtn danger" onclick="adminEliminar('${u.id}','${u.nombre}')">🗑</button>` : ''}
+          </div>
+        </td>
+      </tr>
+      <tr class="admin-expand-row" id="${rowId}">
+        <td colspan="8">
+          <div class="admin-expand-inner" id="inner-${u.id}">
+            <div style="color:var(--text3);font-size:12px;padding:4px 0;">Cargando álbum...</div>
           </div>
         </td>
       </tr>`;
@@ -1880,15 +1919,77 @@ async function loadAdminLogs(){
   } catch(e){ tbody.innerHTML = '<tr><td colspan="4" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
 }
 
-async function adminVerAlbum(id, nombre){
+const _expandCache = {};
+const _expandOpen  = new Set();
+
+async function adminToggleExpand(id){
+  const inner = document.getElementById('inner-'+id);
+  const arrow = document.getElementById('exp-arrow-'+id);
+  const row   = document.querySelector(`tr.admin-user-row[onclick*="${id}"]`);
+  if(!inner) return;
+
+  const isOpen = _expandOpen.has(id);
+  if(isOpen){
+    inner.classList.remove('open');
+    if(arrow) arrow.textContent = '▶';
+    if(row)   row.classList.remove('expanded');
+    _expandOpen.delete(id);
+    return;
+  }
+
+  inner.classList.add('open');
+  if(arrow) arrow.textContent = '▼';
+  if(row)   row.classList.add('expanded');
+  _expandOpen.add(id);
+
+  // Si ya está en cache, solo mostrar
+  if(_expandCache[id]){ inner.innerHTML = _expandCache[id]; return; }
+
+  inner.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:4px 0;">Cargando álbum...</div>';
   try {
     const r = await fetch(API_BASE+'/api/admin/album/'+id, { headers: authHeaders() });
     const d = await r.json();
-    const tengo = Object.values(d.estado||{}).filter(v=>v==='tengo').length;
-    const rep   = Object.values(d.estado||{}).filter(v=>v==='repetida').length;
-    const falta = 1008 - tengo - rep;
-    alert(`📒 Álbum de ${nombre}\n\n✓ Tengo: ${tengo}\n↺ Repetidas: ${rep}\n✗ Faltan: ${falta}\n\nProgreso: ${Math.round(tengo/1008*100)}%`);
-  } catch(e){ alert('Error al cargar el álbum'); }
+    const estado = flattenState(d.estado || {});
+
+    const tengo    = Object.values(estado).filter(v=>v==='tengo').length;
+    const rep      = Object.values(estado).filter(v=>v==='repetida').length;
+    const reserv   = Object.values(estado).filter(v=>v==='reservada').length;
+    const falta    = 1008 - tengo - rep - reserv;
+    const pct      = Math.round(tengo/1008*100);
+
+    // Calcular por grupo
+    const gruposHtml = DB_GRUPOS.map(g => {
+      let gt=0, gr=0, gf=0;
+      g.equipos.forEach(eq => {
+        const k = g.letra+'__'+eq.nombre.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
+        DB_TIPOS.forEach(tp => {
+          const key = k+'||'+tp.codigo;
+          const v = estado[key] || 'vacia';
+          if(v==='tengo') gt++; else if(v==='repetida') gr++; else gf++;
+        });
+      });
+      const gpct = Math.round(gt/(g.equipos.length*21)*100);
+      return `<div class="aexp-group">
+        <div class="aexp-group-name">Grupo ${g.letra}</div>
+        <div class="aexp-group-bar"><div class="aexp-group-fill" style="width:${gpct}%"></div></div>
+        <div class="aexp-group-nums" style="color:var(--green)">${gt}<span style="color:var(--text3)"> / ${g.equipos.length*21}</span></div>
+      </div>`;
+    }).join('');
+
+    const html = `
+      <div class="aexp-chips">
+        <span class="aexp-chip t">✓ ${tengo} tengo</span>
+        <span class="aexp-chip f">✗ ${falta} faltan</span>
+        <span class="aexp-chip r">↺ ${rep} repetidas</span>
+        ${reserv > 0 ? `<span class="aexp-chip res">🔒 ${reserv} reservadas</span>` : ''}
+        <span style="font-size:11px;color:var(--text3);align-self:center;margin-left:4px;">${pct}% completado</span>
+      </div>
+      <div class="aexp-groups">${gruposHtml}</div>`;
+    _expandCache[id] = html;
+    inner.innerHTML = html;
+  } catch(e){
+    inner.innerHTML = '<div style="color:#ef5350;font-size:12px;">Error al cargar</div>';
+  }
 }
 
 async function adminCambiarPass(id, nombre){
