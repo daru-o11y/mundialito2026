@@ -1873,11 +1873,38 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       const importedFlat = flattenState(data.estado);
       if(Object.keys(importedFlat).length === 0) throw new Error("El archivo no tiene figuritas");
 
+      // Remap keys al formato actual (normalize acentos) para compatibilidad
+      // Keys viejas: "A__M_xico||ESC" → nuevas: "A__Mexico||ESC"
+      const remapped = {};
+      for(const [key, val] of Object.entries(importedFlat)){
+        const parts = key.split('||');
+        if(parts.length !== 2){ remapped[key] = val; continue; }
+        const [teamPart, codigo] = parts;
+        // teamPart = "A__M_xico" → buscar el equipo real en DB_GRUPOS
+        const grupoLetra = teamPart.split('__')[0];
+        const g = DB_GRUPOS.find(g => g.letra === grupoLetra);
+        let newKey = key;
+        if(g){
+          const eq = g.equipos.find(e => {
+            // comparar con el teamKey normalizado
+            const oldNorm = teamPart;
+            const newNorm = teamKey(grupoLetra, e.nombre);
+            // También probar con el formato viejo sin normalize
+            const oldFormat = grupoLetra+'__'+e.nombre.replace(/[^a-zA-Z0-9]/g,'_');
+            return newNorm === grupoLetra+'__'+oldNorm.split('__').slice(1).join('__') ||
+                   oldFormat === teamPart ||
+                   newNorm.split('__')[1] === teamPart.split('__').slice(1).join('__');
+          });
+          if(eq) newKey = teamKey(grupoLetra, eq.nombre) + '||' + codigo;
+        }
+        remapped[newKey] = val;
+      }
+
       // Merge: solo aplicar figuritas que en el estado actual están vacías
       // No tocar las que ya tienen un estado (tengo/repetida/reservada)
       const current = getCS();
       let added = 0;
-      for(const [key, val] of Object.entries(importedFlat)){
+      for(const [key, val] of Object.entries(remapped)){
         if(!current[key] || current[key] === 'vacia'){
           current[key] = val;
           added++;
