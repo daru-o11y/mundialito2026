@@ -19,86 +19,23 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 
 /* ── HEADER ── */
 .header {
-  background:linear-gradient(135deg,#060d1a 0%,#0a1628 60%,#060d1a 100%);
-  border-bottom:1px solid rgba(255,215,0,.12);
-  padding:0 18px; position:sticky; top:0; z-index:100;
-  display:flex; align-items:center; gap:12px; height:64px;
-  box-shadow:0 2px 20px rgba(0,0,0,.5);
+  background:linear-gradient(135deg,#090f1e 0%,#0e1b30 50%,#090f1e 100%);
+  border-bottom:1px solid var(--border2);
+  padding:0 20px; position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; gap:14px; height:56px;
 }
-.logo-panel {
-  display:flex; flex-direction:column; align-items:flex-start;
-  border-right:1px solid rgba(255,215,0,.1); padding-right:12px; flex-shrink:0; cursor:default;
-  transition:opacity .2s;
-}
-.logo-panel:hover { opacity:.85; }
-.logo-top { display:flex; align-items:center; gap:5px; }
-.logo-title {
-  font-family:'Bebas Neue',sans-serif; font-size:19px; color:transparent;
-  letter-spacing:2.5px; line-height:1;
-  background:linear-gradient(160deg, #fff5a0 0%, #ffd700 40%, #c97c00 100%);
-  -webkit-background-clip:text; background-clip:text;
-  filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)) drop-shadow(0 1px 0px #7a4a00);
-}
-.logo-year {
-  font-family:'Bebas Neue',sans-serif; font-size:11px; color:#93c5fd;
-  letter-spacing:1.5px; background:rgba(96,165,250,.1);
-  padding:1px 5px; border-radius:3px;
-}
-.logo-countdown { display:flex; gap:4px; align-items:center; margin-top:3px; }
-.lcd-unit { display:flex; flex-direction:column; align-items:center; }
-.lcd-val {
-  font-family:'Bebas Neue',sans-serif; font-size:13px; line-height:1;
-  background:linear-gradient(180deg,#ffd700,#f59e0b);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.lcd-lbl { font-size:5.5px; color:var(--text3); letter-spacing:.4px; text-transform:uppercase; margin-top:1px; }
-.lcd-sep { font-family:'Bebas Neue',sans-serif; font-size:11px; color:rgba(255,215,0,.25); margin-bottom:3px; }
-.nav { display:flex; gap:3px; flex:1; align-items:center; }
-.nav-sep { width:1px; height:22px; background:rgba(255,255,255,.1); margin:0 4px; flex-shrink:0; }
-.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; font-weight:500; padding:5px 11px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
+.logo { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); letter-spacing:2px; white-space:nowrap; text-shadow:0 0 16px rgba(255,215,0,.3); }
+.logo em { color:var(--text3); font-style:normal; font-size:13px; letter-spacing:1px; margin-left:4px; }
+.nav { display:flex; gap:3px; flex:1; }
+.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:13px; font-weight:500; padding:5px 14px; border-radius:20px; cursor:pointer; transition:all .18s; }
 .nbtn:hover { background:var(--surface); color:var(--text); border-color:var(--border2); }
 .nbtn.active { background:var(--gold); color:var(--bg); font-weight:700; border-color:var(--gold); }
-.nbtn[data-page="album"],.nbtn[data-page="intercambios"],.nbtn[data-page="estadisticas"] {
-  font-size:13px; font-weight:600; padding:6px 14px;
-  border:none; background:rgba(255,255,255,.06); color:var(--text);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-}
-.nbtn[data-page="album"]:hover,.nbtn[data-page="intercambios"]:hover,.nbtn[data-page="estadisticas"]:hover {
-  background:rgba(255,255,255,.11);
-}
-.nbtn[data-page="album"].active {
-  background:linear-gradient(135deg,#ffe033,#f59e0b);
-  color:#0a0f1e; border:none;
-  box-shadow:0 2px 12px rgba(255,180,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
-}
-.nbtn[data-page="intercambios"].active {
-  background:linear-gradient(135deg,#60a5fa,#2563eb);
-  color:#fff; border:none;
-  box-shadow:0 2px 12px rgba(59,130,246,.35), inset 0 1px 0 rgba(255,255,255,.2);
-}
-.nbtn[data-page="estadisticas"].active {
-  background:linear-gradient(135deg,#34d399,#059669);
-  color:#fff; border:none;
-  box-shadow:0 2px 12px rgba(16,185,129,.35), inset 0 1px 0 rgba(255,255,255,.2);
-}
-.hstats { display:flex; gap:6px; align-items:center; }
-.chip {
-  font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700;
-  padding:3px 11px; border-radius:8px; border:none;
-}
-.chip.t {
-  color:#fff;
-  background:linear-gradient(135deg, rgba(0,180,70,.7) 0%, rgba(0,140,50,.5) 100%);
-}
-.chip.f {
-  color:#fff;
-  background:linear-gradient(135deg, rgba(220,60,55,.7) 0%, rgba(180,40,38,.5) 100%);
-}
-.chip.r {
-  color:#fff;
-  background:linear-gradient(135deg, rgba(200,155,0,.7) 0%, rgba(160,110,0,.5) 100%);
-}
-.hpbar { flex:1; max-width:120px; height:4px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.hstats { display:flex; gap:7px; }
+.chip { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid; }
+.chip.t { color:var(--green); border-color:rgba(0,200,83,.3); background:rgba(0,200,83,.07); }
+.chip.f { color:#ef5350; border-color:rgba(239,83,80,.3); background:rgba(239,83,80,.07); }
+.chip.r { color:var(--gold); border-color:rgba(255,215,0,.3); background:rgba(255,215,0,.07); }
+.hpbar { flex:1; max-width:160px; height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
 .hpfill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); transition:width .4s; }
 
 /* ── PAGES ── */
@@ -121,48 +58,22 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .stitle::after { content:''; flex:1; height:1px; background:var(--border2); }
 
 /* ── GROUP BLOCK ── */
-.gblock { margin-bottom:12px; }
+.gblock { margin-bottom:20px; }
 .ghdr {
-  display:flex; align-items:center; gap:8px; padding:6px 12px;
-  background:linear-gradient(135deg,var(--bg4) 0%,#0d1c30 100%);
-  border:1px solid var(--border2); border-radius:8px 8px 0 0;
+  display:flex; align-items:center; gap:10px; padding:8px 14px;
+  background:var(--bg4); border:1px solid var(--border2); border-radius:8px 8px 0 0;
   cursor:pointer; user-select:none; transition:background .15s;
 }
-.ghdr:hover { background:linear-gradient(135deg,var(--surface) 0%,#111f33 100%); }
-.gletter {
-  font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--gold);
-  line-height:1; min-width:26px; letter-spacing:1px;
-}
-.gname {
-  font-family:'Barlow',sans-serif; font-size:13px; font-weight:700;
-  color:var(--text); flex:1; display:flex; align-items:center; gap:6px;
-}
-.gname-label { color:var(--text3); font-size:11px; font-weight:400; margin-right:2px; }
-.gflags { display:flex; gap:3px; font-size:20px; line-height:1; }
-.gpbar { width:90px; height:3px; background:var(--bg); border-radius:2px; overflow:hidden; }
+.ghdr:hover { background:var(--surface); }
+.gletter { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); line-height:1; min-width:28px; }
+.gname { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--text2); letter-spacing:1px; text-transform:uppercase; flex:1; }
+.gpbar { width:100px; height:4px; background:var(--bg); border-radius:2px; overflow:hidden; }
 .gpfill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:2px; transition:width .3s; }
-.gptext { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; font-weight:600; min-width:52px; text-align:right; }
-.gtog { color:var(--text3); font-size:11px; transition:transform .2s; margin-left:2px; }
+.gptext { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; font-weight:600; min-width:55px; text-align:right; }
+.gtog { color:var(--text3); font-size:13px; transition:transform .2s; }
 .ghdr.collapsed .gtog { transform:rotate(-90deg); }
-.gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
+.gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .gbody.hidden { display:none !important; }
-/* Botón colapsar todos */
-.collapse-all-btn {
-  background:none; border:1px solid var(--border2); color:var(--text3);
-  font-size:11px; font-family:'Barlow',sans-serif; padding:3px 10px;
-  border-radius:6px; cursor:pointer; transition:all .18s; margin-bottom:8px;
-}
-.collapse-all-btn:hover { border-color:var(--gold); color:var(--gold); }
-/* Sticker especial pos 21 */
-.slabel.special21 .sbox {
-  background:transparent !important; border:none !important;
-  box-shadow:none !important; overflow:hidden; border-radius:4px;
-  width:22px; height:22px;
-}
-.slabel.special21 .sbox canvas {
-  width:22px; height:22px; border-radius:3px; display:block;
-}
-.slabel.special21 .sbox::after { display:none !important; }
 .modal-overlay.hidden { display:none !important; }
 .modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
 .modal-overlay.open { opacity:1 !important; pointer-events:all !important; display:flex !important; }
@@ -578,37 +489,6 @@ input[data-estado="repetida"].foil-input + .sbox,
 .logout-btn { background:none; border:1px solid var(--border2); color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; padding:3px 10px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .logout-btn:hover { border-color:#ef5350; color:#ef5350; }
 
-/* ── ADMIN EXPAND ROW ── */
-.admin-expand-row td { padding:0 !important; border-bottom:1px solid var(--border2); }
-.admin-expand-inner {
-  overflow:hidden; max-height:0; transition:max-height .35s ease, padding .35s ease;
-  padding:0 16px;
-}
-.admin-expand-inner.open { max-height:400px; padding:14px 16px; }
-.aexp-header {
-  display:flex; align-items:center; gap:10px; margin-bottom:12px;
-}
-.aexp-chips { display:flex; gap:8px; flex-wrap:wrap; }
-.aexp-chip {
-  font-size:12px; font-weight:700; padding:3px 10px; border-radius:6px;
-  display:flex; align-items:center; gap:4px;
-}
-.aexp-chip.t { background:rgba(0,180,70,.15); color:#4ade80; }
-.aexp-chip.f { background:rgba(220,60,55,.15); color:#f87171; }
-.aexp-chip.r { background:rgba(200,155,0,.15); color:#fbbf24; }
-.aexp-chip.res { background:rgba(148,163,184,.15); color:#94a3b8; }
-.aexp-groups { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-.aexp-group {
-  background:var(--bg2); border-radius:6px; padding:6px 10px; min-width:90px;
-}
-.aexp-group-name { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
-.aexp-group-bar { height:3px; background:var(--bg3); border-radius:2px; overflow:hidden; margin-bottom:3px; }
-.aexp-group-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--green),var(--green2)); transition:width .4s; }
-.aexp-group-nums { font-size:10px; color:var(--text2); }
-tr.admin-user-row { cursor:pointer; }
-tr.admin-user-row:hover td { background:rgba(255,255,255,.02); }
-tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
-
 /* ── RANKING PAGE ── */
 .rank-table { width:100%; border-collapse:collapse; }
 .rank-table th { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; padding:7px 12px; text-align:left; border-bottom:1px solid var(--border2); }
@@ -640,28 +520,13 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
   <path d="M17 16H7M7 16l2-2M7 16l2 2" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>
 <header class="header">
-  <div class="logo-panel">
-    <div class="logo-top">
-      <span class="logo-title">MUNDIAL</span>
-      <span class="logo-year">2026</span>
-    </div>
-    <div class="logo-countdown" id="header-countdown">
-      <div class="lcd-unit"><span class="lcd-val" id="cd-d">--</span><span class="lcd-lbl">días</span></div>
-      <span class="lcd-sep">:</span>
-      <div class="lcd-unit"><span class="lcd-val" id="cd-h">--</span><span class="lcd-lbl">hs</span></div>
-      <span class="lcd-sep">:</span>
-      <div class="lcd-unit"><span class="lcd-val" id="cd-m">--</span><span class="lcd-lbl">min</span></div>
-      <span class="lcd-sep">:</span>
-      <div class="lcd-unit"><span class="lcd-val" id="cd-s">--</span><span class="lcd-lbl">seg</span></div>
-    </div>
-  </div>
+  <div class="logo">FIFA WC <em>2026</em></div>
   <nav class="nav">
-    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">⭐ Álbum</button>
-    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🤝 Intercambios</button>
-    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">🎯 Progreso</button>
-    <div class="nav-sep"></div>
-    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">🌍 Info</button>
-    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟 Estadios</button>
+    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">📒 Álbum</button>
+    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
+    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
+    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔄 Intercambios</button>
     <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
@@ -931,7 +796,6 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     <button class="fbtn" data-filter="completo">Completos</button>
     <button class="fbtn" data-filter="nada">Sin empezar</button>
     <input class="fsearch" type="text" id="fsearch" placeholder="🔍 Buscar equipo...">
-    <button class="collapse-all-btn" id="collapse-all-btn" onclick="collapseAllGroups(true)">▼ Colapsar todos</button>
   </div>
   <div id="album-container"></div>
 </div>
@@ -1230,7 +1094,7 @@ function buildNestedState(flat){
   return nested;
 }
 
-function teamKey(gl,en){ return gl+"__"+en.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"_"); }
+function teamKey(gl,en){ return gl+"__"+en.replace(/[^a-zA-Z0-9]/g,"_"); }
 
 function getEstado(s,gl,en,codigo){
   const k = teamKey(gl,en)+'||'+codigo;
@@ -1359,25 +1223,6 @@ function updateHeader(){
 let filterMode="todos";
 let searchQ="";
 
-function collapseAllGroups(collapse){
-  DB_GRUPOS.forEach(g => {
-    const body = document.getElementById('gb_'+g.letra);
-    const hdr  = document.getElementById('gh_'+g.letra);
-    if(!body || !hdr) return;
-    if(collapse){
-      body.classList.add('hidden');
-      hdr.classList.add('collapsed');
-      localStorage.setItem('gc_'+g.letra,'1');
-    } else {
-      body.classList.remove('hidden');
-      hdr.classList.remove('collapsed');
-      localStorage.setItem('gc_'+g.letra,'0');
-    }
-  });
-  const btn = document.getElementById('collapse-all-btn');
-  if(btn) btn.textContent = collapse ? '▶ Expandir todos' : '▼ Colapsar todos';
-}
-
 async function renderAlbum(){
   const con=document.getElementById("album-container");
   con.innerHTML="";
@@ -1411,10 +1256,7 @@ async function renderAlbum(){
     block.innerHTML=`
       <div class="ghdr${isCollapsed?" collapsed":""}" id="gh_${g.letra}">
         <div class="gletter">G${g.letra}</div>
-        <div class="gname">
-          <span class="gname-label">Grupo ${g.letra}</span>
-          <span class="gflags">${g.equipos.map(e=>e.bandera).join('')}</span>
-        </div>
+        <div class="gname">Grupo ${g.letra} — ${g.equipos.map(e=>e.bandera).join(" ")}</div>
         <div class="gpbar"><div class="gpfill" id="gpf_${g.letra}" style="width:${pct}%"></div></div>
         <div class="gptext" id="gpt_${g.letra}">${gc.t}/${gc.tot} (${pct}%)</div>
         <span class="gtog">▼</span>
@@ -1435,100 +1277,6 @@ async function renderAlbum(){
       gb.appendChild(buildTeamCard(s,g,gi,eq,g.equipos.indexOf(eq)));
     });
   });
-}
-
-// ── Colores por país para el sticker 21 ──
-const COUNTRY_COLORS = {
-  'Argentina':     ['#74ACDF','#FFFFFF','#74ACDF'],
-  'Brasil':        ['#009C3B','#FFDF00','#002776'],
-  'Francia':       ['#002395','#FFFFFF','#ED2939'],
-  'Alemania':      ['#000000','#DD0000','#FFCE00'],
-  'España':        ['#AA151B','#F1BF00','#AA151B'],
-  'Portugal':      ['#006600','#FF0000','#FFD700'],
-  'México':        ['#006847','#FFFFFF','#CE1126'],
-  'Uruguay':       ['#FFFFFF','#5EB6E4','#FFFFFF'],
-  'Colombia':      ['#FCD116','#003087','#CE1126'],
-  'Ecuador':       ['#FFD100','#003580','#CE1126'],
-  'Estados Unidos':['#B22234','#FFFFFF','#3C3B6E'],
-  'Canadá':        ['#FF0000','#FFFFFF','#FF0000'],
-  'Marruecos':     ['#C1272D','#006233','#C1272D'],
-  'Senegal':       ['#00853F','#FDEF42','#E31B23'],
-  'Japón':         ['#FFFFFF','#BC002D','#FFFFFF'],
-  'Corea del Sur': ['#FFFFFF','#CD2E3A','#0047A0'],
-  'Arabia Saudita':['#006C35','#FFFFFF','#006C35'],
-  'Países Bajos':  ['#FF4F00','#FFFFFF','#003DA5'],
-  'Bélgica':       ['#000000','#FAE042','#EF3340'],
-  'Inglaterra':    ['#FFFFFF','#CF0921','#FFFFFF'],
-  'Croacia':       ['#FF0000','#FFFFFF','#171796'],
-  'Suiza':         ['#FF0000','#FFFFFF','#FF0000'],
-  'Turquía':       ['#E30A17','#FFFFFF','#E30A17'],
-  'Australia':     ['#00008B','#FFFFFF','#FF0000'],
-  'Ghana':         ['#006B3F','#FCD116','#EF3340'],
-  'Irán':          ['#239F40','#FFFFFF','#DA0000'],
-  'Polonia':       ['#FFFFFF','#DC143C','#FFFFFF'],
-  'Qatar':         ['#8D1B3D','#FFFFFF','#8D1B3D'],
-  'Noruega':       ['#EF2B2D','#FFFFFF','#002868'],
-  'Suecia':        ['#006AA7','#FECC02','#006AA7'],
-  'default':       ['#1a2a4a','#2a4a6a','#1a2a4a'],
-};
-function getCountryColors(nombre){
-  return COUNTRY_COLORS[nombre] || COUNTRY_COLORS['default'];
-}
-
-const _canvasAnimFrames = new Map();
-function animateCountryCanvas(canvas, colors, estado){
-  const ctx = canvas.getContext('2d');
-  const W = 22, H = 22;
-  let t = 0;
-  // Cancelar animación previa si existe
-  if(_canvasAnimFrames.has(canvas)){
-    cancelAnimationFrame(_canvasAnimFrames.get(canvas));
-  }
-  function draw(){
-    t += 0.04;
-    ctx.clearRect(0,0,W,H);
-    // Fondo con gradiente animado diagonal
-    const grd = ctx.createLinearGradient(
-      Math.sin(t)*5, 0,
-      W + Math.cos(t)*5, H
-    );
-    grd.addColorStop(0,   colors[0]+'cc');
-    grd.addColorStop(0.5, colors[1]+'cc');
-    grd.addColorStop(1,   colors[2]+'cc');
-    ctx.fillStyle = grd;
-    ctx.roundRect(0,0,W,H,3);
-    ctx.fill();
-    // Si está marcado como tengo, overlay con ✓
-    if(estado === 'tengo'){
-      ctx.fillStyle = 'rgba(0,200,83,.7)';
-      ctx.roundRect(0,0,W,H,3);
-      ctx.fill();
-      ctx.fillStyle='#fff';
-      ctx.font='bold 13px sans-serif';
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      ctx.fillText('✓',W/2,H/2+1);
-    } else if(estado === 'repetida'){
-      ctx.fillStyle='rgba(255,215,0,.5)';
-      ctx.roundRect(0,0,W,H,3);
-      ctx.fill();
-      ctx.fillStyle='#fff';
-      ctx.font='bold 12px sans-serif';
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      ctx.fillText('↺',W/2,H/2+1);
-    } else {
-      // Partícula/estrella parpadeante
-      const bri = 0.5 + Math.sin(t*2)*0.5;
-      ctx.fillStyle=`rgba(255,255,255,${bri*0.8})`;
-      ctx.beginPath();
-      ctx.arc(W/2, H/2, 2.5, 0, Math.PI*2);
-      ctx.fill();
-    }
-    const id = requestAnimationFrame(draw);
-    _canvasAnimFrames.set(canvas, id);
-  }
-  draw();
 }
 
 function buildTeamCard(s,g,gi,eq,ei){
@@ -1560,10 +1308,9 @@ function buildTeamCard(s,g,gi,eq,ei){
     const estado=getEstado(s,g.letra,eq.nombre,tp.codigo);
     const num=ti + 1;
     const isFoil=ti===0; // primer sticker = escudo = foil
-    const isSpecial21=ti===20; // último sticker = fig. especial
 
     const lbl=document.createElement("label");
-    lbl.className="slabel"+(isFoil?" foil":"")+(isSpecial21?" special21":"");
+    lbl.className="slabel"+(isFoil?" foil":"");
     lbl.title=eq.jugadores[ti]||tp.codigo;
 
     const inp=document.createElement("input");
@@ -1579,15 +1326,6 @@ function buildTeamCard(s,g,gi,eq,ei){
     const box=document.createElement("div");
     box.className="sbox";
 
-    // Casillero 21: mini canvas animado con colores del país
-    if(isSpecial21){
-      const colors = getCountryColors(eq.nombre);
-      const canvas = document.createElement('canvas');
-      canvas.width=22; canvas.height=22;
-      box.appendChild(canvas);
-      animateCountryCanvas(canvas, colors, estado);
-    }
-
     const numEl=document.createElement("span");
     numEl.className="snum";
     numEl.textContent=num;
@@ -1601,11 +1339,6 @@ function buildTeamCard(s,g,gi,eq,ei){
       e.preventDefault();
       const next=await cycleEstado(g.letra,eq.nombre,tp.codigo);
       inp.dataset.estado=next;
-      // Actualizar canvas animado si es el sticker 21
-      if(isSpecial21){
-        const canvas = box.querySelector('canvas');
-        if(canvas) animateCountryCanvas(canvas, getCountryColors(eq.nombre), next);
-      }
       updateTeamCard(g,gi,g.equipos.indexOf(eq),eq);
       updateGroupProgress(g);
       updateHeader();
@@ -2015,10 +1748,8 @@ async function loadAdminUsers(){
       const isMe = u.nombre.toLowerCase() === myNombre.toLowerCase();
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('es-AR') : '-';
       const updated = u.updated_at ? new Date(u.updated_at).toLocaleDateString('es-AR') : '-';
-      const rowId = 'exp-' + u.id.replace(/-/g,'');
-      return `<tr class="admin-user-row" onclick="adminToggleExpand('${u.id}')" ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
+      return `<tr ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
         <td>
-          <span style="font-size:10px;color:var(--text3);margin-right:4px;" id="exp-arrow-${u.id}">▶</span>
           <b style="color:var(--text);">${u.nombre}</b>
           ${isMe ? '<span style="color:var(--gold);font-size:10px;margin-left:5px;">(vos)</span>' : ''}
         </td>
@@ -2033,18 +1764,12 @@ async function loadAdminUsers(){
         </td>
         <td style="font-size:11px;color:var(--text3);">${created}</td>
         <td style="font-size:11px;color:var(--text3);">${updated}</td>
-        <td onclick="event.stopPropagation()">
+        <td>
           <div class="admin-actions">
+            <button class="abtn info" onclick="adminVerAlbum('${u.id}','${u.nombre}')">👁 Ver</button>
             <button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>
             ${!isMe ? `<button class="abtn danger" onclick="adminReset('${u.id}','${u.nombre}')">↺ Reset</button>` : ''}
             ${!isMe ? `<button class="abtn danger" onclick="adminEliminar('${u.id}','${u.nombre}')">🗑</button>` : ''}
-          </div>
-        </td>
-      </tr>
-      <tr class="admin-expand-row" id="${rowId}">
-        <td colspan="8">
-          <div class="admin-expand-inner" id="inner-${u.id}">
-            <div style="color:var(--text3);font-size:12px;padding:4px 0;">Cargando álbum...</div>
           </div>
         </td>
       </tr>`;
@@ -2077,77 +1802,15 @@ async function loadAdminLogs(){
   } catch(e){ tbody.innerHTML = '<tr><td colspan="4" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
 }
 
-const _expandCache = {};
-const _expandOpen  = new Set();
-
-async function adminToggleExpand(id){
-  const inner = document.getElementById('inner-'+id);
-  const arrow = document.getElementById('exp-arrow-'+id);
-  const row   = document.querySelector(`tr.admin-user-row[onclick*="${id}"]`);
-  if(!inner) return;
-
-  const isOpen = _expandOpen.has(id);
-  if(isOpen){
-    inner.classList.remove('open');
-    if(arrow) arrow.textContent = '▶';
-    if(row)   row.classList.remove('expanded');
-    _expandOpen.delete(id);
-    return;
-  }
-
-  inner.classList.add('open');
-  if(arrow) arrow.textContent = '▼';
-  if(row)   row.classList.add('expanded');
-  _expandOpen.add(id);
-
-  // Si ya está en cache, solo mostrar
-  if(_expandCache[id]){ inner.innerHTML = _expandCache[id]; return; }
-
-  inner.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:4px 0;">Cargando álbum...</div>';
+async function adminVerAlbum(id, nombre){
   try {
     const r = await fetch(API_BASE+'/api/admin/album/'+id, { headers: authHeaders() });
     const d = await r.json();
-    const estado = flattenState(d.estado || {});
-
-    const tengo    = Object.values(estado).filter(v=>v==='tengo').length;
-    const rep      = Object.values(estado).filter(v=>v==='repetida').length;
-    const reserv   = Object.values(estado).filter(v=>v==='reservada').length;
-    const falta    = 1008 - tengo - rep - reserv;
-    const pct      = Math.round(tengo/1008*100);
-
-    // Calcular por grupo
-    const gruposHtml = DB_GRUPOS.map(g => {
-      let gt=0, gr=0, gf=0;
-      g.equipos.forEach(eq => {
-        const k = g.letra+'__'+eq.nombre.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
-        DB_TIPOS.forEach(tp => {
-          const key = k+'||'+tp.codigo;
-          const v = estado[key] || 'vacia';
-          if(v==='tengo') gt++; else if(v==='repetida') gr++; else gf++;
-        });
-      });
-      const gpct = Math.round(gt/(g.equipos.length*21)*100);
-      return `<div class="aexp-group">
-        <div class="aexp-group-name">Grupo ${g.letra}</div>
-        <div class="aexp-group-bar"><div class="aexp-group-fill" style="width:${gpct}%"></div></div>
-        <div class="aexp-group-nums" style="color:var(--green)">${gt}<span style="color:var(--text3)"> / ${g.equipos.length*21}</span></div>
-      </div>`;
-    }).join('');
-
-    const html = `
-      <div class="aexp-chips">
-        <span class="aexp-chip t">✓ ${tengo} tengo</span>
-        <span class="aexp-chip f">✗ ${falta} faltan</span>
-        <span class="aexp-chip r">↺ ${rep} repetidas</span>
-        ${reserv > 0 ? `<span class="aexp-chip res">🔒 ${reserv} reservadas</span>` : ''}
-        <span style="font-size:11px;color:var(--text3);align-self:center;margin-left:4px;">${pct}% completado</span>
-      </div>
-      <div class="aexp-groups">${gruposHtml}</div>`;
-    _expandCache[id] = html;
-    inner.innerHTML = html;
-  } catch(e){
-    inner.innerHTML = '<div style="color:#ef5350;font-size:12px;">Error al cargar</div>';
-  }
+    const tengo = Object.values(d.estado||{}).filter(v=>v==='tengo').length;
+    const rep   = Object.values(d.estado||{}).filter(v=>v==='repetida').length;
+    const falta = 1008 - tengo - rep;
+    alert(`📒 Álbum de ${nombre}\n\n✓ Tengo: ${tengo}\n↺ Repetidas: ${rep}\n✗ Faltan: ${falta}\n\nProgreso: ${Math.round(tengo/1008*100)}%`);
+  } catch(e){ alert('Error al cargar el álbum'); }
 }
 
 async function adminCambiarPass(id, nombre){
@@ -2333,19 +1996,12 @@ function keyToDesc(key) {
   const parts = key.replace(/\|\|/g,'__').split('__');
   if(parts.length < 3) return key;
   const grupo  = parts[0];
-  const equipoKey = parts.slice(1, parts.length-1).join('_');
+  const equipo = parts.slice(1, parts.length-1).join(' ').replace(/_/g,' ');
   const tipo   = parts[parts.length-1];
   const tipoNum = { ESC:1,PT1:2,PT2:3,PT3:4,PT4:5,PT5:6,PT6:7,PT7:8,PT8:9,PT9:10,
     PT10:11,PT11:12,PT12:13,PT13:14,PT14:15,PT15:16,PT16:17,PT17:18,PT18:19,PT19:20,PT20:21 };
   const num = tipoNum[tipo] || tipo;
-  // Buscar nombre real del equipo en DB_GRUPOS
-  let equipoNombre = equipoKey.replace(/_/g,' ');
-  const grupo_data = DB_GRUPOS.find(g => g.letra === grupo);
-  if(grupo_data){
-    const eq = grupo_data.equipos.find(e => teamKey(grupo, e.nombre) === grupo+'__'+equipoKey);
-    if(eq) equipoNombre = eq.nombre;
-  }
-  return `${equipoNombre} (G${grupo}) #${num}`;
+  return `${equipo} (G${grupo}) #${num}`;
 }
 
 // ── Badge polling (cada 180 seg) ──
@@ -2640,7 +2296,6 @@ async function loadMisPropuestas(){
         <div style="display:flex;align-items:center;">${acc}</div>
       </div>`;
     }).filter(Boolean).join('');
-    listDiv.innerHTML = rendered || '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">Sin propuestas activas</div>';
   } catch(e){ 
     console.error('loadMisPropuestas error:', e);
     listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; 
@@ -3088,29 +2743,6 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
   });
 });
 
-
-// ── COUNTDOWN ──
-(function(){
-  // Inauguración: 11 junio 2026, 20:00 Ciudad de México (UTC-6) = 11 jun 2026 02:00 UTC
-  const TARGET = new Date('2026-06-12T02:00:00Z').getTime();
-  function update(){
-    const now = Date.now();
-    const diff = TARGET - now;
-    if(diff <= 0){
-      ['cd-d','cd-h','cd-m','cd-s'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='00'; });
-      return;
-    }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    const fmt = n => String(n).padStart(2,'0');
-    const el = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=fmt(v); };
-    el('cd-d',d); el('cd-h',h); el('cd-m',m); el('cd-s',s);
-  }
-  update();
-  setInterval(update, 1000);
-})();
 
 // ── START ──
 document.addEventListener("DOMContentLoaded", ()=>{ init(); });
