@@ -35,8 +35,9 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .logo-title {
   font-family:'Bebas Neue',sans-serif; font-size:19px; color:transparent;
   letter-spacing:2.5px; line-height:1;
-  background:linear-gradient(135deg, #ffd700 0%, #ffe566 50%, #f59e0b 100%);
+  background:linear-gradient(160deg, #fff5a0 0%, #ffd700 40%, #c97c00 100%);
   -webkit-background-clip:text; background-clip:text;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)) drop-shadow(0 1px 0px #7a4a00);
 }
 .logo-year {
   font-family:'Bebas Neue',sans-serif; font-size:11px; color:#93c5fd;
@@ -57,11 +58,29 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; font-weight:500; padding:5px 11px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .nbtn:hover { background:var(--surface); color:var(--text); border-color:var(--border2); }
 .nbtn.active { background:var(--gold); color:var(--bg); font-weight:700; border-color:var(--gold); }
-.nbtn[data-page="album"],.nbtn[data-page="intercambios"],.nbtn[data-page="estadisticas"] { font-size:13px; font-weight:600; padding:6px 13px; border:1.5px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:var(--text); }
-.nbtn[data-page="album"]:hover,.nbtn[data-page="intercambios"]:hover,.nbtn[data-page="estadisticas"]:hover { background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.2); }
-.nbtn[data-page="album"].active { background:var(--gold); color:var(--bg); border-color:var(--gold); }
-.nbtn[data-page="intercambios"].active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
-.nbtn[data-page="estadisticas"].active { background:#10b981; color:#fff; border-color:#10b981; }
+.nbtn[data-page="album"],.nbtn[data-page="intercambios"],.nbtn[data-page="estadisticas"] {
+  font-size:13px; font-weight:600; padding:6px 14px;
+  border:none; background:rgba(255,255,255,.06); color:var(--text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+.nbtn[data-page="album"]:hover,.nbtn[data-page="intercambios"]:hover,.nbtn[data-page="estadisticas"]:hover {
+  background:rgba(255,255,255,.11);
+}
+.nbtn[data-page="album"].active {
+  background:linear-gradient(135deg,#ffe033,#f59e0b);
+  color:#0a0f1e; border:none;
+  box-shadow:0 2px 12px rgba(255,180,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.nbtn[data-page="intercambios"].active {
+  background:linear-gradient(135deg,#60a5fa,#2563eb);
+  color:#fff; border:none;
+  box-shadow:0 2px 12px rgba(59,130,246,.35), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.nbtn[data-page="estadisticas"].active {
+  background:linear-gradient(135deg,#34d399,#059669);
+  color:#fff; border:none;
+  box-shadow:0 2px 12px rgba(16,185,129,.35), inset 0 1px 0 rgba(255,255,255,.2);
+}
 .hstats { display:flex; gap:6px; align-items:center; }
 .chip {
   font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700;
@@ -580,9 +599,9 @@ input[data-estado="repetida"].foil-input + .sbox,
     </div>
   </div>
   <nav class="nav">
-    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">📋 Álbum</button>
-    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔀 Intercambios</button>
-    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📈 Progreso</button>
+    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">⭐ Álbum</button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🤝 Intercambios</button>
+    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">🎯 Progreso</button>
     <div class="nav-sep"></div>
     <button class="nbtn" data-page="info" data-roles="admin,coleccionista">🌍 Info</button>
     <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟 Estadios</button>
