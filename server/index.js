@@ -111,14 +111,24 @@ app.post('/api/login', async (req, res) => {
     process.env.JWT_SECRET, { expiresIn: '30d' }
   );
 
-  // Si es visor, buscar el nombre del primer admin
+  // Si es visor, buscar el admin configurado (o el primero disponible)
   let visorDe = null;
+  let visorDeId = null;
   if(rol === 'visor'){
     try {
-      const { data: adminData } = await supabase
-        .from('usuarios').select('nombre').eq('rol','admin')
-        .order('created_at', { ascending: true }).limit(1).single();
-      if(adminData) visorDe = adminData.nombre;
+      const visorDeIdGuardado = data.estado?._visor_de_id;
+      if(visorDeIdGuardado){
+        const { data: adminData } = await supabase
+          .from('usuarios').select('id, nombre').eq('id', visorDeIdGuardado).single();
+        if(adminData){ visorDe = adminData.nombre; visorDeId = adminData.id; }
+      }
+      if(!visorDe){
+        // Fallback: primer admin
+        const { data: adminData } = await supabase
+          .from('usuarios').select('id, nombre').eq('rol','admin')
+          .order('created_at', { ascending: true }).limit(1).single();
+        if(adminData){ visorDe = adminData.nombre; visorDeId = adminData.id; }
+      }
     } catch(_){}
   }
 
@@ -237,16 +247,21 @@ app.get('/api/admin/usuarios', authMiddleware, adminMiddleware, async (req, res)
 });
 
 // GET /api/admin/album/:id — ver álbum de cualquier usuario
-// GET /api/visor/album — álbum del primer admin para usuarios visor
+// GET /api/visor/album — álbum del admin configurado para este visor
 app.get('/api/visor/album', authMiddleware, async (req, res) => {
   if(req.userRol !== 'visor')
     return res.status(403).json({ error: 'Solo para rol visor' });
   try {
-    const { data, error } = await supabase
-      .from('usuarios').select('id, nombre, estado, rol')
-      .eq('rol', 'admin')
-      .order('created_at', { ascending: true })
-      .limit(1).single();
+    // Buscar el visor para obtener su visor_de_id
+    const { data: visorData } = await supabase
+      .from('usuarios').select('estado').eq('id', req.userId).single();
+    const visorDeId = visorData?.estado?._visor_de_id;
+
+    let adminQuery = supabase.from('usuarios').select('id, nombre, estado, rol').eq('rol','admin');
+    if(visorDeId) adminQuery = adminQuery.eq('id', visorDeId);
+    else adminQuery = adminQuery.order('created_at', { ascending: true }).limit(1);
+
+    const { data, error } = await adminQuery.single();
     if(error || !data)
       return res.status(404).json({ error: 'No hay usuario admin disponible' });
     res.json({ estado: data.estado || {}, nombre: data.nombre, rol: 'visor', visorDe: data.nombre });
@@ -351,9 +366,13 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
     return res.status(409).json({ error: 'Ese nombre ya está en uso' });
 
   const hash = await bcrypt.hash(password, 10);
+  // Para visor: guardar el id del admin que puede ver en el campo estado como metadata
+  const estadoInicial = rol === 'visor' && req.body.visor_de_id
+    ? { _visor_de_id: req.body.visor_de_id }
+    : {};
   const { data, error } = await supabase
     .from('usuarios')
-    .insert({ nombre: nombre.trim(), password_hash: hash, estado: {}, rol })
+    .insert({ nombre: nombre.trim(), password_hash: hash, estado: estadoInicial, rol })
     .select('id, nombre, rol')
     .single();
 

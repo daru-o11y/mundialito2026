@@ -1998,9 +1998,14 @@ let _userRol = 'coleccionista';
 function setRol(rol){
   _userRol = rol;
   document.querySelectorAll('.nbtn[data-roles]').forEach(btn => {
-    const roles = btn.dataset.roles.split(',');
-    const efectivo = rol === 'visor' ? 'coleccionista' : rol;
-    btn.style.display = roles.includes(efectivo) ? '' : 'none';
+    if(rol === 'visor'){
+      // Visor solo ve: album, estadisticas, info, estadios
+      const visibles = ['album','estadisticas','info','estadios'];
+      btn.style.display = visibles.includes(btn.dataset.page) ? '' : 'none';
+    } else {
+      const roles = btn.dataset.roles.split(',');
+      btn.style.display = roles.includes(rol) ? '' : 'none';
+    }
   });
   if(rol === 'visor'){
     document.body.classList.add('modo-visor');
@@ -2237,20 +2242,42 @@ function closeCrearUsuario(){
   const el = document.getElementById('crear-usuario-overlay');
   if(el) el.style.display = 'none';
 }
+function onCuRolChange(){
+  const rol = document.getElementById('cu-rol').value;
+  const sec = document.getElementById('cu-visor-section');
+  if(rol === 'visor'){
+    sec.style.display = '';
+    // Cargar admins disponibles
+    fetch(API_BASE+'/api/admin/usuarios', { headers: authHeaders() })
+      .then(r => r.json())
+      .then(users => {
+        const admins = users.filter(u => u.rol === 'admin');
+        const sel = document.getElementById('cu-visor-admin');
+        sel.innerHTML = admins.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('');
+      }).catch(()=>{
+        document.getElementById('cu-visor-admin').innerHTML = '<option value="">Error al cargar</option>';
+      });
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
 async function submitCrearUsuario(){
   const nombre   = document.getElementById('cu-nombre').value.trim();
   const password = document.getElementById('cu-pass').value;
   const rol      = document.getElementById('cu-rol').value;
+  const visorDeId = rol === 'visor' ? document.getElementById('cu-visor-admin')?.value : null;
   const errEl    = document.getElementById('cu-error');
   const btn      = document.getElementById('cu-submit');
   errEl.textContent = '';
   if(!nombre || !password){ errEl.textContent = 'Completá todos los campos'; return; }
   if(password.length < 4){ errEl.textContent = 'Mínimo 4 caracteres'; return; }
+  if(rol === 'visor' && !visorDeId){ errEl.textContent = 'Elegí qué admin puede ver'; return; }
   btn.disabled = true; btn.textContent = '...';
   try {
     const r = await fetch(API_BASE+'/api/admin/crear-usuario', {
       method:'POST', headers: authHeaders(),
-      body: JSON.stringify({ nombre, password, rol })
+      body: JSON.stringify({ nombre, password, rol, visor_de_id: visorDeId })
     });
     const d = await r.json();
     if(!r.ok){
@@ -2891,7 +2918,7 @@ async function init(){
     updateHeader();
     updateProfileBadge();
     if(rol==="admin") await renderRanking();
-    startPollNotif();
+    if(rol !== 'visor') startPollNotif();
     startInactivityTimer();
   }
 }
@@ -3002,7 +3029,7 @@ async function handleAuth(){
     updateHeader();
     updateProfileBadge();
     if((d.rol||"coleccionista")==="admin") await renderRanking();
-    startPollNotif();
+    if((d.rol||"coleccionista") !== 'visor') startPollNotif();
     startInactivityTimer();
     showLoadingOverlay(false);
   } catch(e){
@@ -3170,11 +3197,17 @@ document.addEventListener("DOMContentLoaded", ()=>{ init(); });
     <div class="modal-label">Contraseña</div>
     <input class="modal-input" type="password" id="cu-pass" placeholder="Mínimo 4 caracteres" maxlength="50">
     <div class="modal-label">Rol</div>
-    <select class="modal-input" id="cu-rol" style="cursor:pointer;">
+    <select class="modal-input" id="cu-rol" style="cursor:pointer;" onchange="onCuRolChange()">
       <option value="coleccionista">Coleccionista</option>
       <option value="admin">Admin</option>
       <option value="visor">Visor (solo lectura)</option>
     </select>
+    <div id="cu-visor-section" style="display:none;">
+      <div class="modal-label" style="margin-top:8px;">¿Qué álbum puede ver?</div>
+      <select class="modal-input" id="cu-visor-admin" style="cursor:pointer;">
+        <option value="">Cargando admins...</option>
+      </select>
+    </div>
     <div class="modal-actions" style="margin-top:4px;">
       <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>
     </div>
