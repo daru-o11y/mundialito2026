@@ -121,22 +121,48 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .stitle::after { content:''; flex:1; height:1px; background:var(--border2); }
 
 /* ── GROUP BLOCK ── */
-.gblock { margin-bottom:20px; }
+.gblock { margin-bottom:12px; }
 .ghdr {
-  display:flex; align-items:center; gap:10px; padding:8px 14px;
-  background:var(--bg4); border:1px solid var(--border2); border-radius:8px 8px 0 0;
+  display:flex; align-items:center; gap:8px; padding:6px 12px;
+  background:linear-gradient(135deg,var(--bg4) 0%,#0d1c30 100%);
+  border:1px solid var(--border2); border-radius:8px 8px 0 0;
   cursor:pointer; user-select:none; transition:background .15s;
 }
-.ghdr:hover { background:var(--surface); }
-.gletter { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); line-height:1; min-width:28px; }
-.gname { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--text2); letter-spacing:1px; text-transform:uppercase; flex:1; }
-.gpbar { width:100px; height:4px; background:var(--bg); border-radius:2px; overflow:hidden; }
+.ghdr:hover { background:linear-gradient(135deg,var(--surface) 0%,#111f33 100%); }
+.gletter {
+  font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--gold);
+  line-height:1; min-width:26px; letter-spacing:1px;
+}
+.gname {
+  font-family:'Barlow',sans-serif; font-size:13px; font-weight:700;
+  color:var(--text); flex:1; display:flex; align-items:center; gap:6px;
+}
+.gname-label { color:var(--text3); font-size:11px; font-weight:400; margin-right:2px; }
+.gflags { display:flex; gap:3px; font-size:20px; line-height:1; }
+.gpbar { width:90px; height:3px; background:var(--bg); border-radius:2px; overflow:hidden; }
 .gpfill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:2px; transition:width .3s; }
-.gptext { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; font-weight:600; min-width:55px; text-align:right; }
-.gtog { color:var(--text3); font-size:13px; transition:transform .2s; }
+.gptext { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; font-weight:600; min-width:52px; text-align:right; }
+.gtog { color:var(--text3); font-size:11px; transition:transform .2s; margin-left:2px; }
 .ghdr.collapsed .gtog { transform:rotate(-90deg); }
 .gbody { border:1px solid var(--border2); border-top:none; border-radius:0 0 8px 8px; background:var(--bg2); padding:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
 .gbody.hidden { display:none !important; }
+/* Botón colapsar todos */
+.collapse-all-btn {
+  background:none; border:1px solid var(--border2); color:var(--text3);
+  font-size:11px; font-family:'Barlow',sans-serif; padding:3px 10px;
+  border-radius:6px; cursor:pointer; transition:all .18s; margin-bottom:8px;
+}
+.collapse-all-btn:hover { border-color:var(--gold); color:var(--gold); }
+/* Sticker especial pos 21 */
+.slabel.special21 .sbox {
+  background:transparent !important; border:none !important;
+  box-shadow:none !important; overflow:hidden; border-radius:4px;
+  width:22px; height:22px;
+}
+.slabel.special21 .sbox canvas {
+  width:22px; height:22px; border-radius:3px; display:block;
+}
+.slabel.special21 .sbox::after { display:none !important; }
 .modal-overlay.hidden { display:none !important; }
 .modal-overlay:not(.hidden) { opacity:1; pointer-events:all; }
 .modal-overlay.open { opacity:1 !important; pointer-events:all !important; display:flex !important; }
@@ -905,6 +931,7 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     <button class="fbtn" data-filter="completo">Completos</button>
     <button class="fbtn" data-filter="nada">Sin empezar</button>
     <input class="fsearch" type="text" id="fsearch" placeholder="🔍 Buscar equipo...">
+    <button class="collapse-all-btn" id="collapse-all-btn" onclick="collapseAllGroups(true)">▼ Colapsar todos</button>
   </div>
   <div id="album-container"></div>
 </div>
@@ -1332,6 +1359,25 @@ function updateHeader(){
 let filterMode="todos";
 let searchQ="";
 
+function collapseAllGroups(collapse){
+  DB_GRUPOS.forEach(g => {
+    const body = document.getElementById('gb_'+g.letra);
+    const hdr  = document.getElementById('gh_'+g.letra);
+    if(!body || !hdr) return;
+    if(collapse){
+      body.classList.add('hidden');
+      hdr.classList.add('collapsed');
+      localStorage.setItem('gc_'+g.letra,'1');
+    } else {
+      body.classList.remove('hidden');
+      hdr.classList.remove('collapsed');
+      localStorage.setItem('gc_'+g.letra,'0');
+    }
+  });
+  const btn = document.getElementById('collapse-all-btn');
+  if(btn) btn.textContent = collapse ? '▶ Expandir todos' : '▼ Colapsar todos';
+}
+
 async function renderAlbum(){
   const con=document.getElementById("album-container");
   con.innerHTML="";
@@ -1365,7 +1411,10 @@ async function renderAlbum(){
     block.innerHTML=`
       <div class="ghdr${isCollapsed?" collapsed":""}" id="gh_${g.letra}">
         <div class="gletter">G${g.letra}</div>
-        <div class="gname">Grupo ${g.letra} — ${g.equipos.map(e=>e.bandera).join(" ")}</div>
+        <div class="gname">
+          <span class="gname-label">Grupo ${g.letra}</span>
+          <span class="gflags">${g.equipos.map(e=>e.bandera).join('')}</span>
+        </div>
         <div class="gpbar"><div class="gpfill" id="gpf_${g.letra}" style="width:${pct}%"></div></div>
         <div class="gptext" id="gpt_${g.letra}">${gc.t}/${gc.tot} (${pct}%)</div>
         <span class="gtog">▼</span>
@@ -1386,6 +1435,100 @@ async function renderAlbum(){
       gb.appendChild(buildTeamCard(s,g,gi,eq,g.equipos.indexOf(eq)));
     });
   });
+}
+
+// ── Colores por país para el sticker 21 ──
+const COUNTRY_COLORS = {
+  'Argentina':     ['#74ACDF','#FFFFFF','#74ACDF'],
+  'Brasil':        ['#009C3B','#FFDF00','#002776'],
+  'Francia':       ['#002395','#FFFFFF','#ED2939'],
+  'Alemania':      ['#000000','#DD0000','#FFCE00'],
+  'España':        ['#AA151B','#F1BF00','#AA151B'],
+  'Portugal':      ['#006600','#FF0000','#FFD700'],
+  'México':        ['#006847','#FFFFFF','#CE1126'],
+  'Uruguay':       ['#FFFFFF','#5EB6E4','#FFFFFF'],
+  'Colombia':      ['#FCD116','#003087','#CE1126'],
+  'Ecuador':       ['#FFD100','#003580','#CE1126'],
+  'Estados Unidos':['#B22234','#FFFFFF','#3C3B6E'],
+  'Canadá':        ['#FF0000','#FFFFFF','#FF0000'],
+  'Marruecos':     ['#C1272D','#006233','#C1272D'],
+  'Senegal':       ['#00853F','#FDEF42','#E31B23'],
+  'Japón':         ['#FFFFFF','#BC002D','#FFFFFF'],
+  'Corea del Sur': ['#FFFFFF','#CD2E3A','#0047A0'],
+  'Arabia Saudita':['#006C35','#FFFFFF','#006C35'],
+  'Países Bajos':  ['#FF4F00','#FFFFFF','#003DA5'],
+  'Bélgica':       ['#000000','#FAE042','#EF3340'],
+  'Inglaterra':    ['#FFFFFF','#CF0921','#FFFFFF'],
+  'Croacia':       ['#FF0000','#FFFFFF','#171796'],
+  'Suiza':         ['#FF0000','#FFFFFF','#FF0000'],
+  'Turquía':       ['#E30A17','#FFFFFF','#E30A17'],
+  'Australia':     ['#00008B','#FFFFFF','#FF0000'],
+  'Ghana':         ['#006B3F','#FCD116','#EF3340'],
+  'Irán':          ['#239F40','#FFFFFF','#DA0000'],
+  'Polonia':       ['#FFFFFF','#DC143C','#FFFFFF'],
+  'Qatar':         ['#8D1B3D','#FFFFFF','#8D1B3D'],
+  'Noruega':       ['#EF2B2D','#FFFFFF','#002868'],
+  'Suecia':        ['#006AA7','#FECC02','#006AA7'],
+  'default':       ['#1a2a4a','#2a4a6a','#1a2a4a'],
+};
+function getCountryColors(nombre){
+  return COUNTRY_COLORS[nombre] || COUNTRY_COLORS['default'];
+}
+
+const _canvasAnimFrames = new Map();
+function animateCountryCanvas(canvas, colors, estado){
+  const ctx = canvas.getContext('2d');
+  const W = 22, H = 22;
+  let t = 0;
+  // Cancelar animación previa si existe
+  if(_canvasAnimFrames.has(canvas)){
+    cancelAnimationFrame(_canvasAnimFrames.get(canvas));
+  }
+  function draw(){
+    t += 0.04;
+    ctx.clearRect(0,0,W,H);
+    // Fondo con gradiente animado diagonal
+    const grd = ctx.createLinearGradient(
+      Math.sin(t)*5, 0,
+      W + Math.cos(t)*5, H
+    );
+    grd.addColorStop(0,   colors[0]+'cc');
+    grd.addColorStop(0.5, colors[1]+'cc');
+    grd.addColorStop(1,   colors[2]+'cc');
+    ctx.fillStyle = grd;
+    ctx.roundRect(0,0,W,H,3);
+    ctx.fill();
+    // Si está marcado como tengo, overlay con ✓
+    if(estado === 'tengo'){
+      ctx.fillStyle = 'rgba(0,200,83,.7)';
+      ctx.roundRect(0,0,W,H,3);
+      ctx.fill();
+      ctx.fillStyle='#fff';
+      ctx.font='bold 13px sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText('✓',W/2,H/2+1);
+    } else if(estado === 'repetida'){
+      ctx.fillStyle='rgba(255,215,0,.5)';
+      ctx.roundRect(0,0,W,H,3);
+      ctx.fill();
+      ctx.fillStyle='#fff';
+      ctx.font='bold 12px sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText('↺',W/2,H/2+1);
+    } else {
+      // Partícula/estrella parpadeante
+      const bri = 0.5 + Math.sin(t*2)*0.5;
+      ctx.fillStyle=`rgba(255,255,255,${bri*0.8})`;
+      ctx.beginPath();
+      ctx.arc(W/2, H/2, 2.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    const id = requestAnimationFrame(draw);
+    _canvasAnimFrames.set(canvas, id);
+  }
+  draw();
 }
 
 function buildTeamCard(s,g,gi,eq,ei){
@@ -1417,9 +1560,10 @@ function buildTeamCard(s,g,gi,eq,ei){
     const estado=getEstado(s,g.letra,eq.nombre,tp.codigo);
     const num=ti + 1;
     const isFoil=ti===0; // primer sticker = escudo = foil
+    const isSpecial21=ti===20; // último sticker = fig. especial
 
     const lbl=document.createElement("label");
-    lbl.className="slabel"+(isFoil?" foil":"");
+    lbl.className="slabel"+(isFoil?" foil":"")+(isSpecial21?" special21":"");
     lbl.title=eq.jugadores[ti]||tp.codigo;
 
     const inp=document.createElement("input");
@@ -1435,6 +1579,15 @@ function buildTeamCard(s,g,gi,eq,ei){
     const box=document.createElement("div");
     box.className="sbox";
 
+    // Casillero 21: mini canvas animado con colores del país
+    if(isSpecial21){
+      const colors = getCountryColors(eq.nombre);
+      const canvas = document.createElement('canvas');
+      canvas.width=22; canvas.height=22;
+      box.appendChild(canvas);
+      animateCountryCanvas(canvas, colors, estado);
+    }
+
     const numEl=document.createElement("span");
     numEl.className="snum";
     numEl.textContent=num;
@@ -1448,6 +1601,11 @@ function buildTeamCard(s,g,gi,eq,ei){
       e.preventDefault();
       const next=await cycleEstado(g.letra,eq.nombre,tp.codigo);
       inp.dataset.estado=next;
+      // Actualizar canvas animado si es el sticker 21
+      if(isSpecial21){
+        const canvas = box.querySelector('canvas');
+        if(canvas) animateCountryCanvas(canvas, getCountryColors(eq.nombre), next);
+      }
       updateTeamCard(g,gi,g.equipos.indexOf(eq),eq);
       updateGroupProgress(g);
       updateHeader();
