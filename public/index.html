@@ -1910,24 +1910,36 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
         // 1. Traducir código de figurita si es formato viejo
         const newCodigo = isOldFormat ? (codigoMap[codigo] || codigo) : codigo;
 
-        // 2. Remap del nombre de equipo (para compatibilidad de keys con acentos)
+        // 2. Remap del nombre de equipo — buscar el equipo real en DB_GRUPOS
         const grupoLetra = teamPart.split('__')[0];
+        const teamSuffix = teamPart.split('__').slice(1).join('__'); // parte después del grupo
         const g = DB_GRUPOS.find(g => g.letra === grupoLetra);
-        let newTeamPart = teamPart;
+        let newTeamPart = teamSuffix;
         if(g){
           const eq = g.equipos.find(e => {
-            const k1 = teamKey(grupoLetra, e.nombre);
-            const k2 = grupoLetra+'__'+e.nombre.replace(/[^a-zA-Z0-9]/g,'_');
-            const k3 = grupoLetra+'__'+e.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
-            return k1 === grupoLetra+'__'+teamPart.split('__').slice(1).join('__') ||
-                   k2 === teamPart || k3 === teamPart ||
-                   k1.split('__')[1] === teamPart.split('__').slice(1).join('__');
+            // Generar todas las variantes posibles de la key del equipo
+            const nombre = e.nombre;
+            const v1 = nombre.replace(/[^a-zA-Z0-9]/g,'_');                                          // simple
+            const v2 = nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_'); // normalize
+            const v3 = teamKey(grupoLetra, nombre).split('__')[1];                                    // teamKey actual
+            
+            // Match exacto
+            if(v1 === teamSuffix || v2 === teamSuffix || v3 === teamSuffix) return true;
+            
+            // Match parcial: el teamSuffix del JSON es prefijo del nombre real
+            // Ej: "Rep" matchea "Rep__Checa" o "Rep__D__Congo"
+            if(v1.startsWith(teamSuffix) || v2.startsWith(teamSuffix) || v3.startsWith(teamSuffix)) return true;
+            
+            return false;
           });
           if(eq) newTeamPart = teamKey(grupoLetra, eq.nombre).split('__')[1];
         }
 
         const newKey = grupoLetra + '__' + newTeamPart + '||' + newCodigo;
-        remapped[newKey] = val;
+        // Si ya existe la key (por duplicado), no pisar con un valor peor
+        if(!remapped[newKey] || remapped[newKey] === 'vacia'){
+          remapped[newKey] = val;
+        }
       }
 
       // Merge: solo aplicar figuritas que en el estado actual están vacías
