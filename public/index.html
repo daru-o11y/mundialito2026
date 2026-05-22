@@ -1810,26 +1810,49 @@ document.getElementById("btn-save-name").addEventListener("click",()=>{
 });
 
 // ── EXPORT JSON ──
-document.getElementById("btn-export").addEventListener("click",()=>{
-  const nombre=loadName();
-  const estado=buildNestedState(getCS());
-  const c=countAll();
-  const pct=c.tot>0?Math.round(c.t/c.tot*100):0;
-  const exportData={
-    version:1,
-    nombre:nombre,
-    fecha:new Date().toISOString(),
-    resumen:{ tengo:c.t, faltan:c.f, repetidas:c.r, total:c.tot, porcentaje:pct },
-    estado:estado
+document.getElementById("btn-export").addEventListener("click", async ()=>{
+  // Obtener el estado más fresco directamente del servidor
+  let estadoActual = getCS();
+  if(_token){
+    try {
+      const r = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+      if(r.ok){
+        const d = await r.json();
+        estadoActual = flattenState(d.estado || {});
+        _cachedState = estadoActual;
+      }
+    } catch(e){ console.warn('Export: usando estado en caché'); }
+  }
+
+  if(Object.keys(estadoActual).length === 0){
+    showToast("⚠️ No hay figuritas marcadas para exportar");
+    return;
+  }
+
+  const nombre = document.getElementById('profile-name')?.textContent || loadName() || 'album';
+  const nested = buildNestedState(estadoActual);
+  const c = countAll();
+  const pct = c.tot > 0 ? Math.round(c.t/c.tot*100) : 0;
+
+  const exportData = {
+    version: 1,
+    nombre: nombre,
+    fecha: new Date().toISOString(),
+    resumen: { tengo:c.t, faltan:c.f, repetidas:c.r, total:c.tot, porcentaje:pct },
+    estado: nested
   };
-  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  const safeName=nombre.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g,"").trim().replace(/\s+/g,"_")||"album";
-  a.href=URL.createObjectURL(blob);
-  a.download="mundial2026_"+safeName+".json";
+
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type:"application/json" });
+  const a = document.createElement("a");
+  const safeName = nombre.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s]/g,"").trim().replace(/\s+/g,"_") || "album";
+  a.href = URL.createObjectURL(blob);
+  a.download = "mundial2026_" + safeName + ".json";
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
-  showToast("💾 Progreso exportado como "+a.download);
+  showToast("💾 Exportado: " + a.download + " (" + c.t + " figuritas)");
   closeModal();
 });
 
@@ -1846,32 +1869,40 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       const data=JSON.parse(ev.target.result);
       if(!data.estado) throw new Error("Formato inválido");
 
-      // 1. Actualizar _cachedState con el estado del archivo
-      _cachedState = flattenState(data.estado);
+      // Aplanar el estado del archivo
+      const importedFlat = flattenState(data.estado);
+      if(Object.keys(importedFlat).length === 0) throw new Error("El archivo no tiene figuritas");
 
-      // 2. Restaurar nombre si viene en el archivo
-      if(data.nombre){
-        saveName(data.nombre);
-        updateProfileBadge();
+      // Merge: solo aplicar figuritas que en el estado actual están vacías
+      // No tocar las que ya tienen un estado (tengo/repetida/reservada)
+      const current = getCS();
+      let added = 0;
+      for(const [key, val] of Object.entries(importedFlat)){
+        if(!current[key] || current[key] === 'vacia'){
+          current[key] = val;
+          added++;
+        }
       }
+      _cachedState = current;
 
-      // 3. Guardar en el servidor
+      // Guardar en el servidor
       if(_token){
         const nested = buildNestedState(_cachedState);
-        await fetch(API_BASE+'/api/album', {
+        const r = await fetch(API_BASE+'/api/album', {
           method:'PUT', headers:authHeaders(),
           body: JSON.stringify({ estado: nested })
         });
+        if(!r.ok) throw new Error("Error al guardar en servidor");
       }
 
-      // 4. Re-renderizar
+      // Re-renderizar
       await renderAlbum();
       updateHeader();
-      showToast("📂 Progreso cargado"+(data.nombre?" de "+data.nombre:""));
+      showToast("📂 " + added + " figurita" + (added!==1?"s":"") + " importada" + (added!==1?"s":"") + " correctamente");
       closeModal();
     } catch(err){
       console.error('Import error:', err);
-      alert("Error al cargar el archivo. Asegurate de que sea un JSON exportado desde este álbum.");
+      alert("Error al cargar el archivo: " + err.message);
     }
     e.target.value=""; // reset input
   };
