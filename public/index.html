@@ -1841,21 +1841,36 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
   const file=e.target.files[0];
   if(!file) return;
   const reader=new FileReader();
-  reader.onload=(ev)=>{
+  reader.onload=async (ev)=>{
     try{
       const data=JSON.parse(ev.target.result);
       if(!data.estado) throw new Error("Formato inválido");
-      // Restore state
-      // Restore name if present
+
+      // 1. Actualizar _cachedState con el estado del archivo
+      _cachedState = flattenState(data.estado);
+
+      // 2. Restaurar nombre si viene en el archivo
       if(data.nombre){
         saveName(data.nombre);
         updateProfileBadge();
       }
-      renderAlbum();
+
+      // 3. Guardar en el servidor
+      if(_token){
+        const nested = buildNestedState(_cachedState);
+        await fetch(API_BASE+'/api/album', {
+          method:'PUT', headers:authHeaders(),
+          body: JSON.stringify({ estado: nested })
+        });
+      }
+
+      // 4. Re-renderizar
+      await renderAlbum();
       updateHeader();
       showToast("📂 Progreso cargado"+(data.nombre?" de "+data.nombre:""));
       closeModal();
     } catch(err){
+      console.error('Import error:', err);
       alert("Error al cargar el archivo. Asegurate de que sea un JSON exportado desde este álbum.");
     }
     e.target.value=""; // reset input
