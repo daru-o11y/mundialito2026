@@ -92,6 +92,19 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 /* chips ocultos — mantenemos IDs pero no se muestran */
 .chip { display:none; }
 
+/* ── MODO VISOR ── */
+.modo-visor .slabel { cursor:not-allowed; pointer-events:none; }
+.modo-visor #btn-export, .modo-visor #btn-import-trigger,
+.modo-visor #btn-reset-modal, .modo-visor #btn-csv-faltantes,
+.modo-visor #btn-csv-repetidas { display:none !important; }
+.visor-banner {
+  background:linear-gradient(135deg,rgba(96,165,250,.15),rgba(37,99,235,.1));
+  border:1px solid rgba(96,165,250,.3); border-radius:8px;
+  padding:8px 16px; margin-bottom:14px;
+  font-size:12px; color:#60a5fa;
+  display:flex; align-items:center; gap:8px;
+}
+
 /* ── PAGES ── */
 .main { max-width:1400px; margin:0 auto; padding:18px 16px; }
 .page { display:none; }
@@ -1230,7 +1243,8 @@ async function loadState(){
   if(_cachedState) return _cachedState;
   if(!_token) return {};
   try {
-    const r = await fetch(API_BASE+'/api/album', { headers: authHeaders() });
+    const endpoint = _userRol === 'visor' ? '/api/visor/album' : '/api/album';
+    const r = await fetch(API_BASE+endpoint, { headers: authHeaders() });
     if(!r.ok) return {};
     const d = await r.json();
     _cachedState = flattenState(d.estado || {});
@@ -1280,6 +1294,10 @@ function getEstado(s,gl,en,codigo){
 }
 
 async function cycleEstado(gl,en,codigo){
+  if(_userRol === 'visor'){
+    showToast("👁 Modo lectura — no podés editar este álbum");
+    return getEstado(getCS(),gl,en,codigo);
+  }
   if(!_cachedState) _cachedState = await loadState();
   const k = teamKey(gl,en)+'||'+codigo;
   const cur = _cachedState[k] || "vacia";
@@ -1979,13 +1997,16 @@ let _userRol = 'coleccionista';
 
 function setRol(rol){
   _userRol = rol;
-  // Show/hide nav buttons based on role
   document.querySelectorAll('.nbtn[data-roles]').forEach(btn => {
     const roles = btn.dataset.roles.split(',');
-    btn.style.display = roles.includes(rol) ? '' : 'none';
+    const efectivo = rol === 'visor' ? 'coleccionista' : rol;
+    btn.style.display = roles.includes(efectivo) ? '' : 'none';
   });
-  // Header chips: show for all
-  // Stats page: coleccionista sees own, admin sees all
+  if(rol === 'visor'){
+    document.body.classList.add('modo-visor');
+  } else {
+    document.body.classList.remove('modo-visor');
+  }
 }
 
 // ══════════════════════════════════════════
@@ -2854,8 +2875,14 @@ async function init(){
     showAuthModal();
   } else {
     const rol = _sessionData.rol || 'coleccionista';
-    document.getElementById('profile-name').textContent = _sessionData.nombre;
-    document.getElementById('save-indicator').style.display = '';
+    if(rol === 'visor' && _sessionData.visorDe){
+      const b = document.createElement('div');
+      b.className='visor-banner'; b.id='visor-banner';
+      b.innerHTML='👁 Modo lectura — viendo álbum de <b style="margin-left:4px;">'+_sessionData.visorDe+'</b>';
+      document.querySelector('.main').prepend(b);
+    }
+    document.getElementById('profile-name').textContent = rol === 'visor' ? '👁 Visor' : _sessionData.nombre;
+    document.getElementById('save-indicator').style.display = rol === 'visor' ? 'none' : '';
     setRol(rol);
     await renderAlbum();
     buildCountryTabs();
@@ -2952,10 +2979,21 @@ async function handleAuth(){
     showLoadingOverlay(true);
 
     // auth-nombre-display removed
-    document.getElementById('profile-name').textContent = d.nombre;
-    document.getElementById('profile-avatar').textContent = d.nombre.charAt(0).toUpperCase();
-    setRol(d.rol || 'coleccionista');
-    document.getElementById('save-indicator').style.display='';
+    const rolLogin = d.rol || 'coleccionista';
+    if(rolLogin === 'visor' && d.visorDe){
+      setTimeout(()=>{
+        if(!document.getElementById('visor-banner')){
+          const b = document.createElement('div');
+          b.className='visor-banner'; b.id='visor-banner';
+          b.innerHTML='👁 Modo lectura — viendo álbum de <b style="margin-left:4px;">'+d.visorDe+'</b>';
+          document.querySelector('.main').prepend(b);
+        }
+      },100);
+    }
+    document.getElementById('profile-name').textContent = rolLogin === 'visor' ? '👁 Visor' : d.nombre;
+    document.getElementById('profile-avatar').textContent = rolLogin === 'visor' ? '👁' : d.nombre.charAt(0).toUpperCase();
+    setRol(rolLogin);
+    document.getElementById('save-indicator').style.display = rolLogin === 'visor' ? 'none' : '';
 
     await renderAlbum();
     buildCountryTabs();
@@ -3135,6 +3173,7 @@ document.addEventListener("DOMContentLoaded", ()=>{ init(); });
     <select class="modal-input" id="cu-rol" style="cursor:pointer;">
       <option value="coleccionista">Coleccionista</option>
       <option value="admin">Admin</option>
+      <option value="visor">Visor (solo lectura)</option>
     </select>
     <div class="modal-actions" style="margin-top:4px;">
       <button class="modal-btn primary" id="cu-submit">✓ Crear usuario</button>

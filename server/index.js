@@ -111,6 +111,17 @@ app.post('/api/login', async (req, res) => {
     process.env.JWT_SECRET, { expiresIn: '30d' }
   );
 
+  // Si es visor, buscar el nombre del primer admin
+  let visorDe = null;
+  if(rol === 'visor'){
+    try {
+      const { data: adminData } = await supabase
+        .from('usuarios').select('nombre').eq('rol','admin')
+        .order('created_at', { ascending: true }).limit(1).single();
+      if(adminData) visorDe = adminData.nombre;
+    } catch(_){}
+  }
+
   // Log de acceso
   try {
     await supabase.from('logs').insert({
@@ -119,7 +130,8 @@ app.post('/api/login', async (req, res) => {
     });
   } catch(_) {}
 
-  res.json({ token, nombre: data.nombre, userId: data.id, rol, estado: data.estado });
+  res.json({ token, nombre: data.nombre, userId: data.id, rol,
+    estado: rol === 'visor' ? {} : (data.estado || {}), visorDe });
 });
 
 // ════════════════════════════════════════════
@@ -225,6 +237,24 @@ app.get('/api/admin/usuarios', authMiddleware, adminMiddleware, async (req, res)
 });
 
 // GET /api/admin/album/:id — ver álbum de cualquier usuario
+// GET /api/visor/album — álbum del primer admin para usuarios visor
+app.get('/api/visor/album', authMiddleware, async (req, res) => {
+  if(req.userRol !== 'visor')
+    return res.status(403).json({ error: 'Solo para rol visor' });
+  try {
+    const { data, error } = await supabase
+      .from('usuarios').select('id, nombre, estado, rol')
+      .eq('rol', 'admin')
+      .order('created_at', { ascending: true })
+      .limit(1).single();
+    if(error || !data)
+      return res.status(404).json({ error: 'No hay usuario admin disponible' });
+    res.json({ estado: data.estado || {}, nombre: data.nombre, rol: 'visor', visorDe: data.nombre });
+  } catch(e) {
+    res.status(500).json({ error: 'Error al cargar álbum' });
+  }
+});
+
 app.get('/api/admin/album/:id', authMiddleware, adminMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios').select('id, nombre, rol, estado, updated_at')
@@ -312,7 +342,7 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
     return res.status(400).json({ error: 'El nombre debe tener entre 2 y 30 caracteres' });
   if (password.length < 4)
     return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
-  if (!['admin','coleccionista'].includes(rol))
+  if (!['admin','coleccionista','visor'].includes(rol))
     return res.status(400).json({ error: 'Rol inválido' });
 
   const { data: existing } = await supabase
