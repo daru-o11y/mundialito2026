@@ -19,24 +19,78 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 
 /* ── HEADER ── */
 .header {
-  background:linear-gradient(135deg,#090f1e 0%,#0e1b30 50%,#090f1e 100%);
-  border-bottom:1px solid var(--border2);
-  padding:0 20px; position:sticky; top:0; z-index:100;
-  display:flex; align-items:center; gap:14px; height:56px;
+  background:linear-gradient(135deg,#060d1a 0%,#0a1628 60%,#060d1a 100%);
+  border-bottom:1px solid rgba(255,215,0,.12);
+  padding:0 14px; position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; gap:10px; height:68px;
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
 }
-.logo { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); letter-spacing:2px; white-space:nowrap; text-shadow:0 0 16px rgba(255,215,0,.3); }
-.logo em { color:var(--text3); font-style:normal; font-size:13px; letter-spacing:1px; margin-left:4px; }
-.nav { display:flex; gap:3px; flex:1; }
-.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:13px; font-weight:500; padding:5px 14px; border-radius:20px; cursor:pointer; transition:all .18s; }
+/* ── LOGO PANEL ── */
+.logo-panel {
+  display:flex; flex-direction:column; align-items:flex-start;
+  border-right:1px solid rgba(255,215,0,.1); padding-right:12px; flex-shrink:0;
+}
+.logo-top { display:flex; align-items:center; gap:6px; }
+.logo-title {
+  font-family:'Bebas Neue',sans-serif; font-size:20px; color:transparent;
+  letter-spacing:2.5px; line-height:1;
+  background:linear-gradient(160deg,#fff5a0 0%,#ffd700 40%,#c97c00 100%);
+  -webkit-background-clip:text; background-clip:text;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.7)) drop-shadow(0 1px 0px #7a4a00);
+}
+.logo-year {
+  font-family:'Bebas Neue',sans-serif; font-size:11px; color:#93c5fd;
+  letter-spacing:1.5px; background:rgba(96,165,250,.1); padding:1px 5px; border-radius:3px;
+}
+/* Tiempos: inicio mundial + próximo ARG */
+.logo-times { display:flex; gap:8px; margin-top:3px; }
+.logo-time { display:flex; flex-direction:column; }
+.logo-time-label { font-size:6px; color:var(--text3); text-transform:uppercase; letter-spacing:.6px; }
+.logo-time-row { display:flex; gap:3px; align-items:center; }
+.lcd-unit { display:flex; flex-direction:column; align-items:center; }
+.lcd-val {
+  font-family:'Bebas Neue',sans-serif; font-size:12px; line-height:1;
+  background:linear-gradient(180deg,#ffd700,#f59e0b);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.lcd-val.arg { background:linear-gradient(180deg,#74ACDF,#4488cc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.lcd-lbl { font-size:5px; color:var(--text3); letter-spacing:.3px; text-transform:uppercase; }
+.lcd-sep { font-family:'Bebas Neue',sans-serif; font-size:11px; color:rgba(255,215,0,.25); margin-bottom:2px; }
+.lcd-sep.arg { color:rgba(116,172,223,.3); }
+/* ── NAV ── */
+.nav { display:flex; gap:3px; flex:1; align-items:center; }
+.nav-sep { width:1px; height:22px; background:rgba(255,255,255,.1); margin:0 3px; flex-shrink:0; }
+.nbtn { background:none; border:1px solid transparent; color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; font-weight:500; padding:5px 10px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .nbtn:hover { background:var(--surface); color:var(--text); border-color:var(--border2); }
 .nbtn.active { background:var(--gold); color:var(--bg); font-weight:700; border-color:var(--gold); }
-.hstats { display:flex; gap:7px; }
-.chip { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; border:1px solid; }
-.chip.t { color:var(--green); border-color:rgba(0,200,83,.3); background:rgba(0,200,83,.07); }
-.chip.f { color:#ef5350; border-color:rgba(239,83,80,.3); background:rgba(239,83,80,.07); }
-.chip.r { color:var(--gold); border-color:rgba(255,215,0,.3); background:rgba(255,215,0,.07); }
-.hpbar { flex:1; max-width:160px; height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.nbtn[data-page="album"],.nbtn[data-page="intercambios"],.nbtn[data-page="estadisticas"] {
+  font-size:13px; font-weight:600; padding:6px 13px;
+  border:none; background:rgba(255,255,255,.06); color:var(--text);
+}
+.nbtn[data-page="album"]:hover,.nbtn[data-page="intercambios"]:hover,.nbtn[data-page="estadisticas"]:hover { background:rgba(255,255,255,.11); }
+.nbtn[data-page="album"].active { background:linear-gradient(135deg,#ffe033,#f59e0b); color:#0a0f1e; border:none; box-shadow:0 2px 10px rgba(255,180,0,.3); }
+.nbtn[data-page="intercambios"].active { background:linear-gradient(135deg,#60a5fa,#2563eb); color:#fff; border:none; box-shadow:0 2px 10px rgba(59,130,246,.3); }
+.nbtn[data-page="estadisticas"].active { background:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; box-shadow:0 2px 10px rgba(16,185,129,.3); }
+/* ── HSTATS: equalizador ── */
+.hstats { display:flex; align-items:flex-end; gap:3px; height:40px; padding-bottom:2px; border-left:1px solid rgba(255,255,255,.07); padding-left:10px; }
+.eq-bar-wrap { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:default; }
+.eq-bar-track { width:22px; height:28px; background:rgba(255,255,255,.05); border-radius:3px; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; }
+.eq-bar-fill { width:100%; border-radius:3px; transition:height .6s cubic-bezier(.34,1.56,.64,1); }
+.eq-bar-fill.t { background:linear-gradient(to top,#00c853,#69f0ae); }
+.eq-bar-fill.f { background:linear-gradient(to top,#1565c0,#42a5f5); }
+.eq-bar-fill.r { background:linear-gradient(to top,#f9a825,#ffd600); }
+.eq-bar-fill.res { background:linear-gradient(to top,#c62828,#ef5350); }
+.eq-val { font-family:'Bebas Neue',sans-serif; font-size:13px; line-height:1; }
+.eq-val.t { color:#69f0ae; } .eq-val.f { color:#42a5f5; } .eq-val.r { color:#ffd600; } .eq-val.res { color:#ef5350; }
+.eq-lbl { font-size:6px; color:var(--text3); letter-spacing:.3px; text-transform:uppercase; }
+/* ── RIGHT CONTROLS ── */
+.hright { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.hright-top { display:flex; align-items:center; gap:6px; }
+.hright-bot { display:flex; align-items:center; gap:6px; }
+.hpbar { width:80px; height:3px; background:var(--bg3); border-radius:3px; overflow:hidden; }
 .hpfill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); transition:width .4s; }
+/* chips ocultos — mantenemos IDs pero no se muestran */
+.chip { display:none; }
 
 /* ── PAGES ── */
 .main { max-width:1400px; margin:0 auto; padding:18px 16px; }
@@ -489,6 +543,26 @@ input[data-estado="repetida"].foil-input + .sbox,
 .logout-btn { background:none; border:1px solid var(--border2); color:var(--text3); font-family:'Barlow',sans-serif; font-size:12px; padding:3px 10px; border-radius:20px; cursor:pointer; transition:all .18s; white-space:nowrap; }
 .logout-btn:hover { border-color:#ef5350; color:#ef5350; }
 
+/* ── ADMIN EXPAND ROW ── */
+.admin-expand-row td { padding:0 !important; border-bottom:1px solid var(--border2); }
+.admin-expand-inner { overflow:hidden; max-height:0; transition:max-height .35s ease, padding .35s ease; padding:0 16px; }
+.admin-expand-inner.open { max-height:400px; padding:14px 16px; }
+.aexp-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.aexp-chip { font-size:12px; font-weight:700; padding:3px 10px; border-radius:6px; display:flex; align-items:center; gap:4px; }
+.aexp-chip.t { background:rgba(0,180,70,.15); color:#4ade80; }
+.aexp-chip.f { background:rgba(220,60,55,.15); color:#f87171; }
+.aexp-chip.r { background:rgba(200,155,0,.15); color:#fbbf24; }
+.aexp-chip.res { background:rgba(148,163,184,.15); color:#94a3b8; }
+.aexp-groups { display:flex; flex-wrap:wrap; gap:6px; }
+.aexp-group { background:var(--bg2); border-radius:6px; padding:6px 10px; min-width:80px; }
+.aexp-group-name { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+.aexp-group-bar { height:3px; background:var(--bg3); border-radius:2px; overflow:hidden; margin-bottom:3px; }
+.aexp-group-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--green),var(--green2)); transition:width .4s; }
+.aexp-group-nums { font-size:10px; color:var(--text2); }
+tr.admin-user-row { cursor:pointer; }
+tr.admin-user-row:hover td { background:rgba(255,255,255,.02); }
+tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
+
 /* ── RANKING PAGE ── */
 .rank-table { width:100%; border-collapse:collapse; }
 .rank-table th { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; padding:7px 12px; text-align:left; border-bottom:1px solid var(--border2); }
@@ -520,28 +594,98 @@ input[data-estado="repetida"].foil-input + .sbox,
   <path d="M17 16H7M7 16l2-2M7 16l2 2" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>
 <header class="header">
-  <div class="logo">FIFA WC <em>2026</em></div>
+  <!-- LOGO PANEL izquierda -->
+  <div class="logo-panel">
+    <div class="logo-top">
+      <span class="logo-title">MUNDIAL</span>
+      <span class="logo-year">2026</span>
+    </div>
+    <div class="logo-times">
+      <!-- Countdown inicio mundial -->
+      <div class="logo-time">
+        <span class="logo-time-label">⚽ Inicio mundial</span>
+        <div class="logo-time-row">
+          <div class="lcd-unit"><span class="lcd-val" id="cd-d">--</span><span class="lcd-lbl">d</span></div>
+          <span class="lcd-sep">:</span>
+          <div class="lcd-unit"><span class="lcd-val" id="cd-h">--</span><span class="lcd-lbl">h</span></div>
+          <span class="lcd-sep">:</span>
+          <div class="lcd-unit"><span class="lcd-val" id="cd-m">--</span><span class="lcd-lbl">m</span></div>
+          <span class="lcd-sep">:</span>
+          <div class="lcd-unit"><span class="lcd-val" id="cd-s">--</span><span class="lcd-lbl">s</span></div>
+        </div>
+      </div>
+      <!-- Separator -->
+      <div style="width:1px;background:rgba(255,255,255,.1);align-self:stretch;margin:0 4px;"></div>
+      <!-- Countdown próximo ARG -->
+      <div class="logo-time">
+        <span class="logo-time-label">🇦🇷 Próximo ARG</span>
+        <div class="logo-time-row">
+          <div class="lcd-unit"><span class="lcd-val arg" id="arg-d">--</span><span class="lcd-lbl">d</span></div>
+          <span class="lcd-sep arg">:</span>
+          <div class="lcd-unit"><span class="lcd-val arg" id="arg-h">--</span><span class="lcd-lbl">h</span></div>
+          <span class="lcd-sep arg">:</span>
+          <div class="lcd-unit"><span class="lcd-val arg" id="arg-m">--</span><span class="lcd-lbl">m</span></div>
+          <span class="lcd-sep arg">:</span>
+          <div class="lcd-unit"><span class="lcd-val arg" id="arg-s">--</span><span class="lcd-lbl">s</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
   <nav class="nav">
-    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">📒 Álbum</button>
-    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟️ Estadios</button>
-    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">📊 Progreso</button>
-    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">ℹ️ Info</button>
-    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🔄 Intercambios</button>
+    <button class="nbtn active" data-page="album" data-roles="admin,coleccionista">⭐ Álbum</button>
+    <button class="nbtn" data-page="intercambios" data-roles="admin,coleccionista">🤝 Intercambios</button>
+    <button class="nbtn" data-page="estadisticas" data-roles="admin,coleccionista">🎯 Progreso</button>
+    <div class="nav-sep"></div>
+    <button class="nbtn" data-page="info" data-roles="admin,coleccionista">🌍 Info</button>
+    <button class="nbtn" data-page="estadios" data-roles="admin,coleccionista">🏟 Estadios</button>
     <button class="nbtn" data-page="ranking" data-roles="admin">🏆 Ranking</button>
     <button class="nbtn" data-page="admin" data-roles="admin" id="nav-admin" style="display:none">⚙️ Admin</button>
   </nav>
-  <div class="hstats">
-    <div class="hpbar"><div class="hpfill" id="hpf" style="width:0%"></div></div>
-    <span id="save-indicator" style="font-size:11px;color:var(--text3);white-space:nowrap;display:none;"></span>
-    <div class="chip t" id="ct">✓ 0</div>
-    <div class="chip f" id="cf">✗ 0</div>
-    <div class="chip r" id="cr">↺ 0</div>
-    <button class="logout-btn" id="btn-logout">Salir</button>
+
+  <!-- EQUALIZADOR + PERFIL -->
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span id="save-indicator" style="font-size:10px;color:var(--text3);white-space:nowrap;display:none;"></span>
+
+    <!-- Equalizador -->
+    <div class="hstats" title="Tengo / Faltan / Repetidas / Reservadas">
+      <div class="eq-bar-wrap">
+        <span class="eq-val t" id="ct">0</span>
+        <div class="eq-bar-track"><div class="eq-bar-fill t" id="eq-t" style="height:0%"></div></div>
+        <span class="eq-lbl">T</span>
+      </div>
+      <div class="eq-bar-wrap">
+        <span class="eq-val f" id="cf">0</span>
+        <div class="eq-bar-track"><div class="eq-bar-fill f" id="eq-f" style="height:100%"></div></div>
+        <span class="eq-lbl">F</span>
+      </div>
+      <div class="eq-bar-wrap">
+        <span class="eq-val r" id="cr">0</span>
+        <div class="eq-bar-track"><div class="eq-bar-fill r" id="eq-r" style="height:0%"></div></div>
+        <span class="eq-lbl">R</span>
+      </div>
+      <div class="eq-bar-wrap">
+        <span class="eq-val res" id="cres">0</span>
+        <div class="eq-bar-track"><div class="eq-bar-fill res" id="eq-res" style="height:0%"></div></div>
+        <span class="eq-lbl">Res</span>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding-bottom:14px;">
+        <div class="hpbar"><div class="hpfill" id="hpf" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Perfil -->
     <div class="profile-badge" id="profile-badge" title="Tu perfil">
       <div class="profile-avatar" id="profile-avatar">?</div>
       <span class="profile-name" id="profile-name">Mi álbum</span>
     </div>
-    <button class="help-btn" id="btn-help" title="Ayuda">?</button>
+
+    <!-- Help + Logout apilados -->
+    <div style="display:flex;flex-direction:column;gap:3px;align-items:center;">
+      <button class="help-btn" id="btn-help" title="Ayuda">?</button>
+      <button class="logout-btn" id="btn-logout" style="font-size:10px;padding:2px 8px;">Salir</button>
+    </div>
   </div>
 </header>
 
@@ -1210,13 +1354,37 @@ function countAll(){
 }
 
 // ── HEADER ──
+function countReservadas(){
+  const s=getCS();
+  let res=0;
+  for(const v of Object.values(s)){ if(v==='reservada') res++; }
+  return res;
+}
 function updateHeader(){
   const c=countAll();
-  document.getElementById("ct").textContent="✓ "+c.t;
-  document.getElementById("cf").textContent="✗ "+c.f;
-  document.getElementById("cr").textContent="↺ "+c.r;
-  const pct=c.tot>0?Math.round(c.t/c.tot*100):0;
+  const res=countReservadas();
+  const total=c.tot;
+  // Textos
+  document.getElementById("ct").textContent=c.t;
+  document.getElementById("cf").textContent=c.f;
+  document.getElementById("cr").textContent=c.r;
+  document.getElementById("cres").textContent=res;
+  // Barra de progreso
+  const pct=total>0?Math.round(c.t/total*100):0;
   document.getElementById("hpf").style.width=pct+"%";
+  // Equalizador: altura proporcional al máximo de los 4 valores
+  const vals = [c.t, c.f, c.r, res];
+  const maxV = Math.max(...vals, 1);
+  const minH = 4; // mínimo 4% para que se vea algo
+  const h = v => Math.max(minH, Math.round(v/maxV*100))+'%';
+  const eqT = document.getElementById("eq-t");
+  const eqF = document.getElementById("eq-f");
+  const eqR = document.getElementById("eq-r");
+  const eqRes = document.getElementById("eq-res");
+  if(eqT) eqT.style.height=h(c.t);
+  if(eqF) eqF.style.height=h(c.f);
+  if(eqR) eqR.style.height=h(c.r);
+  if(eqRes) eqRes.style.height=h(res);
 }
 
 // ── RENDER ALBUM ──
@@ -1748,8 +1916,10 @@ async function loadAdminUsers(){
       const isMe = u.nombre.toLowerCase() === myNombre.toLowerCase();
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('es-AR') : '-';
       const updated = u.updated_at ? new Date(u.updated_at).toLocaleDateString('es-AR') : '-';
-      return `<tr ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
+      const rowId = 'exp-' + u.id.replace(/-/g,'');
+      return `<tr class="admin-user-row" onclick="adminToggleExpand('${u.id}')" ${isMe?'style="background:rgba(255,215,0,.04);"':''}>
         <td>
+          <span style="font-size:10px;color:var(--text3);margin-right:4px;" id="exp-arrow-${u.id}">▶</span>
           <b style="color:var(--text);">${u.nombre}</b>
           ${isMe ? '<span style="color:var(--gold);font-size:10px;margin-left:5px;">(vos)</span>' : ''}
         </td>
@@ -1764,14 +1934,16 @@ async function loadAdminUsers(){
         </td>
         <td style="font-size:11px;color:var(--text3);">${created}</td>
         <td style="font-size:11px;color:var(--text3);">${updated}</td>
-        <td>
+        <td onclick="event.stopPropagation()">
           <div class="admin-actions">
-            <button class="abtn info" onclick="adminVerAlbum('${u.id}','${u.nombre}')">👁 Ver</button>
             <button class="abtn" onclick="adminCambiarPass('${u.id}','${u.nombre}')">🔑 Pass</button>
             ${!isMe ? `<button class="abtn danger" onclick="adminReset('${u.id}','${u.nombre}')">↺ Reset</button>` : ''}
             ${!isMe ? `<button class="abtn danger" onclick="adminEliminar('${u.id}','${u.nombre}')">🗑</button>` : ''}
           </div>
         </td>
+      </tr>
+      <tr class="admin-expand-row" id="${rowId}">
+        <td colspan="8"><div class="admin-expand-inner" id="inner-${u.id}"></div></td>
       </tr>`;
     }).filter(Boolean).join('');
   } catch(e){ tbody.innerHTML = '<tr><td colspan="8" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
@@ -1802,15 +1974,67 @@ async function loadAdminLogs(){
   } catch(e){ tbody.innerHTML = '<tr><td colspan="4" style="color:#ef5350;padding:16px;">Error de conexión</td></tr>'; }
 }
 
-async function adminVerAlbum(id, nombre){
+const _expandCache = {};
+const _expandOpen  = new Set();
+
+async function adminToggleExpand(id){
+  const inner = document.getElementById('inner-'+id);
+  const arrow = document.getElementById('exp-arrow-'+id);
+  const row   = document.querySelector(`tr.admin-user-row[onclick*="${id}"]`);
+  if(!inner) return;
+
+  const isOpen = _expandOpen.has(id);
+  if(isOpen){
+    inner.classList.remove('open');
+    if(arrow) arrow.textContent='▶';
+    if(row)   row.classList.remove('expanded');
+    _expandOpen.delete(id);
+    return;
+  }
+  inner.classList.add('open');
+  if(arrow) arrow.textContent='▼';
+  if(row)   row.classList.add('expanded');
+  _expandOpen.add(id);
+
+  if(_expandCache[id]){ inner.innerHTML=_expandCache[id]; return; }
+  inner.innerHTML='<div style="color:var(--text3);font-size:12px;padding:4px 0;">Cargando...</div>';
+
   try {
     const r = await fetch(API_BASE+'/api/admin/album/'+id, { headers: authHeaders() });
     const d = await r.json();
-    const tengo = Object.values(d.estado||{}).filter(v=>v==='tengo').length;
-    const rep   = Object.values(d.estado||{}).filter(v=>v==='repetida').length;
-    const falta = 1008 - tengo - rep;
-    alert(`📒 Álbum de ${nombre}\n\n✓ Tengo: ${tengo}\n↺ Repetidas: ${rep}\n✗ Faltan: ${falta}\n\nProgreso: ${Math.round(tengo/1008*100)}%`);
-  } catch(e){ alert('Error al cargar el álbum'); }
+    const estado = flattenState(d.estado||{});
+    const tengo   = Object.values(estado).filter(v=>v==='tengo').length;
+    const rep     = Object.values(estado).filter(v=>v==='repetida').length;
+    const reserv  = Object.values(estado).filter(v=>v==='reservada').length;
+    const falta   = 1008 - tengo - rep - reserv;
+    const pct     = Math.round(tengo/1008*100);
+
+    const gruposHtml = DB_GRUPOS.map(g => {
+      let gt=0;
+      g.equipos.forEach(eq => {
+        const k = g.letra+'__'+eq.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
+        DB_TIPOS.forEach(tp => { if((estado[k+'||'+tp.codigo]||'vacia')==='tengo') gt++; });
+      });
+      const gpct=Math.round(gt/(g.equipos.length*21)*100);
+      return `<div class="aexp-group">
+        <div class="aexp-group-name">G${g.letra}</div>
+        <div class="aexp-group-bar"><div class="aexp-group-fill" style="width:${gpct}%"></div></div>
+        <div class="aexp-group-nums" style="color:var(--green)">${gt}<span style="color:var(--text3)">/${g.equipos.length*21}</span></div>
+      </div>`;
+    }).join('');
+
+    const html=`
+      <div class="aexp-chips">
+        <span class="aexp-chip t">✓ ${tengo} tengo</span>
+        <span class="aexp-chip f">✗ ${falta} faltan</span>
+        <span class="aexp-chip r">↺ ${rep} repetidas</span>
+        ${reserv>0?`<span class="aexp-chip res">🔒 ${reserv} reservadas</span>`:''}
+        <span style="font-size:11px;color:var(--text3);align-self:center;margin-left:4px;">${pct}% completado</span>
+      </div>
+      <div class="aexp-groups">${gruposHtml}</div>`;
+    _expandCache[id]=html;
+    inner.innerHTML=html;
+  } catch(e){ inner.innerHTML='<div style="color:#ef5350;font-size:12px;">Error al cargar</div>'; }
 }
 
 async function adminCambiarPass(id, nombre){
@@ -2296,6 +2520,7 @@ async function loadMisPropuestas(){
         <div style="display:flex;align-items:center;">${acc}</div>
       </div>`;
     }).filter(Boolean).join('');
+    listDiv.innerHTML = rendered || '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">Sin propuestas activas</div>';
   } catch(e){ 
     console.error('loadMisPropuestas error:', e);
     listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; 
@@ -2517,7 +2742,7 @@ async function init(){
     renderInfo();
     updateHeader();
     updateProfileBadge();
-    await renderRanking();
+    if(rol==="admin") await renderRanking();
     startPollNotif();
     startInactivityTimer();
   }
@@ -2617,7 +2842,7 @@ async function handleAuth(){
     renderInfo();
     updateHeader();
     updateProfileBadge();
-    await renderRanking();
+    if((d.rol||"coleccionista")==="admin") await renderRanking();
     startPollNotif();
     startInactivityTimer();
     showLoadingOverlay(false);
@@ -2743,6 +2968,34 @@ document.querySelectorAll(".nbtn").forEach(btn=>{
   });
 });
 
+
+// ── COUNTDOWN DOBLE ──
+(function(){
+  const MUNDIAL   = new Date('2026-06-12T02:00:00Z').getTime(); // Inauguración Azteca UTC
+  const ARG_NEXT  = new Date('2026-06-15T22:00:00Z').getTime(); // ARG vs ? (aprox. Grupo J)
+
+  function fmtCountdown(diff, prefix){
+    const fmt = n => String(Math.max(0,n)).padStart(2,'0');
+    if(diff <= 0){
+      ['d','h','m','s'].forEach(u=>{ const el=document.getElementById(prefix+'-'+u); if(el) el.textContent='00'; });
+      return;
+    }
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor((diff%86400000)/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    const el=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=fmt(v); };
+    el(prefix+'-d',d); el(prefix+'-h',h); el(prefix+'-m',m); el(prefix+'-s',s);
+  }
+
+  function tick(){
+    const now=Date.now();
+    fmtCountdown(MUNDIAL-now,  'cd');
+    fmtCountdown(ARG_NEXT-now, 'arg');
+  }
+  tick();
+  setInterval(tick,1000);
+})();
 
 // ── START ──
 document.addEventListener("DOMContentLoaded", ()=>{ init(); });
