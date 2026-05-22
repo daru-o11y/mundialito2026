@@ -175,11 +175,12 @@ app.get('/api/usuarios', async (req, res) => {
     .order('updated_at', { ascending: false });
   if (error) return res.status(500).json({ error: 'Error al obtener usuarios' });
   const usuarios = (data || []).map(u => {
-    const estado = u.estado || {};
-    const tengo = Object.values(estado).filter(v => v === 'tengo').length;
-    const repetidas = Object.values(estado).filter(v => v === 'repetida').length;
+    const flat = flattenEstado(u.estado || {});
+    const tengo     = Object.values(flat).filter(v => v === 'tengo').length;
+    const repetidas = Object.values(flat).filter(v => v === 'repetida').length;
+    const reservadas = Object.values(flat).filter(v => v === 'reservada').length;
     return { id: u.id, nombre: u.nombre, rol: u.rol || 'coleccionista',
-      tengo, repetidas, total: 1008,
+      tengo, repetidas, reservadas, total: 1008,
       pct: Math.round(tengo / 1008 * 100), updated_at: u.updated_at };
   });
   res.json(usuarios);
@@ -213,9 +214,9 @@ app.get('/api/admin/usuarios', authMiddleware, adminMiddleware, async (req, res)
     .order('created_at', { ascending: true });
   if (error) return res.status(500).json({ error: 'Error al obtener usuarios' });
   const result = (data || []).map(u => {
-    const estado = u.estado || {};
-    const tengo = Object.values(estado).filter(v => v === 'tengo').length;
-    const repetidas = Object.values(estado).filter(v => v === 'repetida').length;
+    const flat = flattenEstado(u.estado || {});
+    const tengo     = Object.values(flat).filter(v => v === 'tengo').length;
+    const repetidas = Object.values(flat).filter(v => v === 'repetida').length;
     return { id: u.id, nombre: u.nombre, rol: u.rol || 'coleccionista',
       tengo, repetidas, total: 1008,
       pct: Math.round(tengo / 1008 * 100),
@@ -273,9 +274,9 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
   const admins = data.filter(u => u.rol === 'admin').length;
   let total_tengo = 0, total_repetidas = 0, mas_completo = null, maxPct = -1;
   data.forEach(u => {
-    const estado = u.estado || {};
-    const t = Object.values(estado).filter(v => v === 'tengo').length;
-    const r = Object.values(estado).filter(v => v === 'repetida').length;
+    const flat = flattenEstado(u.estado || {});
+    const t = Object.values(flat).filter(v => v === 'tengo').length;
+    const r = Object.values(flat).filter(v => v === 'repetida').length;
     total_tengo += t;
     total_repetidas += r;
     const pct = Math.round(t / 1008 * 100);
