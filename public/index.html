@@ -111,7 +111,105 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .page.active { display:block; }
 
 /* ── FILTER BAR ── */
-.fbar { text-align:center; margin-bottom:18px; display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; }
+.fbar { display:none; } /* reemplazado por sidebar */
+
+/* ── ALBUM LAYOUT con sidebar ── */
+#page-album { display:none; }
+#page-album.active { display:flex; gap:0; align-items:flex-start; position:relative; }
+.album-sidebar {
+  width:48px;
+  flex-shrink:0;
+  position:sticky;
+  top:74px;
+  height:calc(100vh - 90px);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:8px 6px;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  overflow:hidden;
+  transition:width .22s cubic-bezier(.4,0,.2,1);
+  z-index:10;
+}
+.album-sidebar:hover {
+  width:168px;
+}
+.album-content {
+  flex:1;
+  min-width:0;
+  padding-left:14px;
+}
+.sbar-search {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 4px;
+  margin-top:auto;
+  border-top:1px solid var(--border2);
+  padding-top:8px;
+  overflow:hidden;
+}
+.sbar-search-icon { font-size:16px; flex-shrink:0; width:24px; text-align:center; color:var(--text3); }
+.sbar-search input {
+  background:none;
+  border:none;
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  font-size:12px;
+  outline:none;
+  width:0;
+  opacity:0;
+  transition:width .22s, opacity .22s;
+  padding:0;
+}
+.album-sidebar:hover .sbar-search input {
+  width:110px;
+  opacity:1;
+}
+.sbar-btn {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 6px;
+  border-radius:8px;
+  border:none;
+  background:none;
+  color:var(--text3);
+  cursor:pointer;
+  transition:background .15s, color .15s;
+  white-space:nowrap;
+  overflow:hidden;
+  font-family:'Barlow',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  width:100%;
+  text-align:left;
+}
+.sbar-btn:hover { background:var(--surface); color:var(--text); }
+.sbar-btn.active { background:rgba(255,215,0,.12); color:var(--gold); }
+.sbar-btn.active .sbar-icon { color:var(--gold); }
+.sbar-icon { font-size:16px; flex-shrink:0; width:24px; text-align:center; line-height:1; }
+.sbar-label { font-size:12px; font-weight:600; opacity:0; transition:opacity .18s .04s; white-space:nowrap; }
+.album-sidebar:hover .sbar-label { opacity:1; }
+@media(max-width:640px){
+  #page-album.active { flex-direction:column; }
+  .album-sidebar {
+    position:fixed; bottom:0; left:0; right:0; top:auto;
+    width:100% !important; height:52px;
+    flex-direction:row; border-radius:0;
+    border-top:1px solid var(--border2);
+    padding:4px 8px; gap:0; z-index:50;
+    justify-content:space-around; align-items:center;
+  }
+  .album-sidebar:hover { width:100% !important; }
+  .album-content { padding-left:0; padding-bottom:60px; }
+  .sbar-label { opacity:1 !important; font-size:10px; }
+  .sbar-btn { flex-direction:column; gap:2px; padding:4px 6px; align-items:center; }
+  .sbar-icon { font-size:18px; }
+  .sbar-search { display:none; }
+}
 .fbtn { background:var(--bg3); color:var(--text2); border:1px solid var(--border); padding:5px 16px; border-radius:20px; cursor:pointer; font-size:12px; font-family:'Barlow',sans-serif; font-weight:500; transition:all .18s; }
 .fbtn:hover, .fbtn.active { background:var(--gold); color:var(--bg); border-color:var(--gold); font-weight:700; }
 .fbtn.danger { background:rgba(139,0,0,.25); color:#ff6b6b; border-color:rgba(139,0,0,.4); }
@@ -1013,15 +1111,31 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
 
 <!-- ── ALBUM ── -->
 <div class="page active" id="page-album">
-  <div class="fbar">
-    <button class="fbtn active" data-filter="todos">Todos</button>
-    <button class="fbtn" data-filter="incompleto">Incompletos</button>
-    <button class="fbtn" data-filter="completo">Completos</button>
-    <button class="fbtn" data-filter="nada">Sin empezar</button>
-    <input class="fsearch" type="text" id="fsearch" placeholder="🔍 Buscar equipo...">
+  <!-- Sidebar filtros -->
+  <aside class="album-sidebar" id="album-sidebar">
+    <button class="sbar-btn active" data-filter="todos">
+      <span class="sbar-icon">🌐</span><span class="sbar-label">Todos</span>
+    </button>
+    <button class="sbar-btn" data-filter="incompleto">
+      <span class="sbar-icon">⏳</span><span class="sbar-label">Incompletos</span>
+    </button>
+    <button class="sbar-btn" data-filter="completo">
+      <span class="sbar-icon">✅</span><span class="sbar-label">Completos</span>
+    </button>
+    <button class="sbar-btn" data-filter="nada">
+      <span class="sbar-icon">⬜</span><span class="sbar-label">Sin empezar</span>
+    </button>
+    <div class="sbar-search">
+      <span class="sbar-search-icon">🔍</span>
+      <input type="text" id="fsearch" placeholder="Buscar equipo...">
+    </div>
+  </aside>
+  <!-- Contenido álbum -->
+  <div class="album-content">
+    <div id="album-container"></div>
+    <div id="esp-separator" style="margin-top:32px;margin-bottom:8px;display:none;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text3);letter-spacing:2px;">SECCIÓN ESPECIALES</span><div style="flex:1;height:1px;background:var(--border2);"></div></div></div>
+    <div id="especiales-container"></div>
   </div>
-  <div id="album-container"></div>
-  <div id="especiales-container"></div>
 </div>
 
 <!-- ── ESTADIOS ── -->
@@ -1292,7 +1406,7 @@ const DB_COLECCIONES = [
       },
       {
         id: "CC",
-        nombre: "Coca-Cola",
+        nombre: "COK",
         badge: "coca",
         color: "#e31837",
         figuritas: [
@@ -1786,6 +1900,8 @@ async function renderColecciones(){
   const con=document.getElementById("especiales-container");
   if(!con) return;
   con.innerHTML="";
+  const sep=document.getElementById("esp-separator");
+  if(sep) sep.style.display="block";
   const s=_cachedState||await loadState();
 
   DB_COLECCIONES.forEach(col=>{
@@ -1798,8 +1914,8 @@ async function renderColecciones(){
     const badges=col.secciones.map(sec=>`<span class="esp-badge ${sec.badge}">${sec.nombre}</span>`).join("");
     section.innerHTML=`
       <div class="esp-hdr${isCollapsed?" collapsed":""}" id="ech_${col.id}">
-        ${badges}
         <span class="esp-title">${col.nombre}</span>
+        ${badges}
         <span class="esp-prog">${colCount.t}/${colCount.tot} (${colPct}%)</span>
         <span class="gtog">▼</span>
       </div>
@@ -1971,10 +2087,10 @@ function renderInfo(){
 // ── NAV (handled in auth section below) ──
 
 // ── FILTER BUTTONS ──
-document.querySelectorAll(".fbtn[data-filter]").forEach(btn=>{
+document.querySelectorAll(".sbar-btn[data-filter]").forEach(btn=>{
   btn.addEventListener("click",()=>{
     filterMode=btn.dataset.filter;
-    document.querySelectorAll(".fbtn[data-filter]").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".sbar-btn[data-filter]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     renderAlbum();
   });
