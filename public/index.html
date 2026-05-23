@@ -628,6 +628,37 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
 .rank-bar-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:3px; }
 .rank-me { background:rgba(255,215,0,.05) !important; }
 .rank-me td { border-color:rgba(255,215,0,.15) !important; }
+
+/* ══════════════════════════════════════════
+   COLECCIONES ESPECIALES
+══════════════════════════════════════════ */
+.esp-section { margin-bottom:28px; }
+.esp-hdr {
+  display:flex; align-items:center; gap:10px; padding:10px 14px;
+  background:linear-gradient(135deg,#0a1628 0%,#0d2040 100%);
+  border:1px solid var(--border2); border-radius:10px 10px 0 0;
+  cursor:pointer; user-select:none;
+}
+.esp-hdr.collapsed { border-radius:10px; }
+.esp-badge { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1px; padding:2px 8px; border-radius:4px; line-height:1.4; }
+.esp-badge.fwc  { background:#1a73e8; color:#fff; }
+.esp-badge.coca { background:#e31837; color:#fff; }
+.esp-title { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--gold); letter-spacing:1px; flex:1; }
+.esp-prog  { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; }
+.esp-body  { border:1px solid var(--border2); border-top:none; border-radius:0 0 10px 10px; overflow:hidden; }
+.esp-body.hidden { display:none; }
+.esp-sub { background:var(--bg3); border-bottom:1px solid var(--border2); }
+.esp-sub:last-child { border-bottom:none; }
+.esp-sub-hdr {
+  display:flex; align-items:center; gap:10px; padding:8px 14px;
+  background:var(--bg4); border-bottom:1px solid var(--border2); cursor:pointer; user-select:none;
+}
+.esp-sub-title { font-weight:700; font-size:13px; color:var(--text); flex:1; }
+.esp-sub-count { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; }
+.esp-sub-pbar  { height:2px; background:var(--bg2); }
+.esp-sub-pfill { height:100%; transition:width .3s; }
+.esp-stickers  { display:grid; grid-template-columns:repeat(10,1fr); gap:4px; padding:8px 10px 12px; }
+@media(max-width:640px){ .esp-stickers { grid-template-columns:repeat(7,1fr); } }
 </style>
 </head>
 <body>
@@ -990,6 +1021,7 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     <input class="fsearch" type="text" id="fsearch" placeholder="🔍 Buscar equipo...">
   </div>
   <div id="album-container"></div>
+  <div id="especiales-container"></div>
 </div>
 
 <!-- ── ESTADIOS ── -->
@@ -1008,6 +1040,7 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     <table class="gtbl">
       <thead><tr><th>Grupo</th><th>Equipos</th><th>Tengo</th><th>Faltan</th><th>Rep.</th><th>Avance</th></tr></thead>
       <tbody id="gtbody"></tbody>
+      <tbody id="esp-tbody"></tbody>
     </table>
   </div>
 </div>
@@ -1228,6 +1261,54 @@ const DB_CALENDARIO = [
 ];
 
 const TPP = DB_TIPOS.length; // 20 por equipo (PT1-PT20)
+// ═══════════════════════════════════════════════
+// COLECCIONES ESPECIALES — independiente de DB_GRUPOS
+// Para agregar nueva colección: solo agregar entrada acá.
+// Render, conteo, CSV, intercambios funcionan automático.
+// ═══════════════════════════════════════════════
+const DB_COLECCIONES = [
+  {
+    id: "ESP",
+    nombre: "Especiales",
+    secciones: [
+      {
+        id: "FWC",
+        nombre: "FWC",
+        badge: "fwc",
+        color: "#1a73e8",
+        figuritas: [
+          { codigo:"FWC00", desc:"FWC 00 — Presentación" },
+          { codigo:"FWC01", desc:"FWC 1" },  { codigo:"FWC02", desc:"FWC 2" },
+          { codigo:"FWC03", desc:"FWC 3" },  { codigo:"FWC04", desc:"FWC 4" },
+          { codigo:"FWC05", desc:"FWC 5" },  { codigo:"FWC06", desc:"FWC 6" },
+          { codigo:"FWC07", desc:"FWC 7" },  { codigo:"FWC08", desc:"FWC 8" },
+          { codigo:"FWC09", desc:"FWC 9" },  { codigo:"FWC10", desc:"FWC 10" },
+          { codigo:"FWC11", desc:"FWC 11" }, { codigo:"FWC12", desc:"FWC 12" },
+          { codigo:"FWC13", desc:"FWC 13" }, { codigo:"FWC14", desc:"FWC 14" },
+          { codigo:"FWC15", desc:"FWC 15" }, { codigo:"FWC16", desc:"FWC 16" },
+          { codigo:"FWC17", desc:"FWC 17" }, { codigo:"FWC18", desc:"FWC 18" },
+          { codigo:"FWC19", desc:"FWC 19" }
+        ]
+      },
+      {
+        id: "CC",
+        nombre: "Coca-Cola",
+        badge: "coca",
+        color: "#e31837",
+        figuritas: [
+          { codigo:"CC01", desc:"Coca-Cola 1" },  { codigo:"CC02", desc:"Coca-Cola 2" },
+          { codigo:"CC03", desc:"Coca-Cola 3" },  { codigo:"CC04", desc:"Coca-Cola 4" },
+          { codigo:"CC05", desc:"Coca-Cola 5" },  { codigo:"CC06", desc:"Coca-Cola 6" },
+          { codigo:"CC07", desc:"Coca-Cola 7" },  { codigo:"CC08", desc:"Coca-Cola 8" },
+          { codigo:"CC09", desc:"Coca-Cola 9" },  { codigo:"CC10", desc:"Coca-Cola 10" },
+          { codigo:"CC11", desc:"Coca-Cola 11" }, { codigo:"CC12", desc:"Coca-Cola 12" },
+          { codigo:"CC13", desc:"Coca-Cola 13" }, { codigo:"CC14", desc:"Coca-Cola 14" }
+        ]
+      }
+    ]
+  }
+];
+
 const STORAGE_KEY = "wc2026_album_v3";
 
 // ── STATE (API + localStorage fallback) ──
@@ -1323,6 +1404,17 @@ function getEstado(s,gl,en,codigo){
   // Buscar con resolución de alias (para JSONs viejos con keys truncadas)
   const real = resolveTeamKey(s, gl, en);
   return s[real+'||'+codigo] || "vacia";
+}
+
+async function cycleEstadoEsp(colId,secId,codigo){
+  if(!_cachedState) _cachedState = await loadState();
+  const k=espKey(colId,secId,codigo);
+  const cur=_cachedState[k]||"vacia";
+  if(cur==="reservada"){ showToast("🔒 Figurita reservada en un intercambio pendiente"); return "reservada"; }
+  const next=cur==="vacia"?"tengo":cur==="tengo"?"repetida":"vacia";
+  if(next==="vacia") delete _cachedState[k]; else _cachedState[k]=next;
+  _scheduleSave();
+  return next;
 }
 
 async function cycleEstado(gl,en,codigo){
@@ -1434,6 +1526,26 @@ function countGroup(g){
 function countAll(){
   let t=0,r=0,f=0,tot=0;
   DB_GRUPOS.forEach(g=>{ const c=countGroup(g); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
+  const ce=countAllColecciones(); t+=ce.t; r+=ce.r; f+=ce.f; tot+=ce.tot;
+  return {t,r,f,tot};
+}
+
+// ── CONTEO COLECCIONES ESPECIALES ──
+function espKey(colId,secId,codigo){ return colId+"__"+secId+"||"+codigo; }
+function getEstadoEsp(s,colId,secId,codigo){ return s[espKey(colId,secId,codigo)]||"vacia"; }
+function countSeccion(s,col,sec){
+  let t=0,r=0,f=0;
+  sec.figuritas.forEach(fig=>{ const v=getEstadoEsp(s,col.id,sec.id,fig.codigo); if(v==="tengo")t++; else if(v==="repetida")r++; else f++; });
+  return {t,r,f,tot:sec.figuritas.length};
+}
+function countColeccion(col){
+  const s=getCS(); let t=0,r=0,f=0,tot=0;
+  col.secciones.forEach(sec=>{ const c=countSeccion(s,col,sec); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
+  return {t,r,f,tot};
+}
+function countAllColecciones(){
+  let t=0,r=0,f=0,tot=0;
+  DB_COLECCIONES.forEach(col=>{ const c=countColeccion(col); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
   return {t,r,f,tot};
 }
 
@@ -1667,6 +1779,94 @@ function updateGroupProgress(g){
   if(pt) pt.textContent=gc.t+"/"+gc.tot+" ("+p+"%)";
 }
 
+// ══════════════════════════════════════════
+// RENDER COLECCIONES ESPECIALES
+// ══════════════════════════════════════════
+async function renderColecciones(){
+  const con=document.getElementById("especiales-container");
+  if(!con) return;
+  con.innerHTML="";
+  const s=_cachedState||await loadState();
+
+  DB_COLECCIONES.forEach(col=>{
+    const colCount=countColeccion(col);
+    const colPct=colCount.tot>0?Math.round(colCount.t/colCount.tot*100):0;
+    const isCollapsed=localStorage.getItem("ec_"+col.id)==="1";
+
+    const section=document.createElement("div");
+    section.className="esp-section";
+    const badges=col.secciones.map(sec=>`<span class="esp-badge ${sec.badge}">${sec.nombre}</span>`).join("");
+    section.innerHTML=`
+      <div class="esp-hdr${isCollapsed?" collapsed":""}" id="ech_${col.id}">
+        ${badges}
+        <span class="esp-title">${col.nombre}</span>
+        <span class="esp-prog">${colCount.t}/${colCount.tot} (${colPct}%)</span>
+        <span class="gtog">▼</span>
+      </div>
+      <div class="esp-body${isCollapsed?" hidden":""}" id="ecb_${col.id}"></div>`;
+    con.appendChild(section);
+
+    document.getElementById("ech_"+col.id).addEventListener("click",()=>{
+      const body=document.getElementById("ecb_"+col.id);
+      const hdr=document.getElementById("ech_"+col.id);
+      const h=body.classList.toggle("hidden");
+      hdr.classList.toggle("collapsed",h);
+      localStorage.setItem("ec_"+col.id,h?"1":"0");
+    });
+
+    const body=document.getElementById("ecb_"+col.id);
+    col.secciones.forEach(sec=>{
+      const sc=countSeccion(s,col,sec);
+      const sp=sc.tot>0?Math.round(sc.t/sc.tot*100):0;
+      const sub=document.createElement("div");
+      sub.className="esp-sub";
+      sub.id="esub_"+col.id+"_"+sec.id;
+      sub.innerHTML=`
+        <div class="esp-sub-hdr">
+          <span class="esp-badge ${sec.badge}">${sec.nombre}</span>
+          <span class="esp-sub-title">${sec.desc||sec.nombre}</span>
+          <span class="esp-sub-count" id="escc_${col.id}_${sec.id}">${sc.t}/${sc.tot}</span>
+        </div>
+        <div class="esp-sub-pbar"><div class="esp-sub-pfill" id="escpf_${col.id}_${sec.id}" style="width:${sp}%;background:${sec.color};"></div></div>
+        <div class="esp-stickers" id="esk_${col.id}_${sec.id}"></div>`;
+      body.appendChild(sub);
+
+      const stkDiv=document.getElementById("esk_"+col.id+"_"+sec.id);
+      sec.figuritas.forEach((fig,fi)=>{
+        const estado=getEstadoEsp(s,col.id,sec.id,fig.codigo);
+        const lbl=document.createElement("label");
+        lbl.className="slabel"; lbl.title=fig.desc;
+        const inp=document.createElement("input");
+        inp.type="checkbox"; inp.dataset.estado=estado;
+        inp.dataset.col=col.id; inp.dataset.sec=sec.id; inp.dataset.cod=fig.codigo;
+        const box=document.createElement("div"); box.className="sbox";
+        const numEl=document.createElement("span"); numEl.className="snum"; numEl.textContent=fi+1;
+        lbl.appendChild(inp); lbl.appendChild(box); lbl.appendChild(numEl);
+        stkDiv.appendChild(lbl);
+        inp.addEventListener("click",async(e)=>{
+          e.preventDefault();
+          const next=await cycleEstadoEsp(col.id,sec.id,fig.codigo);
+          inp.dataset.estado=next;
+          updateSeccionProgress(col,sec);
+          updateHeader();
+          const msgs={"tengo":"✓ Tengo","repetida":"↺ Repetida","vacia":"Quitada"};
+          showToast(msgs[next]+" — "+fig.desc);
+        });
+      });
+    });
+  });
+}
+
+function updateSeccionProgress(col,sec){
+  const s=getCS();
+  const sc=countSeccion(s,col,sec);
+  const sp=sc.tot>0?Math.round(sc.t/sc.tot*100):0;
+  const cc=document.getElementById("escc_"+col.id+"_"+sec.id);
+  const pf=document.getElementById("escpf_"+col.id+"_"+sec.id);
+  if(cc) cc.textContent=sc.t+"/"+sc.tot;
+  if(pf) pf.style.width=sp+"%";
+}
+
 // ── ESTADIOS ──
 let filterS="all";
 function buildCountryTabs(){
@@ -1731,6 +1931,23 @@ function renderStats(){
       <td><div class="pcell"><div class="pmini"><div class="pmini-f" style="width:${p}%"></div></div><span style="font-size:11px;color:var(--text2);min-width:28px;">${p}%</span></div></td>`;
     tb.appendChild(tr);
   });
+  // Fila especiales
+  const espTb=document.getElementById("esp-tbody");
+  if(espTb){
+    espTb.innerHTML="";
+    DB_COLECCIONES.forEach(col=>{
+      const cc=countColeccion(col); const cp=cc.tot>0?Math.round(cc.t/cc.tot*100):0;
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td><b style="color:#60a5fa;font-family:'Bebas Neue',sans-serif;font-size:15px;">★</b> ${col.nombre}</td>
+        <td style="font-size:11px;">${col.secciones.map(s=>`<span style="background:${s.color};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;margin-right:3px;">${s.nombre}</span>`).join("")}</td>
+        <td style="color:var(--green);font-weight:600;">${cc.t}</td>
+        <td style="color:#ef5350;">${cc.f}</td>
+        <td style="color:var(--gold);">${cc.r}</td>
+        <td><div class="pcell"><div class="pmini"><div class="pmini-f" style="width:${cp}%;background:#60a5fa;"></div></div><span style="font-size:11px;color:var(--text2);min-width:28px;">${cp}%</span></div></td>`;
+      espTb.appendChild(tr);
+    });
+  }
 }
 
 // ── INFO ──
@@ -1770,6 +1987,7 @@ function buildCSV(estado){
   const s = getCS();
   const nombre = loadName();
   const rows = [["Numero","Grupo","Equipo","Figurita","Posicion","Estado"]];
+  // Grupos normales A–L
   DB_GRUPOS.forEach((g, gi) => {
     g.equipos.forEach((eq, ei) => {
       DB_TIPOS.forEach((tp, ti) => {
@@ -1781,7 +1999,17 @@ function buildCSV(estado){
       });
     });
   });
-  if(rows.length === 1) return null; // solo header = sin datos
+  // Colecciones especiales
+  DB_COLECCIONES.forEach(col => {
+    col.secciones.forEach(sec => {
+      sec.figuritas.forEach((fig, fi) => {
+        const cur = getEstadoEsp(s, col.id, sec.id, fig.codigo);
+        if(cur !== estado) return;
+        rows.push([fi+1, col.nombre, sec.nombre, fig.desc, "ESP", estado==="vacia"?"Falta":"Repetida"]);
+      });
+    });
+  });
+  if(rows.length === 1) return null;
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
   return { csv, count: rows.length - 1, nombre };
 }
@@ -2029,6 +2257,7 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
 
       // Re-renderizar
       await renderAlbum();
+      await renderColecciones();
       updateHeader();
       showToast("📂 " + added + " figurita" + (added!==1?"s":"") + " importada" + (added!==1?"s":"") + " correctamente");
       closeModal();
@@ -2052,6 +2281,7 @@ document.getElementById("btn-reset-modal").addEventListener("click",()=>{
     }).catch(()=>{});
   }
   renderAlbum();
+  renderColecciones();
   updateHeader();
   showToast("↺ Álbum reiniciado");
   closeModal();
@@ -2461,6 +2691,21 @@ const SWAP_SVG = `<svg viewBox="0 0 28 20" width="28" height="20" style="vertica
 </svg>`;
 
 function keyToDesc(key) {
+  // Colecciones especiales: "ESP__FWC||FWC01"
+  const espMatch = key.match(/^([A-Z]+)__([A-Z]+)\|\|(.+)$/);
+  if(espMatch){
+    const [,colId,secId,codigo] = espMatch;
+    for(const col of DB_COLECCIONES){
+      if(col.id!==colId) continue;
+      for(const sec of col.secciones){
+        if(sec.id!==secId) continue;
+        const fig=sec.figuritas.find(f=>f.codigo===codigo);
+        return fig ? fig.desc : `${sec.nombre} ${codigo}`;
+      }
+    }
+    return `${secId} ${codigo}`;
+  }
+  // Grupos normales: "A__Mexico||PT1"
   const parts = key.replace(/\|\|/g,'__').split('__');
   if(parts.length < 3) return key;
   const grupo  = parts[0];
@@ -2562,9 +2807,13 @@ function openIntercAlbum(u){
     const section = document.createElement('div');
     section.style.cssText = 'margin-bottom:16px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;overflow:hidden;';
     const safeId = (grupo+'_'+equipo).replace(/[^a-zA-Z0-9]/g,'_');
+    const isEsp = DB_COLECCIONES.some(c=>c.id===grupo);
+    const grupoLabel = isEsp
+      ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#60a5fa;">★ Especiales</span>`
+      : `<span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);">G${grupo}</span>`;
     section.innerHTML = `
       <div style="padding:7px 12px;background:var(--bg4);border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px;">
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);">G${grupo}</span>
+        ${grupoLabel}
         <span style="font-weight:700;color:var(--text);font-size:13px;">${equipo}</span>
         <span style="font-size:11px;color:var(--yellow);margin-left:auto;display:flex;align-items:center;gap:4px;">
           <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
@@ -2987,6 +3236,7 @@ async function init(){
     document.getElementById('save-indicator').style.display = rol === 'visor' ? 'none' : '';
     setRol(rol);
     await renderAlbum();
+    await renderColecciones();
     buildCountryTabs();
     renderStadiums();
     renderInfo();
@@ -3098,6 +3348,7 @@ async function handleAuth(){
     document.getElementById('save-indicator').style.display = rolLogin === 'visor' ? 'none' : '';
 
     await renderAlbum();
+    await renderColecciones();
     buildCountryTabs();
     renderStadiums();
     renderInfo();
@@ -3127,6 +3378,7 @@ function doLogout(reason){
   });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-album').classList.add('active');
+  const espCon=document.getElementById('especiales-container'); if(espCon) espCon.innerHTML='';
   // Reset auth form completamente
   // auth-nombre-display removed
   document.getElementById('save-indicator').style.display='none';
