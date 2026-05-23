@@ -738,10 +738,15 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
   cursor:pointer; user-select:none;
 }
 .esp-hdr.collapsed { border-radius:10px; }
-.esp-badge { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1px; padding:2px 8px; border-radius:4px; line-height:1.4; }
-.esp-badge.fwc  { background:#1a73e8; color:#fff; }
-.esp-badge.coca { background:#e31837; color:#fff; }
-.esp-title { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--gold); letter-spacing:1px; flex:1; }
+.esp-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:1.5px;
+  padding:2px 9px; border-radius:5px; line-height:1.4;
+  background:var(--bg2); border:1px solid var(--border2);
+  color:var(--text2); transition:border-color .15s, color .15s;
+}
+.esp-badge.fwc  { border-color:rgba(26,115,232,.5); color:#60a5fa; }
+.esp-badge.coca { border-color:rgba(227,24,55,.5);  color:#f87171; }
+.esp-title { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--gold); letter-spacing:1px; }
 .esp-prog  { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; }
 .esp-body  { border:1px solid var(--border2); border-top:none; border-radius:0 0 10px 10px; overflow:hidden; }
 .esp-body.hidden { display:none; }
@@ -1133,7 +1138,7 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
   <!-- Contenido álbum -->
   <div class="album-content">
     <div id="album-container"></div>
-    <div id="esp-separator" style="margin-top:32px;margin-bottom:8px;display:none;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text3);letter-spacing:2px;">SECCIÓN ESPECIALES</span><div style="flex:1;height:1px;background:var(--border2);"></div></div></div>
+    <div id="esp-separator" style="margin-top:24px;display:none;"></div>
     <div id="especiales-container"></div>
   </div>
 </div>
@@ -1914,8 +1919,10 @@ async function renderColecciones(){
     const badges=col.secciones.map(sec=>`<span class="esp-badge ${sec.badge}">${sec.nombre}</span>`).join("");
     section.innerHTML=`
       <div class="esp-hdr${isCollapsed?" collapsed":""}" id="ech_${col.id}">
-        <span class="esp-title">${col.nombre}</span>
-        ${badges}
+        <div style="display:flex;align-items:center;gap:8px;flex:1;">
+          <span class="esp-title">${col.nombre}</span>
+          ${badges}
+        </div>
         <span class="esp-prog">${colCount.t}/${colCount.tot} (${colPct}%)</span>
         <span class="gtog">▼</span>
       </div>
@@ -1931,8 +1938,20 @@ async function renderColecciones(){
     });
 
     const body=document.getElementById("ecb_"+col.id);
-    col.secciones.forEach(sec=>{
+    // Filtrar secciones según filterMode (igual que equipos en renderAlbum)
+    const visibleSecs = col.secciones.filter(sec=>{
       const sc=countSeccion(s,col,sec);
+      if(filterMode==="todos")      return true;
+      if(filterMode==="completo")   return sc.t===sc.tot;
+      if(filterMode==="incompleto") return (sc.t>0||sc.r>0) && sc.t<sc.tot;
+      if(filterMode==="nada")       return sc.t===0&&sc.r===0;
+      return true;
+    });
+
+    col.secciones.forEach(sec=>{
+      // Ocultar si no pasa el filtro
+      const sc=countSeccion(s,col,sec);
+      const visible = visibleSecs.includes(sec);
       const sp=sc.tot>0?Math.round(sc.t/sc.tot*100):0;
       const sub=document.createElement("div");
       sub.className="esp-sub";
@@ -1945,6 +1964,7 @@ async function renderColecciones(){
         </div>
         <div class="esp-sub-pbar"><div class="esp-sub-pfill" id="escpf_${col.id}_${sec.id}" style="width:${sp}%;background:${sec.color};"></div></div>
         <div class="esp-stickers" id="esk_${col.id}_${sec.id}"></div>`;
+      if(!visible) sub.style.display="none";
       body.appendChild(sub);
 
       const stkDiv=document.getElementById("esk_"+col.id+"_"+sec.id);
@@ -2093,6 +2113,7 @@ document.querySelectorAll(".sbar-btn[data-filter]").forEach(btn=>{
     document.querySelectorAll(".sbar-btn[data-filter]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     renderAlbum();
+    renderColecciones(); // re-renderiza especiales aplicando el mismo filtro
   });
 });
 
