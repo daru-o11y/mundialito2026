@@ -1121,14 +1121,8 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     <button class="sbar-btn active" data-filter="todos">
       <span class="sbar-icon">🌐</span><span class="sbar-label">Todos</span>
     </button>
-    <button class="sbar-btn" data-filter="incompleto">
-      <span class="sbar-icon">⏳</span><span class="sbar-label">Incompletos</span>
-    </button>
     <button class="sbar-btn" data-filter="completo">
       <span class="sbar-icon">✅</span><span class="sbar-label">Completos</span>
-    </button>
-    <button class="sbar-btn" data-filter="nada">
-      <span class="sbar-icon">⬜</span><span class="sbar-label">Sin empezar</span>
     </button>
     <div class="sbar-search">
       <span class="sbar-search-icon">🔍</span>
@@ -1137,9 +1131,9 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
   </aside>
   <!-- Contenido álbum -->
   <div class="album-content">
-    <div id="album-container"></div>
-    <div id="esp-separator" style="margin-top:24px;display:none;"></div>
     <div id="especiales-container"></div>
+    <div id="esp-separator" style="margin-bottom:8px;display:none;"></div>
+    <div id="album-container"></div>
   </div>
 </div>
 
@@ -1941,10 +1935,9 @@ async function renderColecciones(){
     // Filtrar secciones según filterMode (igual que equipos en renderAlbum)
     const visibleSecs = col.secciones.filter(sec=>{
       const sc=countSeccion(s,col,sec);
-      if(filterMode==="todos")      return true;
-      if(filterMode==="completo")   return sc.t===sc.tot;
-      if(filterMode==="incompleto") return (sc.t>0||sc.r>0) && sc.t<sc.tot;
-      if(filterMode==="nada")       return sc.t===0&&sc.r===0;
+      if(filterMode==="todos")    return true;
+      // completo = ninguna figurita en estado vacia
+      if(filterMode==="completo") return sc.f===0;
       return true;
     });
 
@@ -2112,8 +2105,8 @@ document.querySelectorAll(".sbar-btn[data-filter]").forEach(btn=>{
     filterMode=btn.dataset.filter;
     document.querySelectorAll(".sbar-btn[data-filter]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
+    await renderColecciones();
     renderAlbum();
-    renderColecciones(); // re-renderiza especiales aplicando el mismo filtro
   });
 });
 
@@ -2393,8 +2386,8 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       }
 
       // Re-renderizar
-      await renderAlbum();
       await renderColecciones();
+      await renderAlbum();
       updateHeader();
       showToast("📂 " + added + " figurita" + (added!==1?"s":"") + " importada" + (added!==1?"s":"") + " correctamente");
       closeModal();
@@ -2417,8 +2410,8 @@ document.getElementById("btn-reset-modal").addEventListener("click",()=>{
       body: JSON.stringify({ estado: {} })
     }).catch(()=>{});
   }
-  renderAlbum();
-  renderColecciones();
+  await renderColecciones();
+  await renderAlbum();
   updateHeader();
   showToast("↺ Álbum reiniciado");
   closeModal();
@@ -3372,8 +3365,8 @@ async function init(){
     document.getElementById('profile-name').textContent = rol === 'visor' ? '👁 Visor' : _sessionData.nombre;
     document.getElementById('save-indicator').style.display = rol === 'visor' ? 'none' : '';
     setRol(rol);
-    await renderAlbum();
     await renderColecciones();
+    await renderAlbum();
     buildCountryTabs();
     renderStadiums();
     renderInfo();
@@ -3484,8 +3477,8 @@ async function handleAuth(){
     setRol(rolLogin);
     document.getElementById('save-indicator').style.display = rolLogin === 'visor' ? 'none' : '';
 
-    await renderAlbum();
     await renderColecciones();
+    await renderAlbum();
     buildCountryTabs();
     renderStadiums();
     renderInfo();
