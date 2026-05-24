@@ -111,7 +111,105 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text);
 .page.active { display:block; }
 
 /* ── FILTER BAR ── */
-.fbar { text-align:center; margin-bottom:18px; display:flex; flex-wrap:wrap; gap:5px; justify-content:center; align-items:center; }
+.fbar { display:none; } /* reemplazado por sidebar */
+
+/* ── ALBUM LAYOUT con sidebar ── */
+#page-album { display:none; }
+#page-album.active { display:flex; gap:0; align-items:flex-start; position:relative; }
+.album-sidebar {
+  width:48px;
+  flex-shrink:0;
+  position:sticky;
+  top:74px;
+  height:calc(100vh - 90px);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:8px 6px;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  overflow:hidden;
+  transition:width .22s cubic-bezier(.4,0,.2,1);
+  z-index:10;
+}
+.album-sidebar:hover {
+  width:168px;
+}
+.album-content {
+  flex:1;
+  min-width:0;
+  padding-left:14px;
+}
+.sbar-search {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 4px;
+  margin-top:auto;
+  border-top:1px solid var(--border2);
+  padding-top:8px;
+  overflow:hidden;
+}
+.sbar-search-icon { font-size:16px; flex-shrink:0; width:24px; text-align:center; color:var(--text3); }
+.sbar-search input {
+  background:none;
+  border:none;
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  font-size:12px;
+  outline:none;
+  width:0;
+  opacity:0;
+  transition:width .22s, opacity .22s;
+  padding:0;
+}
+.album-sidebar:hover .sbar-search input {
+  width:110px;
+  opacity:1;
+}
+.sbar-btn {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 6px;
+  border-radius:8px;
+  border:none;
+  background:none;
+  color:var(--text3);
+  cursor:pointer;
+  transition:background .15s, color .15s;
+  white-space:nowrap;
+  overflow:hidden;
+  font-family:'Barlow',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  width:100%;
+  text-align:left;
+}
+.sbar-btn:hover { background:var(--surface); color:var(--text); }
+.sbar-btn.active { background:rgba(255,215,0,.12); color:var(--gold); }
+.sbar-btn.active .sbar-icon { color:var(--gold); }
+.sbar-icon { font-size:16px; flex-shrink:0; width:24px; text-align:center; line-height:1; }
+.sbar-label { font-size:12px; font-weight:600; opacity:0; transition:opacity .18s .04s; white-space:nowrap; }
+.album-sidebar:hover .sbar-label { opacity:1; }
+@media(max-width:640px){
+  #page-album.active { flex-direction:column; }
+  .album-sidebar {
+    position:fixed; bottom:0; left:0; right:0; top:auto;
+    width:100% !important; height:52px;
+    flex-direction:row; border-radius:0;
+    border-top:1px solid var(--border2);
+    padding:4px 8px; gap:0; z-index:50;
+    justify-content:space-around; align-items:center;
+  }
+  .album-sidebar:hover { width:100% !important; }
+  .album-content { padding-left:0; padding-bottom:60px; }
+  .sbar-label { opacity:1 !important; font-size:10px; }
+  .sbar-btn { flex-direction:column; gap:2px; padding:4px 6px; align-items:center; }
+  .sbar-icon { font-size:18px; }
+  .sbar-search { display:none; }
+}
 .fbtn { background:var(--bg3); color:var(--text2); border:1px solid var(--border); padding:5px 16px; border-radius:20px; cursor:pointer; font-size:12px; font-family:'Barlow',sans-serif; font-weight:500; transition:all .18s; }
 .fbtn:hover, .fbtn.active { background:var(--gold); color:var(--bg); border-color:var(--gold); font-weight:700; }
 .fbtn.danger { background:rgba(139,0,0,.25); color:#ff6b6b; border-color:rgba(139,0,0,.4); }
@@ -628,6 +726,42 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
 .rank-bar-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--green2)); border-radius:3px; }
 .rank-me { background:rgba(255,215,0,.05) !important; }
 .rank-me td { border-color:rgba(255,215,0,.15) !important; }
+
+/* ══════════════════════════════════════════
+   COLECCIONES ESPECIALES
+══════════════════════════════════════════ */
+.esp-section { margin-bottom:28px; }
+.esp-hdr {
+  display:flex; align-items:center; gap:10px; padding:10px 14px;
+  background:linear-gradient(135deg,#0a1628 0%,#0d2040 100%);
+  border:1px solid var(--border2); border-radius:10px 10px 0 0;
+  cursor:pointer; user-select:none;
+}
+.esp-hdr.collapsed { border-radius:10px; }
+.esp-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:1.5px;
+  padding:2px 9px; border-radius:5px; line-height:1.4;
+  background:var(--bg2); border:1px solid var(--border2);
+  color:var(--text2); transition:border-color .15s, color .15s;
+}
+.esp-badge.fwc  { border-color:rgba(26,115,232,.5); color:#60a5fa; }
+.esp-badge.coca { border-color:rgba(227,24,55,.5);  color:#f87171; }
+.esp-title { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--gold); letter-spacing:1px; }
+.esp-prog  { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; }
+.esp-body  { border:1px solid var(--border2); border-top:none; border-radius:0 0 10px 10px; overflow:hidden; }
+.esp-body.hidden { display:none; }
+.esp-sub { background:var(--bg3); border-bottom:1px solid var(--border2); }
+.esp-sub:last-child { border-bottom:none; }
+.esp-sub-hdr {
+  display:flex; align-items:center; gap:10px; padding:8px 14px;
+  background:var(--bg4); border-bottom:1px solid var(--border2); cursor:pointer; user-select:none;
+}
+.esp-sub-title { font-weight:700; font-size:13px; color:var(--text); flex:1; }
+.esp-sub-count { font-size:11px; color:var(--text3); font-family:'Barlow Condensed',sans-serif; }
+.esp-sub-pbar  { height:2px; background:var(--bg2); }
+.esp-sub-pfill { height:100%; transition:width .3s; }
+.esp-stickers  { display:grid; grid-template-columns:repeat(10,1fr); gap:4px; padding:8px 10px 12px; }
+@media(max-width:640px){ .esp-stickers { grid-template-columns:repeat(7,1fr); } }
 </style>
 </head>
 <body>
@@ -982,14 +1116,25 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
 
 <!-- ── ALBUM ── -->
 <div class="page active" id="page-album">
-  <div class="fbar">
-    <button class="fbtn active" data-filter="todos">Todos</button>
-    <button class="fbtn" data-filter="incompleto">Incompletos</button>
-    <button class="fbtn" data-filter="completo">Completos</button>
-    <button class="fbtn" data-filter="nada">Sin empezar</button>
-    <input class="fsearch" type="text" id="fsearch" placeholder="🔍 Buscar equipo...">
+  <!-- Sidebar filtros -->
+  <aside class="album-sidebar" id="album-sidebar">
+    <button class="sbar-btn active" data-filter="todos">
+      <span class="sbar-icon">🌐</span><span class="sbar-label">Todos</span>
+    </button>
+    <button class="sbar-btn" data-filter="completo">
+      <span class="sbar-icon">✅</span><span class="sbar-label">Completos</span>
+    </button>
+    <div class="sbar-search">
+      <span class="sbar-search-icon">🔍</span>
+      <input type="text" id="fsearch" placeholder="Buscar equipo...">
+    </div>
+  </aside>
+  <!-- Contenido álbum -->
+  <div class="album-content">
+    <div id="especiales-container"></div>
+    <div id="esp-separator" style="margin-bottom:8px;display:none;"></div>
+    <div id="album-container"></div>
   </div>
-  <div id="album-container"></div>
 </div>
 
 <!-- ── ESTADIOS ── -->
@@ -1008,6 +1153,7 @@ tr.admin-user-row.expanded td { background:rgba(255,215,0,.03); }
     <table class="gtbl">
       <thead><tr><th>Grupo</th><th>Equipos</th><th>Tengo</th><th>Faltan</th><th>Rep.</th><th>Avance</th></tr></thead>
       <tbody id="gtbody"></tbody>
+      <tbody id="esp-tbody"></tbody>
     </table>
   </div>
 </div>
@@ -1228,6 +1374,54 @@ const DB_CALENDARIO = [
 ];
 
 const TPP = DB_TIPOS.length; // 20 por equipo (PT1-PT20)
+// ═══════════════════════════════════════════════
+// COLECCIONES ESPECIALES — independiente de DB_GRUPOS
+// Para agregar nueva colección: solo agregar entrada acá.
+// Render, conteo, CSV, intercambios funcionan automático.
+// ═══════════════════════════════════════════════
+const DB_COLECCIONES = [
+  {
+    id: "ESP",
+    nombre: "Especiales",
+    secciones: [
+      {
+        id: "FWC",
+        nombre: "FWC",
+        badge: "fwc",
+        color: "#1a73e8",
+        figuritas: [
+          { codigo:"FWC00", desc:"FWC 00 — Presentación" },
+          { codigo:"FWC01", desc:"FWC 1" },  { codigo:"FWC02", desc:"FWC 2" },
+          { codigo:"FWC03", desc:"FWC 3" },  { codigo:"FWC04", desc:"FWC 4" },
+          { codigo:"FWC05", desc:"FWC 5" },  { codigo:"FWC06", desc:"FWC 6" },
+          { codigo:"FWC07", desc:"FWC 7" },  { codigo:"FWC08", desc:"FWC 8" },
+          { codigo:"FWC09", desc:"FWC 9" },  { codigo:"FWC10", desc:"FWC 10" },
+          { codigo:"FWC11", desc:"FWC 11" }, { codigo:"FWC12", desc:"FWC 12" },
+          { codigo:"FWC13", desc:"FWC 13" }, { codigo:"FWC14", desc:"FWC 14" },
+          { codigo:"FWC15", desc:"FWC 15" }, { codigo:"FWC16", desc:"FWC 16" },
+          { codigo:"FWC17", desc:"FWC 17" }, { codigo:"FWC18", desc:"FWC 18" },
+          { codigo:"FWC19", desc:"FWC 19" }
+        ]
+      },
+      {
+        id: "CC",
+        nombre: "COK",
+        badge: "coca",
+        color: "#e31837",
+        figuritas: [
+          { codigo:"CC01", desc:"Coca-Cola 1" },  { codigo:"CC02", desc:"Coca-Cola 2" },
+          { codigo:"CC03", desc:"Coca-Cola 3" },  { codigo:"CC04", desc:"Coca-Cola 4" },
+          { codigo:"CC05", desc:"Coca-Cola 5" },  { codigo:"CC06", desc:"Coca-Cola 6" },
+          { codigo:"CC07", desc:"Coca-Cola 7" },  { codigo:"CC08", desc:"Coca-Cola 8" },
+          { codigo:"CC09", desc:"Coca-Cola 9" },  { codigo:"CC10", desc:"Coca-Cola 10" },
+          { codigo:"CC11", desc:"Coca-Cola 11" }, { codigo:"CC12", desc:"Coca-Cola 12" },
+          { codigo:"CC13", desc:"Coca-Cola 13" }, { codigo:"CC14", desc:"Coca-Cola 14" }
+        ]
+      }
+    ]
+  }
+];
+
 const STORAGE_KEY = "wc2026_album_v3";
 
 // ── STATE (API + localStorage fallback) ──
@@ -1256,20 +1450,48 @@ async function loadState(){
 function flattenState(raw){
   const flat = {};
   const validVals = new Set(['tengo','repetida','reservada']);
-  for(const [teamKey, codes] of Object.entries(raw)){
+  for(const [tk, codes] of Object.entries(raw)){
+    // Ignorar keys de metadata (_visor_de_id, etc.)
+    if(tk.startsWith('_')) continue;
     if(codes && typeof codes === 'object' && !Array.isArray(codes)){
-      // Formato anidado: {"A__M_xico": {"ESC": "tengo"}}
       for(const [codigo, val] of Object.entries(codes)){
-        if(validVals.has(val)){
-          flat[teamKey+'||'+codigo] = val;
-        }
+        if(!validVals.has(val)) continue;
+        flat[tk+'||'+codigo] = val;
+        // ESC alias: guardar también como PT1
+        if(codigo === 'ESC') flat[tk+'||PT1'] = val;
       }
     } else if(typeof codes === 'string' && validVals.has(codes)){
-      // Formato flat directo: {"A__M_xico||ESC": "tengo"}
-      flat[teamKey] = codes;
+      flat[tk] = codes;
     }
   }
   return flat;
+}
+
+// Dado gl+nombre, devuelve el teamKey real que existe en el flatState
+// Construye todas las variantes del nombre y busca cuál existe en el estado
+function resolveTeamKey(flatState, gl, nombre){
+  const canonical = teamKey(gl, nombre);
+  // 1. Exacto
+  if(Object.keys(flatState).some(k => k.startsWith(canonical+'||'))) return canonical;
+  // 2. Generar variantes y buscar
+  const _ac = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ñ':'n','ü':'u',
+                'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+  const strip = s => s.split('').map(c=>_ac[c]||c).join('');
+  const clean = s => s.replace(/[^a-zA-Z0-9]/g,'_');
+  const variants = new Set([
+    gl+'__'+clean(nombre),
+    gl+'__'+clean(strip(nombre)),
+    gl+'__'+clean(nombre.replace(/\./g,'')),
+    gl+'__'+clean(strip(nombre.replace(/\./g,''))),
+  ]);
+  // Prefijos
+  const parts = clean(strip(nombre)).split('_').filter(Boolean);
+  for(let i=1;i<parts.length;i++) variants.add(gl+'__'+parts.slice(0,i).join('_'));
+  
+  for(const v of variants){
+    if(Object.keys(flatState).some(k => k.startsWith(v+'||'))) return v;
+  }
+  return canonical;
 }
 
 // Build nested state from flat for API
@@ -1289,8 +1511,23 @@ function buildNestedState(flat){
 function teamKey(gl,en){ return gl+"__"+en.replace(/[^a-zA-Z0-9]/g,"_"); }
 
 function getEstado(s,gl,en,codigo){
-  const k = teamKey(gl,en)+'||'+codigo;
-  return s[k] || "vacia";
+  const canonical = teamKey(gl,en);
+  // Buscar directo primero
+  if(s[canonical+'||'+codigo] !== undefined) return s[canonical+'||'+codigo];
+  // Buscar con resolución de alias (para JSONs viejos con keys truncadas)
+  const real = resolveTeamKey(s, gl, en);
+  return s[real+'||'+codigo] || "vacia";
+}
+
+async function cycleEstadoEsp(colId,secId,codigo){
+  if(!_cachedState) _cachedState = await loadState();
+  const k=espKey(colId,secId,codigo);
+  const cur=_cachedState[k]||"vacia";
+  if(cur==="reservada"){ showToast("🔒 Figurita reservada en un intercambio pendiente"); return "reservada"; }
+  const next=cur==="vacia"?"tengo":cur==="tengo"?"repetida":"vacia";
+  if(next==="vacia") delete _cachedState[k]; else _cachedState[k]=next;
+  _scheduleSave();
+  return next;
 }
 
 async function cycleEstado(gl,en,codigo){
@@ -1402,6 +1639,26 @@ function countGroup(g){
 function countAll(){
   let t=0,r=0,f=0,tot=0;
   DB_GRUPOS.forEach(g=>{ const c=countGroup(g); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
+  const ce=countAllColecciones(); t+=ce.t; r+=ce.r; f+=ce.f; tot+=ce.tot;
+  return {t,r,f,tot};
+}
+
+// ── CONTEO COLECCIONES ESPECIALES ──
+function espKey(colId,secId,codigo){ return colId+"__"+secId+"||"+codigo; }
+function getEstadoEsp(s,colId,secId,codigo){ return s[espKey(colId,secId,codigo)]||"vacia"; }
+function countSeccion(s,col,sec){
+  let t=0,r=0,f=0;
+  sec.figuritas.forEach(fig=>{ const v=getEstadoEsp(s,col.id,sec.id,fig.codigo); if(v==="tengo")t++; else if(v==="repetida")r++; else f++; });
+  return {t,r,f,tot:sec.figuritas.length};
+}
+function countColeccion(col){
+  const s=getCS(); let t=0,r=0,f=0,tot=0;
+  col.secciones.forEach(sec=>{ const c=countSeccion(s,col,sec); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
+  return {t,r,f,tot};
+}
+function countAllColecciones(){
+  let t=0,r=0,f=0,tot=0;
+  DB_COLECCIONES.forEach(col=>{ const c=countColeccion(col); t+=c.t; r+=c.r; f+=c.f; tot+=c.tot; });
   return {t,r,f,tot};
 }
 
@@ -1635,6 +1892,110 @@ function updateGroupProgress(g){
   if(pt) pt.textContent=gc.t+"/"+gc.tot+" ("+p+"%)";
 }
 
+// ══════════════════════════════════════════
+// RENDER COLECCIONES ESPECIALES
+// ══════════════════════════════════════════
+async function renderColecciones(){
+  const con=document.getElementById("especiales-container");
+  if(!con) return;
+  con.innerHTML="";
+  const sep=document.getElementById("esp-separator");
+  if(sep) sep.style.display="block";
+  const s=_cachedState||await loadState();
+
+  DB_COLECCIONES.forEach(col=>{
+    const colCount=countColeccion(col);
+    const colPct=colCount.tot>0?Math.round(colCount.t/colCount.tot*100):0;
+    const isCollapsed=localStorage.getItem("ec_"+col.id)==="1";
+
+    const section=document.createElement("div");
+    section.className="esp-section";
+    const badges=col.secciones.map(sec=>`<span class="esp-badge ${sec.badge}">${sec.nombre}</span>`).join("");
+    section.innerHTML=`
+      <div class="esp-hdr${isCollapsed?" collapsed":""}" id="ech_${col.id}">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;">
+          <span class="esp-title">${col.nombre}</span>
+          ${badges}
+        </div>
+        <span class="esp-prog">${colCount.t}/${colCount.tot} (${colPct}%)</span>
+        <span class="gtog">▼</span>
+      </div>
+      <div class="esp-body${isCollapsed?" hidden":""}" id="ecb_${col.id}"></div>`;
+    con.appendChild(section);
+
+    document.getElementById("ech_"+col.id).addEventListener("click",()=>{
+      const body=document.getElementById("ecb_"+col.id);
+      const hdr=document.getElementById("ech_"+col.id);
+      const h=body.classList.toggle("hidden");
+      hdr.classList.toggle("collapsed",h);
+      localStorage.setItem("ec_"+col.id,h?"1":"0");
+    });
+
+    const body=document.getElementById("ecb_"+col.id);
+    // Filtrar secciones según filterMode (igual que equipos en renderAlbum)
+    const visibleSecs = col.secciones.filter(sec=>{
+      const sc=countSeccion(s,col,sec);
+      if(filterMode==="todos")      return true;
+      // completo = ninguna figurita vacía
+      if(filterMode==="completo") return sc.f===0;
+      return true;
+    });
+
+    col.secciones.forEach(sec=>{
+      // Ocultar si no pasa el filtro
+      const sc=countSeccion(s,col,sec);
+      const visible = visibleSecs.includes(sec);
+      const sp=sc.tot>0?Math.round(sc.t/sc.tot*100):0;
+      const sub=document.createElement("div");
+      sub.className="esp-sub";
+      sub.id="esub_"+col.id+"_"+sec.id;
+      sub.innerHTML=`
+        <div class="esp-sub-hdr">
+          <span class="esp-badge ${sec.badge}">${sec.nombre}</span>
+          <span class="esp-sub-title">${sec.desc||sec.nombre}</span>
+          <span class="esp-sub-count" id="escc_${col.id}_${sec.id}">${sc.t}/${sc.tot}</span>
+        </div>
+        <div class="esp-sub-pbar"><div class="esp-sub-pfill" id="escpf_${col.id}_${sec.id}" style="width:${sp}%;background:${sec.color};"></div></div>
+        <div class="esp-stickers" id="esk_${col.id}_${sec.id}"></div>`;
+      if(!visible) sub.style.display="none";
+      body.appendChild(sub);
+
+      const stkDiv=document.getElementById("esk_"+col.id+"_"+sec.id);
+      sec.figuritas.forEach((fig,fi)=>{
+        const estado=getEstadoEsp(s,col.id,sec.id,fig.codigo);
+        const lbl=document.createElement("label");
+        lbl.className="slabel"; lbl.title=fig.desc;
+        const inp=document.createElement("input");
+        inp.type="checkbox"; inp.dataset.estado=estado;
+        inp.dataset.col=col.id; inp.dataset.sec=sec.id; inp.dataset.cod=fig.codigo;
+        const box=document.createElement("div"); box.className="sbox";
+        const numEl=document.createElement("span"); numEl.className="snum"; numEl.textContent=fi+1;
+        lbl.appendChild(inp); lbl.appendChild(box); lbl.appendChild(numEl);
+        stkDiv.appendChild(lbl);
+        inp.addEventListener("click",async(e)=>{
+          e.preventDefault();
+          const next=await cycleEstadoEsp(col.id,sec.id,fig.codigo);
+          inp.dataset.estado=next;
+          updateSeccionProgress(col,sec);
+          updateHeader();
+          const msgs={"tengo":"✓ Tengo","repetida":"↺ Repetida","vacia":"Quitada"};
+          showToast(msgs[next]+" — "+fig.desc);
+        });
+      });
+    });
+  });
+}
+
+function updateSeccionProgress(col,sec){
+  const s=getCS();
+  const sc=countSeccion(s,col,sec);
+  const sp=sc.tot>0?Math.round(sc.t/sc.tot*100):0;
+  const cc=document.getElementById("escc_"+col.id+"_"+sec.id);
+  const pf=document.getElementById("escpf_"+col.id+"_"+sec.id);
+  if(cc) cc.textContent=sc.t+"/"+sc.tot;
+  if(pf) pf.style.width=sp+"%";
+}
+
 // ── ESTADIOS ──
 let filterS="all";
 function buildCountryTabs(){
@@ -1699,6 +2060,23 @@ function renderStats(){
       <td><div class="pcell"><div class="pmini"><div class="pmini-f" style="width:${p}%"></div></div><span style="font-size:11px;color:var(--text2);min-width:28px;">${p}%</span></div></td>`;
     tb.appendChild(tr);
   });
+  // Fila especiales
+  const espTb=document.getElementById("esp-tbody");
+  if(espTb){
+    espTb.innerHTML="";
+    DB_COLECCIONES.forEach(col=>{
+      const cc=countColeccion(col); const cp=cc.tot>0?Math.round(cc.t/cc.tot*100):0;
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td><b style="color:#60a5fa;font-family:'Bebas Neue',sans-serif;font-size:15px;">★</b> ${col.nombre}</td>
+        <td style="font-size:11px;">${col.secciones.map(s=>`<span style="background:${s.color};color:#fff;padding:1px 5px;border-radius:3px;font-size:10px;margin-right:3px;">${s.nombre}</span>`).join("")}</td>
+        <td style="color:var(--green);font-weight:600;">${cc.t}</td>
+        <td style="color:#ef5350;">${cc.f}</td>
+        <td style="color:var(--gold);">${cc.r}</td>
+        <td><div class="pcell"><div class="pmini"><div class="pmini-f" style="width:${cp}%;background:#60a5fa;"></div></div><span style="font-size:11px;color:var(--text2);min-width:28px;">${cp}%</span></div></td>`;
+      espTb.appendChild(tr);
+    });
+  }
 }
 
 // ── INFO ──
@@ -1722,11 +2100,12 @@ function renderInfo(){
 // ── NAV (handled in auth section below) ──
 
 // ── FILTER BUTTONS ──
-document.querySelectorAll(".fbtn[data-filter]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
+document.querySelectorAll(".sbar-btn[data-filter]").forEach(btn=>{
+  btn.addEventListener("click",async ()=>{
     filterMode=btn.dataset.filter;
-    document.querySelectorAll(".fbtn[data-filter]").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".sbar-btn[data-filter]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
+    await renderColecciones();
     renderAlbum();
   });
 });
@@ -1738,6 +2117,7 @@ function buildCSV(estado){
   const s = getCS();
   const nombre = loadName();
   const rows = [["Numero","Grupo","Equipo","Figurita","Posicion","Estado"]];
+  // Grupos normales A–L
   DB_GRUPOS.forEach((g, gi) => {
     g.equipos.forEach((eq, ei) => {
       DB_TIPOS.forEach((tp, ti) => {
@@ -1749,7 +2129,17 @@ function buildCSV(estado){
       });
     });
   });
-  if(rows.length === 1) return null; // solo header = sin datos
+  // Colecciones especiales
+  DB_COLECCIONES.forEach(col => {
+    col.secciones.forEach(sec => {
+      sec.figuritas.forEach((fig, fi) => {
+        const cur = getEstadoEsp(s, col.id, sec.id, fig.codigo);
+        if(cur !== estado) return;
+        rows.push([fi+1, col.nombre, sec.nombre, fig.desc, "ESP", estado==="vacia"?"Falta":"Repetida"]);
+      });
+    });
+  });
+  if(rows.length === 1) return null;
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
   return { csv, count: rows.length - 1, nombre };
 }
@@ -1889,46 +2279,75 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       const importedFlat = flattenState(data.estado);
       if(Object.keys(importedFlat).length === 0) throw new Error("El archivo no tiene figuritas");
 
-      // Remap keys al formato actual
-      // Traduce tanto el nombre del equipo como el código de figurita
-      // Ej: "A__M_xico||ESC" → "A__M_xico||PT1"
-      //     "A__M_xico||PT5" → "A__M_xico||PT5" (sin cambio si ya es formato nuevo)
-      
-      // Mapa de códigos: solo renombrar ESC → PT1, el resto queda igual
-      // El JSON viejo tiene ESC (escudo) como código separado, ahora es PT1
-      const codigoMap = { 'ESC': 'PT1' };
+      // Remap: traduce keys del JSON (cualquier formato viejo) al formato actual
+      // Estrategia: construir un mapa de TODAS las variantes posibles → nombre canónico
+      // Esto resuelve: acentos, puntos, keys truncadas, duplicados, ESC→PT1
 
-      // Detectar si el JSON es formato viejo (tiene ESC como código)
+      // Mapa de variantes: "A__M_xico" → "A__México", "A__Rep" → "A__Rep. Checa", etc.
+      const _variantMap = {};
+      const _acentos = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ñ':'n','ü':'u',
+                        'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ñ':'N','Ü':'U'};
+      function _stripAccents(s){ return s.split('').map(c=>_acentos[c]||c).join(''); }
+      function _mkKey(gl, nombre){
+        const clean = s => s.replace(/[^a-zA-Z0-9]/g,'_');
+        const variants = new Set();
+        variants.add(clean(nombre));
+        variants.add(clean(_stripAccents(nombre)));
+        variants.add(clean(nombre.replace(/\./g,'')));
+        variants.add(clean(_stripAccents(nombre.replace(/\./g,''))));
+        // Prefijos: "Rep. Checa" → "Rep", "Rep_Checa", "Rep__Checa"
+        const parts = clean(_stripAccents(nombre)).split('_').filter(Boolean);
+        for(let i=1;i<=parts.length;i++) variants.add(parts.slice(0,i).join('_'));
+        return variants;
+      }
+      DB_GRUPOS.forEach(g => {
+        g.equipos.forEach(eq => {
+          const canonical = teamKey(g.letra, eq.nombre); // key actual del sistema
+          _mkKey(g.letra, eq.nombre).forEach(v => {
+            const fullKey = g.letra+'__'+v;
+            // En conflicto: el nombre más largo gana (más específico)
+            if(!_variantMap[fullKey] || eq.nombre.length > _variantMap[fullKey].length){
+              _variantMap[fullKey] = canonical;
+            }
+          });
+        });
+      });
+
+      // ESC → PT1 si el JSON usa el código viejo
       const isOldFormat = Object.keys(importedFlat).some(k => k.includes('||ESC'));
+      const codigoMap = isOldFormat ? {'ESC':'PT1'} : {};
 
       const remapped = {};
       for(const [key, val] of Object.entries(importedFlat)){
         const parts = key.split('||');
-        if(parts.length !== 2){ remapped[key] = val; continue; }
+        if(parts.length !== 2){ continue; } // ignorar keys raras
         const [teamPart, codigo] = parts;
-
-        // 1. Traducir código de figurita si es formato viejo
-        const newCodigo = isOldFormat ? (codigoMap[codigo] || codigo) : codigo;
-
-        // 2. Remap del nombre de equipo (para compatibilidad de keys con acentos)
-        const grupoLetra = teamPart.split('__')[0];
-        const g = DB_GRUPOS.find(g => g.letra === grupoLetra);
-        let newTeamPart = teamPart;
-        if(g){
-          const eq = g.equipos.find(e => {
-            const k1 = teamKey(grupoLetra, e.nombre);
-            const k2 = grupoLetra+'__'+e.nombre.replace(/[^a-zA-Z0-9]/g,'_');
-            const k3 = grupoLetra+'__'+e.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_');
-            return k1 === grupoLetra+'__'+teamPart.split('__').slice(1).join('__') ||
-                   k2 === teamPart || k3 === teamPart ||
-                   k1.split('__')[1] === teamPart.split('__').slice(1).join('__');
-          });
-          if(eq) newTeamPart = teamKey(grupoLetra, eq.nombre).split('__')[1];
+        const newCodigo = codigoMap[codigo] || codigo;
+        // Traducir el teamKey usando el mapa de variantes
+        const newTeamKey = _variantMap[teamPart] || teamPart;
+        const newKey = newTeamKey + '||' + newCodigo;
+        // Merge: no pisar un valor existente con uno peor
+        if(!remapped[newKey] || remapped[newKey] === 'vacia'){
+          remapped[newKey] = val;
         }
-
-        const newKey = grupoLetra + '__' + newTeamPart + '||' + newCodigo;
-        remapped[newKey] = val;
       }
+
+      // DEBUG: log del remap para diagnóstico
+      const _debugGrupos = {};
+      for(const [key, val] of Object.entries(remapped)){
+        const g = key.split('__')[0];
+        const eq = key.split('__')[1]?.split('||')[0];
+        const gk = g+'__'+eq;
+        if(!_debugGrupos[gk]) _debugGrupos[gk] = {t:0,r:0,total:0};
+        _debugGrupos[gk].total++;
+        if(val==='tengo') _debugGrupos[gk].t++;
+        if(val==='repetida') _debugGrupos[gk].r++;
+      }
+      console.log('🗺️ IMPORT REMAP — equipos detectados:', Object.keys(_debugGrupos).length);
+      Object.entries(_debugGrupos).forEach(([k,v])=>{
+        if(v.t===20) console.log(`  ✅ COMPLETO: ${k} (${v.t} tengo)`);
+        else if(v.t>0) console.log(`  ⚡ INCOMPLETO: ${k} (${v.t} tengo / ${v.total} total)`);
+      });
 
       // Merge: solo aplicar figuritas que en el estado actual están vacías
       // No tocar las que ya tienen un estado (tengo/repetida/reservada)
@@ -1941,6 +2360,20 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
         }
       }
       _cachedState = current;
+      console.log('✅ IMPORT DONE — figuritas mergeadas:', added);
+      console.log('📊 ESTADO FINAL — total keys:', Object.keys(_cachedState).length);
+      // Verificar completos en estado final
+      const _finalGrupos = {};
+      for(const [key] of Object.entries(_cachedState)){
+        const g = key.split('__')[0];
+        const eq = key.split('__')[1]?.split('||')[0];
+        const gk = g+'__'+eq;
+        if(!_finalGrupos[gk]) _finalGrupos[gk] = 0;
+        if(_cachedState[key]==='tengo') _finalGrupos[gk]++;
+      }
+      Object.entries(_finalGrupos).forEach(([k,v])=>{
+        if(v===20) console.log(`  🏆 COMPLETO FINAL: ${k}`);
+      });
 
       // Guardar en el servidor
       if(_token){
@@ -1953,6 +2386,7 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
       }
 
       // Re-renderizar
+      await renderColecciones();
       await renderAlbum();
       updateHeader();
       showToast("📂 " + added + " figurita" + (added!==1?"s":"") + " importada" + (added!==1?"s":"") + " correctamente");
@@ -1967,7 +2401,7 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
 });
 
 // ── RESET ──
-document.getElementById("btn-reset-modal").addEventListener("click",()=>{
+document.getElementById("btn-reset-modal").addEventListener("click",async ()=>{
   if(!confirm("¿Reiniciar todo el álbum? Esta acción no se puede deshacer.")) return;
   _cachedState = {};
   if(_token){
@@ -1976,7 +2410,8 @@ document.getElementById("btn-reset-modal").addEventListener("click",()=>{
       body: JSON.stringify({ estado: {} })
     }).catch(()=>{});
   }
-  renderAlbum();
+  await renderColecciones();
+  await renderAlbum();
   updateHeader();
   showToast("↺ Álbum reiniciado");
   closeModal();
@@ -2386,6 +2821,21 @@ const SWAP_SVG = `<svg viewBox="0 0 28 20" width="28" height="20" style="vertica
 </svg>`;
 
 function keyToDesc(key) {
+  // Colecciones especiales: "ESP__FWC||FWC01"
+  const espMatch = key.match(/^([A-Z]+)__([A-Z]+)\|\|(.+)$/);
+  if(espMatch){
+    const [,colId,secId,codigo] = espMatch;
+    for(const col of DB_COLECCIONES){
+      if(col.id!==colId) continue;
+      for(const sec of col.secciones){
+        if(sec.id!==secId) continue;
+        const fig=sec.figuritas.find(f=>f.codigo===codigo);
+        return fig ? fig.desc : `${sec.nombre} ${codigo}`;
+      }
+    }
+    return `${secId} ${codigo}`;
+  }
+  // Grupos normales: "A__Mexico||PT1"
   const parts = key.replace(/\|\|/g,'__').split('__');
   if(parts.length < 3) return key;
   const grupo  = parts[0];
@@ -2487,9 +2937,13 @@ function openIntercAlbum(u){
     const section = document.createElement('div');
     section.style.cssText = 'margin-bottom:16px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;overflow:hidden;';
     const safeId = (grupo+'_'+equipo).replace(/[^a-zA-Z0-9]/g,'_');
+    const isEsp = DB_COLECCIONES.some(c=>c.id===grupo);
+    const grupoLabel = isEsp
+      ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#60a5fa;">★ Especiales</span>`
+      : `<span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);">G${grupo}</span>`;
     section.innerHTML = `
       <div style="padding:7px 12px;background:var(--bg4);border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px;">
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);">G${grupo}</span>
+        ${grupoLabel}
         <span style="font-weight:700;color:var(--text);font-size:13px;">${equipo}</span>
         <span style="font-size:11px;color:var(--yellow);margin-left:auto;display:flex;align-items:center;gap:4px;">
           <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
@@ -2910,6 +3364,7 @@ async function init(){
     document.getElementById('profile-name').textContent = rol === 'visor' ? '👁 Visor' : _sessionData.nombre;
     document.getElementById('save-indicator').style.display = rol === 'visor' ? 'none' : '';
     setRol(rol);
+    await renderColecciones();
     await renderAlbum();
     buildCountryTabs();
     renderStadiums();
@@ -3021,6 +3476,7 @@ async function handleAuth(){
     setRol(rolLogin);
     document.getElementById('save-indicator').style.display = rolLogin === 'visor' ? 'none' : '';
 
+    await renderColecciones();
     await renderAlbum();
     buildCountryTabs();
     renderStadiums();
@@ -3051,6 +3507,7 @@ function doLogout(reason){
   });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-album').classList.add('active');
+  const espCon=document.getElementById('especiales-container'); if(espCon) espCon.innerHTML='';
   // Reset auth form completamente
   // auth-nombre-display removed
   document.getElementById('save-indicator').style.display='none';
