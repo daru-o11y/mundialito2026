@@ -1935,8 +1935,8 @@ async function renderColecciones(){
     // Filtrar secciones según filterMode (igual que equipos en renderAlbum)
     const visibleSecs = col.secciones.filter(sec=>{
       const sc=countSeccion(s,col,sec);
-      if(filterMode==="todos")    return true;
-      // completo = ninguna figurita en estado vacia
+      if(filterMode==="todos")      return true;
+      // completo = ninguna figurita vacía
       if(filterMode==="completo") return sc.f===0;
       return true;
     });
@@ -2101,7 +2101,7 @@ function renderInfo(){
 
 // ── FILTER BUTTONS ──
 document.querySelectorAll(".sbar-btn[data-filter]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
+  btn.addEventListener("click",async ()=>{
     filterMode=btn.dataset.filter;
     document.querySelectorAll(".sbar-btn[data-filter]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
@@ -2401,7 +2401,7 @@ document.getElementById("file-import").addEventListener("change",(e)=>{
 });
 
 // ── RESET ──
-document.getElementById("btn-reset-modal").addEventListener("click",()=>{
+document.getElementById("btn-reset-modal").addEventListener("click",async ()=>{
   if(!confirm("¿Reiniciar todo el álbum? Esta acción no se puede deshacer.")) return;
   _cachedState = {};
   if(_token){
