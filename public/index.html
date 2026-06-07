@@ -3236,10 +3236,6 @@ async function loadMisPropuestas(){
         </div>
         <div style="display:flex;align-items:center;">${acc}</div>
       </div>`;
-<<<<<<< Updated upstream
-    }).filter(Boolean).join('');
-    listDiv.innerHTML = rendered || '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">Sin propuestas activas</div>';
-=======
     }
 
     let html = '';
@@ -3254,7 +3250,6 @@ async function loadMisPropuestas(){
     }
     listDiv.innerHTML = html;
 
->>>>>>> Stashed changes
   } catch(e){ 
     console.error('loadMisPropuestas error:', e);
     listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; 
