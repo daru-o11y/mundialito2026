@@ -2037,8 +2037,18 @@ async function renderColecciones(){
         stkDiv.appendChild(lbl);
         inp.addEventListener("click",async(e)=>{
           e.preventDefault();
+          const box2 = inp.nextElementSibling;
+          box2.classList.remove('anim-pop','glow-tengo','glow-repetida');
+          void box2.offsetWidth;
+          box2.classList.add('anim-pop');
           const next=await cycleEstadoEsp(col.id,sec.id,fig.codigo);
           inp.dataset.estado=next;
+          setTimeout(()=>{
+            box2.classList.remove('anim-pop');
+            if(next==='tengo')    box2.classList.add('glow-tengo');
+            if(next==='repetida') box2.classList.add('glow-repetida');
+            setTimeout(()=>box2.classList.remove('glow-tengo','glow-repetida'),450);
+          },280);
           updateSeccionProgress(col,sec);
           updateHeader();
           const msgs={"tengo":"✓ Tengo","repetida":"↺ Repetida","vacia":"Quitada"};
