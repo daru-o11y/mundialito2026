@@ -384,6 +384,57 @@ input[data-estado="repetida"].foil-input + .sbox,
 .slabel.foil input[data-estado="repetida"] + .sbox::after { content:'↺'; color:#0a1628; font-weight:bold; font-size:11px; }
 .slabel.foil:has(input[data-estado="repetida"]) .snum { color:var(--gold); font-weight:bold; }
 
+/* ── ANIMACIÓN CLICK FIGURITA ── */
+@keyframes sticker-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.45); }
+  60%  { transform: scale(0.9); }
+  80%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes sticker-flip {
+  0%   { transform: rotateY(0deg) scale(1); }
+  40%  { transform: rotateY(90deg) scale(1.1); }
+  60%  { transform: rotateY(90deg) scale(1.1); }
+  100% { transform: rotateY(0deg) scale(1); }
+}
+.sbox.anim-pop { animation: sticker-pop 0.32s cubic-bezier(.36,.07,.19,.97) both; }
+.slabel.foil .sbox.anim-pop { animation: sticker-flip 0.38s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes glow-green {
+  0%   { box-shadow: 0 0 0px rgba(0,200,83,0); }
+  50%  { box-shadow: 0 0 14px 4px rgba(0,200,83,.55); }
+  100% { box-shadow: 0 0 7px rgba(0,200,83,.4); }
+}
+@keyframes glow-gold {
+  0%   { box-shadow: 0 0 0px rgba(255,215,0,0); }
+  50%  { box-shadow: 0 0 14px 4px rgba(255,215,0,.55); }
+  100% { box-shadow: 0 0 7px rgba(255,215,0,.35); }
+}
+.sbox.glow-tengo    { animation: glow-green 0.4s ease forwards; }
+.sbox.glow-repetida { animation: glow-gold  0.4s ease forwards; }
+
+/* ── HISTORIAL INTERCAMBIOS ── */
+.hist-section-title { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; margin:18px 0 8px; padding-bottom:5px; border-bottom:1px solid var(--border2); display:flex; align-items:center; gap:6px; }
+.hist-badge { background:var(--bg3); border:1px solid var(--border2); border-radius:10px; padding:1px 7px; font-size:10px; color:var(--text3); font-weight:600; }
+.hist-card { background:var(--bg2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; margin-bottom:6px; opacity:.72; transition:opacity .18s; border-left:3px solid transparent; }
+.hist-card:hover { opacity:1; }
+.hist-card.terminado { border-left-color: var(--green); }
+.hist-card.vencido   { border-left-color: #ef5350; }
+.hist-card.rechazado { border-left-color: var(--text3); }
+.hist-card.cancelado { border-left-color: var(--text3); }
+.hist-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.hist-estado { font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; padding:2px 8px; border-radius:10px; }
+.hist-estado.terminado { background:rgba(0,200,83,.15); color:var(--green); }
+.hist-estado.vencido   { background:rgba(239,83,80,.12); color:#ef5350; }
+.hist-estado.rechazado { background:rgba(150,150,150,.12); color:var(--text3); }
+.hist-estado.cancelado { background:rgba(150,150,150,.12); color:var(--text3); }
+.hist-fecha { font-size:11px; color:var(--text3); margin-left:auto; }
+.hist-body  { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; }
+.hist-col   { display:flex; flex-direction:column; gap:2px; }
+.hist-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.4px; }
+.hist-val   { color:var(--text2); }
+.hist-val.gold { color:var(--gold); font-weight:600; }
+
 /* ── STATS PAGE ── */
 .bigstats { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:9px; margin-bottom:20px; }
 .bstat { background:var(--bg3); border:1px solid var(--border2); border-radius:8px; padding:13px; text-align:center; }
@@ -1814,8 +1865,20 @@ function buildTeamCard(s,g,gi,eq,ei){
 
     inp.addEventListener("click",async (e)=>{
       e.preventDefault();
+      // Animación pop inmediata antes del await
+      const box = inp.nextElementSibling;
+      box.classList.remove('anim-pop','glow-tengo','glow-repetida');
+      void box.offsetWidth; // forzar reflow
+      box.classList.add('anim-pop');
       const next=await cycleEstado(g.letra,eq.nombre,tp.codigo);
       inp.dataset.estado=next;
+      // Micro-glow según nuevo estado
+      setTimeout(()=>{
+        box.classList.remove('anim-pop');
+        if(next==='tengo')    box.classList.add('glow-tengo');
+        if(next==='repetida') box.classList.add('glow-repetida');
+        setTimeout(()=>box.classList.remove('glow-tengo','glow-repetida'),450);
+      },280);
       updateTeamCard(g,gi,g.equipos.indexOf(eq),eq);
       updateGroupProgress(g);
       updateHeader();
@@ -1974,8 +2037,18 @@ async function renderColecciones(){
         stkDiv.appendChild(lbl);
         inp.addEventListener("click",async(e)=>{
           e.preventDefault();
+          const box2 = inp.nextElementSibling;
+          box2.classList.remove('anim-pop','glow-tengo','glow-repetida');
+          void box2.offsetWidth;
+          box2.classList.add('anim-pop');
           const next=await cycleEstadoEsp(col.id,sec.id,fig.codigo);
           inp.dataset.estado=next;
+          setTimeout(()=>{
+            box2.classList.remove('anim-pop');
+            if(next==='tengo')    box2.classList.add('glow-tengo');
+            if(next==='repetida') box2.classList.add('glow-repetida');
+            setTimeout(()=>box2.classList.remove('glow-tengo','glow-repetida'),450);
+          },280);
           updateSeccionProgress(col,sec);
           updateHeader();
           const msgs={"tengo":"✓ Tengo","repetida":"↺ Repetida","vacia":"Quitada"};
@@ -3092,57 +3165,105 @@ async function loadMisPropuestas(){
       listDiv.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center;">No tenés propuestas aún</div>';
       return;
     }
-    const rendered = data.map(i => {
+
+    const ACTIVOS   = ['pendiente','aceptado'];
+    const HISTORIAL = ['terminado','vencido','rechazado','cancelado'];
+    const activos   = data.filter(i => ACTIVOS.includes(i.estado));
+    const historial = data.filter(i => HISTORIAL.includes(i.estado));
+
+    function renderCard(i, esHistorial){
       const soy  = i.solicitante_id === myId ? 'solicitante' : 'receptor';
       const otro = soy === 'solicitante' ? i.receptor_nom : i.solicitante_nom;
       const dir  = soy === 'solicitante' ? '→' : '←';
-      const fecha = new Date(i.created_at).toLocaleDateString('es-AR');
-      const ofreceList = (i.ofrece_descs||[i.ofrece_desc||'-']).join(', ');
+      const fecha = new Date(i.updated_at||i.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+      const ofreceDescs = i.contraoferta_descs?.length ? i.contraoferta_descs : i.ofrece_descs||[];
+      const ofreceList  = ofreceDescs.slice(0,3).join(', ')+(ofreceDescs.length>3?` +${ofreceDescs.length-3}`:'');
       const tieneContra = i.contraoferta_keys?.length > 0;
-      // Filtrar finalizados con más de 2 días
-      const estadoFinal = ['cancelado','rechazado','vencido','terminado'];
-      if(estadoFinal.includes(i.estado)){
-        const diasDesde = (new Date() - new Date(i.updated_at)) / (1000*60*60*24);
-        if(diasDesde > 2) return '';
+
+      const estadoBadge = {
+        pendiente: `<span class="estado-badge pendiente">pendiente</span>`,
+        aceptado:  `<span class="estado-badge aceptado">aceptado</span>`,
+        terminado: `<span class="hist-estado terminado">✓ Terminado</span>`,
+        vencido:   `<span class="hist-estado vencido">✗ Vencido</span>`,
+        rechazado: `<span class="hist-estado rechazado">Rechazado</span>`,
+        cancelado: `<span class="hist-estado cancelado">Cancelado</span>`,
+      }[i.estado] || '';
+
+      if(esHistorial){
+        return `<div class="hist-card ${i.estado}">
+          <div class="hist-header">
+            ${estadoBadge}
+            <span style="font-size:12px;color:var(--text2);">${dir} <b style="color:var(--text);">${otro}</b></span>
+            <span class="hist-fecha">${fecha}</span>
+          </div>
+          <div class="hist-body">
+            <div class="hist-col">
+              <span class="hist-label">${soy==='solicitante'?'Yo pedí':'Me pedían'}</span>
+              <span class="hist-val gold">${i.pide_desc||'-'}</span>
+            </div>
+            <div class="hist-col">
+              <span class="hist-label">${soy==='solicitante'?'Yo ofrecí':'Me ofrecían'}</span>
+              <span class="hist-val">${ofreceList||'-'}</span>
+            </div>
+          </div>
+        </div>`;
       }
 
       let acc = '';
-      if(i.estado === 'pendiente'){
-        acc = soy === 'receptor'
+      if(i.estado==='pendiente'){
+        acc = soy==='receptor'
           ? `<button class="abtn info" onclick="abrirRespuesta('${i.id}')">✍ Responder</button>`
           : `<button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar</button>`;
       }
-      if(i.estado === 'aceptado'){
+      if(i.estado==='aceptado'){
         const dias = i.expires_at ? Math.ceil((new Date(i.expires_at)-new Date())/(1000*60*60*24)) : null;
-        const venceLabel = dias !== null && dias > 0 ? `Vence en ${dias}d` : 'Vence hoy';
+        const venceLabel = dias!==null && dias>0 ? `Vence en ${dias}d` : 'Vence hoy';
         acc = `<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
           <span style="font-size:10px;color:var(--text3);">⏱ ${venceLabel}</span>
-          ${soy === 'solicitante' ? `<button class="abtn" style="color:#4ade80;border-color:rgba(0,200,83,.3);" onclick="responderInterc('${i.id}','terminado')">✓ Marcar terminado</button>` : ''}
+          ${soy==='solicitante'?`<button class="abtn" style="color:#4ade80;border-color:rgba(0,200,83,.3);" onclick="responderInterc('${i.id}','terminado')">✓ Marcar terminado</button>`:''}
           <button class="abtn danger" onclick="responderInterc('${i.id}','cancelado')">✗ Cancelar trato</button>
         </div>`;
       }
+
       return `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
         <div style="flex:1;min-width:200px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span class="estado-badge ${i.estado}">${i.estado}</span>
-            ${tieneContra && i.estado==='pendiente' ? '<span style="font-size:10px;color:#ffa500;background:rgba(255,165,0,.1);padding:2px 6px;border-radius:10px;">↺ contraoferta</span>' : ''}
+            ${estadoBadge}
+            ${tieneContra&&i.estado==='pendiente'?'<span style="font-size:10px;color:#ffa500;background:rgba(255,165,0,.1);padding:2px 6px;border-radius:10px;">↺ contraoferta</span>':''}
             <span style="font-size:12px;color:var(--text2);">${dir} <b style="color:var(--text);">${otro}</b></span>
             <span style="font-size:11px;color:var(--text3);margin-left:auto;">${fecha}</span>
           </div>
           <div style="display:flex;gap:16px;flex-wrap:wrap;">
             <div>
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">${soy==='solicitante'?'Yo pido a '+otro:''+otro+' me pide'}</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">${soy==='solicitante'?'Yo pido a '+otro:otro+' me pide'}</div>
               <div style="font-size:12px;color:var(--gold);font-weight:600;">${i.pide_desc||'-'}</div>
             </div>
             <div>
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">${soy==='solicitante'?'Yo ofrezco a '+otro:''+otro+' ofrece'}</div>
-              <div style="font-size:12px;color:var(--text2);">${ofreceList}</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">${soy==='solicitante'?'Yo ofrezco':otro+' ofrece'}</div>
+              <div style="font-size:12px;color:var(--text2);">${ofreceList||'-'}</div>
             </div>
           </div>
         </div>
         <div style="display:flex;align-items:center;">${acc}</div>
       </div>`;
+<<<<<<< HEAD
     }).filter(Boolean).join('');
+=======
+    }
+
+    let html = '';
+    if(activos.length){
+      html += activos.map(i=>renderCard(i,false)).join('');
+    } else {
+      html += '<div style="color:var(--text3);font-size:13px;padding:8px 0 4px;text-align:center;">Sin propuestas activas</div>';
+    }
+    if(historial.length){
+      html += `<div class="hist-section-title">📜 Historial <span class="hist-badge">${historial.length}</span></div>`;
+      html += historial.map(i=>renderCard(i,true)).join('');
+    }
+    listDiv.innerHTML = html;
+
+>>>>>>> main
   } catch(e){ 
     console.error('loadMisPropuestas error:', e);
     listDiv.innerHTML = '<div style="color:#ef5350;padding:12px;">Error de conexión</div>'; 
@@ -3256,7 +3377,7 @@ function abrirRespuesta(intercId){
 }
 
 async function responderInterc(id, accion){
-  const msgs = { aceptado:'¿Aceptar este intercambio?', rechazado:'¿Rechazar esta propuesta?', cancelado:'¿Cancelar tu propuesta? Tus figuritas vuelven a repetida.' };
+  const msgs = { aceptado:'¿Aceptar este intercambio?', rechazado:'¿Rechazar esta propuesta?', cancelado:'¿Cancelar tu propuesta? Tus figuritas vuelven a repetida.', terminado:'¿Marcar este intercambio como terminado? Confirmás que el intercambio físico se realizó.' };
   if(!confirm(msgs[accion])) return;
   try {
     const r = await fetch(API_BASE+'/api/intercambios/'+id, {
