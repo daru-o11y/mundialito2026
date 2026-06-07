@@ -76,7 +76,6 @@ app.post('/api/register', async (req, res) => {
     process.env.JWT_SECRET, { expiresIn: '30d' }
   );
 
-  // Log de registro
   try {
     await supabase.from('logs').insert({
       usuario_id: data.id, usuario_nombre: data.nombre,
@@ -111,28 +110,6 @@ app.post('/api/login', async (req, res) => {
     process.env.JWT_SECRET, { expiresIn: '30d' }
   );
 
-  // Si es visor, buscar el admin configurado (o el primero disponible)
-  let visorDe = null;
-  let visorDeId = null;
-  if(rol === 'visor'){
-    try {
-      const visorDeIdGuardado = data.estado?._visor_de_id;
-      if(visorDeIdGuardado){
-        const { data: adminData } = await supabase
-          .from('usuarios').select('id, nombre').eq('id', visorDeIdGuardado).single();
-        if(adminData){ visorDe = adminData.nombre; visorDeId = adminData.id; }
-      }
-      if(!visorDe){
-        // Fallback: primer admin
-        const { data: adminData } = await supabase
-          .from('usuarios').select('id, nombre').eq('rol','admin')
-          .order('created_at', { ascending: true }).limit(1).single();
-        if(adminData){ visorDe = adminData.nombre; visorDeId = adminData.id; }
-      }
-    } catch(_){}
-  }
-
-  // Log de acceso
   try {
     await supabase.from('logs').insert({
       usuario_id: data.id, usuario_nombre: data.nombre,
@@ -140,8 +117,7 @@ app.post('/api/login', async (req, res) => {
     });
   } catch(_) {}
 
-  res.json({ token, nombre: data.nombre, userId: data.id, rol,
-    estado: rol === 'visor' ? {} : (data.estado || {}), visorDe });
+  res.json({ token, nombre: data.nombre, userId: data.id, rol, estado: data.estado });
 });
 
 // ════════════════════════════════════════════
@@ -227,7 +203,6 @@ app.post('/api/change-password', authMiddleware, async (req, res) => {
 // ADMIN ROUTES
 // ════════════════════════════════════════════
 
-// GET /api/admin/usuarios — lista completa con detalle
 app.get('/api/admin/usuarios', authMiddleware, adminMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios')
@@ -246,30 +221,6 @@ app.get('/api/admin/usuarios', authMiddleware, adminMiddleware, async (req, res)
   res.json(result);
 });
 
-// GET /api/admin/album/:id — ver álbum de cualquier usuario
-// GET /api/visor/album — álbum del admin configurado para este visor
-app.get('/api/visor/album', authMiddleware, async (req, res) => {
-  if(req.userRol !== 'visor')
-    return res.status(403).json({ error: 'Solo para rol visor' });
-  try {
-    // Buscar el visor para obtener su visor_de_id
-    const { data: visorData } = await supabase
-      .from('usuarios').select('estado').eq('id', req.userId).single();
-    const visorDeId = visorData?.estado?._visor_de_id;
-
-    let adminQuery = supabase.from('usuarios').select('id, nombre, estado, rol').eq('rol','admin');
-    if(visorDeId) adminQuery = adminQuery.eq('id', visorDeId);
-    else adminQuery = adminQuery.order('created_at', { ascending: true }).limit(1);
-
-    const { data, error } = await adminQuery.single();
-    if(error || !data)
-      return res.status(404).json({ error: 'No hay usuario admin disponible' });
-    res.json({ estado: data.estado || {}, nombre: data.nombre, rol: 'visor', visorDe: data.nombre });
-  } catch(e) {
-    res.status(500).json({ error: 'Error al cargar álbum' });
-  }
-});
-
 app.get('/api/admin/album/:id', authMiddleware, adminMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios').select('id, nombre, rol, estado, updated_at')
@@ -278,7 +229,6 @@ app.get('/api/admin/album/:id', authMiddleware, adminMiddleware, async (req, res
   res.json({ id: data.id, nombre: data.nombre, rol: data.rol, estado: data.estado || {}, updated_at: data.updated_at });
 });
 
-// POST /api/admin/reset/:id — resetear álbum de un usuario
 app.post('/api/admin/reset/:id', authMiddleware, adminMiddleware, async (req, res) => {
   const { error } = await supabase
     .from('usuarios')
@@ -288,7 +238,6 @@ app.post('/api/admin/reset/:id', authMiddleware, adminMiddleware, async (req, re
   res.json({ ok: true });
 });
 
-// DELETE /api/admin/usuario/:id — eliminar usuario
 app.delete('/api/admin/usuario/:id', authMiddleware, adminMiddleware, async (req, res) => {
   if (req.params.id === req.userId)
     return res.status(400).json({ error: 'No podés eliminarte a vos mismo' });
@@ -297,7 +246,6 @@ app.delete('/api/admin/usuario/:id', authMiddleware, adminMiddleware, async (req
   res.json({ ok: true });
 });
 
-// POST /api/admin/change-password/:id — cambiar contraseña de cualquier usuario
 app.post('/api/admin/change-password/:id', authMiddleware, adminMiddleware, async (req, res) => {
   const { newPassword } = req.body;
   if (!newPassword || newPassword.length < 4)
@@ -309,7 +257,6 @@ app.post('/api/admin/change-password/:id', authMiddleware, adminMiddleware, asyn
   res.json({ ok: true });
 });
 
-// GET /api/admin/stats — estadísticas globales
 app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios').select('nombre, rol, estado, created_at, updated_at');
@@ -335,8 +282,6 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
     promedio_completado: total_usuarios > 0 ? Math.round(total_tengo / (total_usuarios * 1008) * 100) : 0 });
 });
 
-
-// GET /api/admin/logs — últimos accesos
 app.get('/api/admin/logs', authMiddleware, adminMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('logs')
@@ -347,8 +292,6 @@ app.get('/api/admin/logs', authMiddleware, adminMiddleware, async (req, res) => 
   res.json(data || []);
 });
 
-
-// POST /api/admin/crear-usuario — crear usuario desde el panel admin
 app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req, res) => {
   const { nombre, password, rol } = req.body;
   if (!nombre || !password)
@@ -357,7 +300,7 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
     return res.status(400).json({ error: 'El nombre debe tener entre 2 y 30 caracteres' });
   if (password.length < 4)
     return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
-  if (!['admin','coleccionista','visor'].includes(rol))
+  if (!['admin','coleccionista'].includes(rol))
     return res.status(400).json({ error: 'Rol inválido' });
 
   const { data: existing } = await supabase
@@ -366,13 +309,9 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
     return res.status(409).json({ error: 'Ese nombre ya está en uso' });
 
   const hash = await bcrypt.hash(password, 10);
-  // Para visor: guardar el id del admin que puede ver en el campo estado como metadata
-  const estadoInicial = rol === 'visor' && req.body.visor_de_id
-    ? { _visor_de_id: req.body.visor_de_id }
-    : {};
   const { data, error } = await supabase
     .from('usuarios')
-    .insert({ nombre: nombre.trim(), password_hash: hash, estado: estadoInicial, rol })
+    .insert({ nombre: nombre.trim(), password_hash: hash, estado: {}, rol })
     .select('id, nombre, rol')
     .single();
 
@@ -399,7 +338,6 @@ app.post('/api/admin/crear-usuario', authMiddleware, adminMiddleware, async (req
 function sanitizeFigKey(key) {
   if (typeof key !== 'string') return null;
   if (key.length > 150) return null;
-  // Allow letters, numbers, underscores and || separator
   if (!/^[A-Za-z0-9_|]+$/.test(key)) return null;
   return key;
 }
@@ -416,46 +354,25 @@ function sanitizeDescs(arr) {
   return arr.map(d => sanitizeText(d)).filter(Boolean).slice(0, 20);
 }
 
-// Busca el teamKey real en el estado dado una key que puede venir en formato nuevo o viejo
-function findRealKey(estado, flatKey) {
-  const parts = flatKey.split('||');
-  if (parts.length !== 2) return null;
-  const [tkFrontend, codigo] = parts;
-
-  // 1. Busca directamente
-  if (estado[tkFrontend] && estado[tkFrontend][codigo] !== undefined) {
-    return { teamKey: tkFrontend, codigo };
-  }
-
-  // 2. Normalizar el teamKey del frontend y buscar coincidencia en el estado
-  const normFrontend = normalizeTeamKey(tkFrontend);
-  for (const tkEstado of Object.keys(estado)) {
-    const normEstado = normalizeTeamKey(tkEstado);
-    if (normEstado === normFrontend || normEstado === tkFrontend || normFrontend === normalizeTeamKey(tkEstado)) {
-      // Encontró el teamKey real — ahora buscar el código
-      // El frontend usa PT1 para ESC, PT2 para PT1, etc. (si viene de versión vieja)
-      if (estado[tkEstado][codigo] !== undefined) {
-        return { teamKey: tkEstado, codigo };
-      }
-      // Si el código es PT1 del frontend, puede ser ESC en la BD
-      if (codigo === 'PT1' && estado[tkEstado]['ESC'] !== undefined) {
-        return { teamKey: tkEstado, codigo: 'ESC' };
-      }
-    }
-  }
-  return null;
-}
-
-// Reservar figuritas de un usuario
+// Reservar figuritas de un usuario (repetida → reservada)
 async function reservarFiguritas(userId, keys) {
   const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
   if (!data) return false;
   const estado = data.estado || {};
   let changed = false;
   keys.forEach(flatKey => {
-    const found = findRealKey(estado, flatKey);
-    if (found && estado[found.teamKey][found.codigo] === 'repetida') {
-      estado[found.teamKey][found.codigo] = 'reservada';
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'repetida') {
+        estado[teamKey][codigo] = 'reservada';
+        changed = true;
+      } else if (estado[flatKey] === 'repetida') {
+        estado[flatKey] = 'reservada';
+        changed = true;
+      }
+    } else if (estado[flatKey] === 'repetida') {
+      estado[flatKey] = 'reservada';
       changed = true;
     }
   });
@@ -464,15 +381,22 @@ async function reservarFiguritas(userId, keys) {
   return true;
 }
 
-// Liberar figuritas reservadas de un usuario (vuelven a repetida)
+// Liberar figuritas reservadas de un usuario (reservada → repetida)
 async function liberarFiguritas(userId, keys) {
   const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
   if (!data) return;
   const estado = data.estado || {};
   keys.forEach(flatKey => {
-    const found = findRealKey(estado, flatKey);
-    if (found && estado[found.teamKey][found.codigo] === 'reservada') {
-      estado[found.teamKey][found.codigo] = 'repetida';
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
+        estado[teamKey][codigo] = 'repetida';
+      } else if (estado[flatKey] === 'reservada') {
+        estado[flatKey] = 'repetida';
+      }
+    } else if (estado[flatKey] === 'reservada') {
+      estado[flatKey] = 'repetida';
     }
   });
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
@@ -484,12 +408,56 @@ async function confirmarFiguritas(userId, keys) {
   if (!data) return;
   const estado = data.estado || {};
   keys.forEach(flatKey => {
-    const found = findRealKey(estado, flatKey);
-    if (found && estado[found.teamKey][found.codigo] === 'reservada') {
-      estado[found.teamKey][found.codigo] = 'tengo';
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      if (estado[teamKey] && estado[teamKey][codigo] === 'reservada') {
+        estado[teamKey][codigo] = 'tengo';
+      } else if (estado[flatKey] === 'reservada') {
+        estado[flatKey] = 'tengo';
+      }
+    } else if (estado[flatKey] === 'reservada') {
+      estado[flatKey] = 'tengo';
     }
   });
   await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
+// Revertir figuritas aceptadas → repetida (si venció o se canceló post-aceptación)
+async function liberarFiguritasAceptadas(userId, keys) {
+  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
+  if (!data) return;
+  const estado = data.estado || {};
+  keys.forEach(flatKey => {
+    const parts = flatKey.split('||');
+    if (parts.length === 2) {
+      const [teamKey, codigo] = parts;
+      // Libera tanto si está reservada (no se confirmó) como tengo (ya se confirmó)
+      if (estado[teamKey] && ['reservada','tengo'].includes(estado[teamKey][codigo])) {
+        estado[teamKey][codigo] = 'repetida';
+      } else if (['reservada','tengo'].includes(estado[flatKey])) {
+        estado[flatKey] = 'repetida';
+      }
+    } else if (['reservada','tengo'].includes(estado[flatKey])) {
+      estado[flatKey] = 'repetida';
+    }
+  });
+  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
+}
+
+// Flatten nested estado to flat keys
+function flattenEstado(estado) {
+  const flat = {};
+  for (const [teamKey, val] of Object.entries(estado || {})) {
+    if (val && typeof val === 'object') {
+      for (const [codigo, v] of Object.entries(val)) {
+        flat[teamKey + '||' + codigo] = v;
+      }
+    } else if (typeof val === 'string') {
+      flat[teamKey] = val;
+    }
+  }
+  return flat;
 }
 
 // GET /api/intercambios — mis propuestas
@@ -510,49 +478,6 @@ app.get('/api/intercambios/pendientes-count', authMiddleware, async (req, res) =
   if (error) return res.status(500).json({ count: 0 });
   res.json({ count: (data || []).length });
 });
-
-// Flatten nested estado to flat keys
-// Normaliza un teamKey al mismo formato que usa el frontend actual
-// "A__M_xico" → "A__M_xico" (ya está bien para lookups directos)
-// También genera el alias sin acento para keys nuevas: "A__Mexico" → busca "A__M_xico"
-function normalizeTeamKey(tk) {
-  // Quitar acentos y reemplazar no-alfanuméricos por _
-  return tk.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9_]/g, '_');
-}
-
-function flattenEstado(estado) {
-  const flat = {};
-  for (const [teamKey, val] of Object.entries(estado || {})) {
-    if (val && typeof val === 'object') {
-      // Formato anidado: {"A__Sud_frica": {"ESC": "tengo", "PT14": "repetida"}}
-      for (const [codigo, v] of Object.entries(val)) {
-        // Guardar con key original
-        flat[teamKey + '||' + codigo] = v;
-        // También guardar con key normalizada (por si el frontend manda la versión nueva)
-        const normTk = normalizeTeamKey(teamKey);
-        if (normTk !== teamKey) {
-          flat[normTk + '||' + codigo] = v;
-        }
-        // ESC → PT1 alias (el frontend nuevo usa PT1 para el escudo)
-        if (codigo === 'ESC') {
-          flat[teamKey + '||PT1'] = v;
-          if (normTk !== teamKey) flat[normTk + '||PT1'] = v;
-        }
-        // PT1-PT20 alias para el frontend viejo que mandaba ESC
-        // No hace falta, el viejo mandaba ESC y ya lo manejamos arriba
-      }
-    } else if (typeof val === 'string') {
-      // Formato flat directo
-      flat[teamKey] = val;
-      const normTk = teamKey.split('||')[0];
-      const norm = normalizeTeamKey(normTk);
-      if (norm !== normTk) {
-        flat[norm + '||' + teamKey.split('||')[1]] = val;
-      }
-    }
-  }
-  return flat;
-}
 
 // GET /api/intercambios/usuarios — usuarios con repetidas disponibles
 app.get('/api/intercambios/usuarios', authMiddleware, async (req, res) => {
@@ -584,17 +509,14 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
   if (receptor_id === req.userId)
     return res.status(400).json({ error: 'No podés intercambiar con vos mismo' });
 
-  // Verificar que B tiene todas las figuritas que ofrece (como repetida)
   const { data: solData } = await supabase
     .from('usuarios').select('nombre, estado').eq('id', req.userId).single();
   if (!solData) return res.status(404).json({ error: 'Usuario no encontrado' });
-  const solEstado = solData.estado || {};
-  const flatSol = flattenEstado(solEstado);
+  const flatSol = flattenEstado(solData.estado || {});
   const noDisponibles = cleanOfreceKeys.filter(k => flatSol[k] !== 'repetida');
   if (noDisponibles.length > 0)
     return res.status(400).json({ error: 'Algunas figuritas que ofrecés ya no están disponibles' });
 
-  // Verificar que A tiene la figurita pedida como repetida
   const { data: recData } = await supabase
     .from('usuarios').select('nombre, estado').eq('id', receptor_id).single();
   if (!recData) return res.status(404).json({ error: 'Receptor no encontrado' });
@@ -602,7 +524,6 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
   if (flatRec[cleanPideKey] !== 'repetida')
     return res.status(400).json({ error: 'Ese usuario ya no tiene esa figurita como repetida' });
 
-  // No duplicar propuestas pendientes sobre la misma figurita
   const { data: existing } = await supabase
     .from('intercambios').select('id')
     .eq('solicitante_id', req.userId).eq('receptor_id', receptor_id)
@@ -610,7 +531,6 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
   if (existing)
     return res.status(409).json({ error: 'Ya tenés una propuesta pendiente para esa figurita' });
 
-  // Reservar figuritas de B
   await reservarFiguritas(req.userId, cleanOfreceKeys);
 
   const { data, error } = await supabase.from('intercambios').insert({
@@ -623,43 +543,74 @@ app.post('/api/intercambios', authMiddleware, async (req, res) => {
 
   if (error) {
     console.error('Intercambios insert error:', JSON.stringify(error));
-    // Si falla el insert, liberar las figuritas
     await liberarFiguritas(req.userId, cleanOfreceKeys);
     return res.status(500).json({ error: 'Error al crear propuesta', detail: error.message });
   }
   res.json({ ok: true, intercambio: data });
 });
 
-// PATCH /api/intercambios/:id — aceptar, rechazar, cancelar, contraoferta
+// PATCH /api/intercambios/:id — aceptar, rechazar, cancelar, contraoferta, terminado
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX: reestructurado por estado actual del intercambio.
+//
+//  Estado PENDIENTE → acciones válidas:
+//    - aceptado    (receptor)
+//    - rechazado   (receptor)
+//    - contraoferta(receptor)
+//    - cancelado   (solicitante)
+//
+//  Estado ACEPTADO → acciones válidas:
+//    - terminado   (solicitante: confirma que el físico se hizo)
+//    - cancelado   (cualquiera: deshace el trato y libera figuritas)
+//
+//  Cualquier otro estado → ya procesado, error 400.
+// ─────────────────────────────────────────────────────────────────────────────
 app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
   const { accion, contraoferta_keys, contraoferta_descs } = req.body;
-  const validAcciones = ['aceptado','rechazado','cancelado','contraoferta'];
+
+  // FIX BUG #1: 'terminado' agregado a validAcciones
+  const validAcciones = ['aceptado', 'rechazado', 'cancelado', 'contraoferta', 'terminado'];
   if (!validAcciones.includes(accion))
     return res.status(400).json({ error: 'Acción inválida' });
 
   const { data: interc } = await supabase
     .from('intercambios').select('*').eq('id', req.params.id).single();
   if (!interc) return res.status(404).json({ error: 'Intercambio no encontrado' });
-  if (interc.estado !== 'pendiente')
-    return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
 
-  // Validar permisos
+  // Validar que el usuario es participante
   const isParticipante = interc.solicitante_id === req.userId || interc.receptor_id === req.userId;
   if (!isParticipante)
     return res.status(403).json({ error: 'No sos parte de este intercambio' });
 
-  // Intercambio aceptado: solo se puede cancelar por cualquiera de los dos
+  // ── FIX BUG #2: rama ACEPTADO ahora es alcanzable ──
+  // El early return anterior por estado !== 'pendiente' bloqueaba esta rama.
+  // Ahora el flujo se bifurca limpiamente por estado actual.
   if (interc.estado === 'aceptado') {
-    if (accion !== 'cancelado')
-      return res.status(400).json({ error: 'Un intercambio aceptado solo se puede cancelar' });
-    await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
-    const { error: errCan } = await supabase.from('intercambios')
-      .update({ estado: 'cancelado', updated_at: new Date().toISOString() })
-      .eq('id', interc.id);
-    if (errCan) return res.status(500).json({ error: 'Error al cancelar' });
-    return res.json({ ok: true, estado: 'cancelado' });
+    if (accion === 'terminado') {
+      // Solo el solicitante confirma que el intercambio físico se realizó
+      if (interc.solicitante_id !== req.userId)
+        return res.status(403).json({ error: 'Solo el solicitante puede marcar como terminado' });
+      const { error } = await supabase.from('intercambios')
+        .update({ estado: 'terminado', updated_at: new Date().toISOString() })
+        .eq('id', interc.id);
+      if (error) return res.status(500).json({ error: 'Error al marcar como terminado' });
+      return res.json({ ok: true, estado: 'terminado' });
+    }
+
+    if (accion === 'cancelado') {
+      // Cualquiera puede cancelar un trato aceptado; libera figuritas de B
+      await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
+      const { error } = await supabase.from('intercambios')
+        .update({ estado: 'cancelado', updated_at: new Date().toISOString() })
+        .eq('id', interc.id);
+      if (error) return res.status(500).json({ error: 'Error al cancelar' });
+      return res.json({ ok: true, estado: 'cancelado' });
+    }
+
+    return res.status(400).json({ error: 'Un intercambio aceptado solo puede marcarse como terminado o cancelado' });
   }
 
+  // ── Rama PENDIENTE ──
   if (interc.estado !== 'pendiente')
     return res.status(400).json({ error: 'Esta propuesta ya fue procesada' });
 
@@ -673,14 +624,12 @@ app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
     const cleanDescs = sanitizeDescs(contraoferta_descs);
     if (cleanKeys.length === 0)
       return res.status(400).json({ error: 'La contraoferta debe tener al menos una figurita' });
-    // Verificar que A tiene esas figuritas como repetida
     const { data: recData } = await supabase
       .from('usuarios').select('estado').eq('id', req.userId).single();
     const recEstado = recData?.estado || {};
     const noDisp = cleanKeys.filter(k => recEstado[k] !== 'repetida');
     if (noDisp.length > 0)
       return res.status(400).json({ error: 'Algunas figuritas de la contraoferta no están disponibles' });
-    // Guardar contraoferta — el estado sigue pendiente pero con datos de contraoferta
     const { error } = await supabase.from('intercambios')
       .update({ contraoferta_keys: cleanKeys, contraoferta_descs: cleanDescs,
         updated_at: new Date().toISOString() })
@@ -690,14 +639,9 @@ app.patch('/api/intercambios/:id', authMiddleware, async (req, res) => {
   }
 
   if (accion === 'rechazado' || accion === 'cancelado') {
-    // Liberar figuritas de B → vuelven a repetida
     await liberarFiguritas(interc.solicitante_id, interc.ofrece_keys || []);
   }
 
-  // Al aceptar: figuritas de B quedan RESERVADAS hasta que se haga el intercambio físico
-  // El usuario las actualiza manualmente en su álbum después
-
-  // Si se acepta, agregar fecha de vencimiento (7 días para completar el intercambio físico)
   const updateData = { estado: accion, updated_at: new Date().toISOString() };
   if (accion === 'aceptado') {
     const expires = new Date();
@@ -725,7 +669,6 @@ async function checkExpiredIntercambios() {
     if (error || !data?.length) return;
     console.log(`Expiry check: ${data.length} intercambio(s) vencido(s)`);
     for (const interc of data) {
-      // Revertir figuritas de B de tengo → repetida
       await liberarFiguritasAceptadas(interc.solicitante_id, interc.ofrece_keys || []);
       await supabase.from('intercambios')
         .update({ estado: 'vencido', updated_at: new Date().toISOString() })
@@ -735,28 +678,7 @@ async function checkExpiredIntercambios() {
   } catch(e) { console.error('Expiry job error:', e.message); }
 }
 
-// Revertir figuritas aceptadas → repetida (si venció)
-async function liberarFiguritasAceptadas(userId, keys) {
-  const { data } = await supabase.from('usuarios').select('estado').eq('id', userId).single();
-  if (!data) return;
-  const estado = data.estado || {};
-  keys.forEach(flatKey => {
-    const parts = flatKey.split('||');
-    if (parts.length === 2) {
-      const [teamKey, codigo] = parts;
-      if (estado[teamKey] && estado[teamKey][codigo] === 'tengo') {
-        estado[teamKey][codigo] = 'repetida';
-      }
-    } else if (estado[flatKey] === 'tengo') {
-      estado[flatKey] = 'repetida';
-    }
-  });
-  await supabase.from('usuarios').update({ estado, updated_at: new Date().toISOString() }).eq('id', userId);
-}
-
-// Correr el job cada hora
 setInterval(checkExpiredIntercambios, 60 * 60 * 1000);
-// También correr al iniciar
 checkExpiredIntercambios();
 
 // ════════════════════════════════════════════
